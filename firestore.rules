@@ -1,0 +1,76 @@
+rules_version = '2';
+
+// Forge Jean-Petit — who can see and change what.
+// Only Gmail addresses listed in /members (plus the main admin) can get in.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+    function isMainAdmin() {
+      return signedIn() && myEmail() == 'gvercauteren@gmail.com';
+    }
+    function memberDoc() {
+      return /databases/$(database)/documents/members/$(myEmail());
+    }
+    function isMember() {
+      return signedIn() && (isMainAdmin() || exists(memberDoc()));
+    }
+    function isAdmin() {
+      return isMainAdmin() || (isMember() && get(memberDoc()).data.admin == true);
+    }
+    function myFamily() {
+      return get(memberDoc()).data.family;
+    }
+
+    function validBooking(d) {
+      return d.keys().hasOnly(['uid', 'email', 'name', 'family', 'start', 'end', 'note', 'guests', 'checklist', 'createdAt', 'updatedAt'])
+        && d.uid is string && d.email is string && d.family is string
+        && d.start is string && d.start.size() == 10
+        && d.end is string && d.end.size() == 10
+        && d.end >= d.start
+        && d.note is string && d.note.size() <= 500
+        && (!('guests' in d) || (d.guests is int && d.guests >= 1 && d.guests <= 50))
+        && (!('checklist' in d) || d.checklist is map);
+    }
+
+    // People allowed in. Document id = their Gmail address in lower case.
+    match /members/{email} {
+      allow get: if signedIn() && email == myEmail();
+      allow read: if isMember();
+      // Admins add and change people; only the main admin can make or remove admins.
+      allow create, update: if isMainAdmin()
+        || (isAdmin()
+            && request.resource.data.admin == false
+            && (resource == null || resource.data.admin == false));
+      allow delete: if isMainAdmin() || (isAdmin() && resource.data.admin == false);
+    }
+
+    // Bookings: everyone in can see all of them; you change only your own; admins delete any.
+    match /bookings/{id} {
+      allow read: if isMember();
+      allow create: if isMember()
+        && validBooking(request.resource.data)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == myEmail()
+        && (isAdmin() || request.resource.data.family == myFamily());
+      allow update: if isMember()
+        && resource.data.uid == request.auth.uid
+        && validBooking(request.resource.data)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && (isAdmin() || request.resource.data.family == myFamily());
+      allow delete: if isMember() && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    // Family names, exit checklist and contacts: everyone reads, admins edit.
+    match /config/{docId} {
+      allow read: if isMember();
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Forge Jean-Petit</title>
+<meta name="theme-color" content="#24496B">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='2' y='2' width='36' height='36' rx='9' fill='%2324496B'/%3E%3Cpath d='M9 23h17c0-4 3-6 6-6v-3H15c-2 0-4 1.5-6 4z' fill='white'/%3E%3Cpath d='M15 23v5h-3v3h16v-3h-3v-5z' fill='white'/%3E%3Ccircle cx='31' cy='10' r='2' fill='%23E59A68'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a house logbook — slim header with tabs, one working surface below (calendar first, then lists). */
+:root{
+  --bg:#EEF1EF; --surface:#FFFFFF; --sunk:#E4E8E5; --ink:#1C2321; --muted:#5C6763; --line:#D3D9D5;
+  --accent:#24496B; --on-accent:#FFFFFF; --ember:#B4561F; --ok:#2F7A4C; --danger:#A63131; --today:#FFF4E6;
+  --f1:#2F6F9F; --f2:#B2552A; --f3:#4E7D3A; --f4:#7A4E9C; --f5:#A33B5C; --f6:#2B7F78; --f7:#8A6D1F; --on-fam:#FFFFFF;
+  --wa:#1F7A4D;
+  --font-display:"Young Serif", Georgia, "Times New Roman", serif;
+  --font-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#121615; --surface:#1A1F1E; --sunk:#232A28; --ink:#E5EAE7; --muted:#9AA6A1; --line:#2E3634;
+  --accent:#8FB6DB; --on-accent:#0F1A24; --ember:#E59A68; --ok:#7CC496; --danger:#EF8A8A; --today:#2A2419;
+  --f1:#7FB3DD; --f2:#E8936A; --f3:#93C47D; --f4:#B99BD6; --f5:#E488A6; --f6:#6CC5BC; --f7:#D6B460; --on-fam:#121615;
+  color-scheme:dark}}
+
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5;margin:0}
+[hidden]{display:none!important}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;text-wrap:balance;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tnum{font-variant-numeric:tabular-nums}
+
+header{background:var(--surface);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-block:16px 10px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mark{width:38px;height:38px;flex:none}
+.brand h1{font-size:1.55rem;line-height:1.1}
+.brand small{display:block;color:var(--muted);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+.who{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--muted);flex-wrap:wrap}
+.who img{width:26px;height:26px;border-radius:50%}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;background:var(--sunk);color:var(--ink);font-weight:600;font-size:.82rem;white-space:nowrap}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.badge-admin{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ember);font-weight:700}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;cursor:pointer;color:var(--muted);font-weight:600;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs button:hover{color:var(--ink)}
+
+main{padding-block:22px 60px;display:grid;gap:22px}
+.banner{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ember);border-radius:var(--r);padding:14px 16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.panel h2{font-size:1.25rem}
+.sub{color:var(--muted);font-size:.9rem;margin:2px 0 0}
+
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:600;font-size:.9rem;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.danger{color:var(--danger);border-color:color-mix(in srgb, var(--danger) 45%, var(--line))}
+.btn.danger.armed{background:var(--danger);color:var(--surface);border-color:var(--danger)}
+.btn.ghost{border-color:transparent;background:none}
+.btn.wa{background:var(--wa);border-color:var(--wa);color:#FFFFFF}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.icon-btn{width:34px;height:34px;justify-content:center;padding:0}
+
+/* sign-in */
+.gate{min-height:70vh;display:grid;place-items:center;padding-block:40px}
+.gate .panel{max-width:440px;width:100%;display:grid;gap:14px;text-align:left}
+.gate h2{font-size:1.6rem}
+.gbtn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;width:100%}
+.gbtn:hover{border-color:var(--muted)}
+.hint{font-size:.84rem;color:var(--muted)}
+
+/* calendar */
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.cal-head h2{font-size:1.5rem;min-width:9ch}
+.cal-nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;padding-bottom:6px}
+.dow span{padding-left:6px}
+.weeks{border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));position:relative}
+.day{grid-row:1 / -1;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:none;border-top:0;border-left:0;padding:4px 6px;text-align:left;cursor:pointer;display:flex;align-items:flex-start;min-width:0;border-radius:0}
+.day:hover{background:var(--sunk)}
+.day .n{font-size:.85rem;font-weight:600;font-variant-numeric:tabular-nums}
+.day.other .n{color:var(--muted);opacity:.55}
+.day.weekend{background:color-mix(in srgb, var(--sunk) 45%, transparent)}
+.day.today{background:var(--today)}
+.day.today .n{background:var(--ember);color:var(--surface);border-radius:999px;padding:0 7px}
+.bar{position:relative;z-index:1;margin:2px 3px;height:22px;border:0;border-radius:6px;padding:0 8px;font-size:.78rem;font-weight:700;color:var(--on-fam);cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;line-height:22px}
+.bar.cont-l{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
+.bar.cont-r{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
+.bar.mine{box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--on-fam) 55%, transparent)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;font-size:.84rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+
+.list{display:grid;gap:8px;margin-top:14px}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:var(--surface);text-align:left;width:100%}
+.row:hover{border-color:var(--muted)}
+.row .when{font-weight:700;font-variant-numeric:tabular-nums;font-size:.9rem}
+.row .meta{color:var(--muted);font-size:.85rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .stripe{width:6px;align-self:stretch;border-radius:3px}
+.row .right{font-size:.8rem;color:var(--muted);text-align:right;white-space:nowrap}
+.empty{color:var(--muted);padding:18px;text-align:center;border:1px dashed var(--line);border-radius:8px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:none;padding:5px 10px;cursor:pointer;font-weight:600;font-size:.85rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--sunk);color:var(--ink)}
+.split{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
+.check{display:grid;gap:2px;margin-top:14px}
+.check label{display:flex;gap:12px;align-items:flex-start;padding:10px 6px;border-bottom:1px solid var(--line);cursor:pointer}
+.check input{width:20px;height:20px;margin-top:1px;accent-color:var(--ok);flex:none}
+.check label.done span{color:var(--muted);text-decoration:line-through}
+.progress{height:8px;background:var(--sunk);border-radius:999px;overflow:hidden;margin-top:10px}
+.progress i{display:block;height:100%;background:var(--ok);border-radius:999px;transition:width .3s}
+@media (prefers-reduced-motion: reduce){.progress i{transition:none}}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:14px}
+.card{border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:4px;min-width:0;align-content:start}
+.card .role{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ember);font-weight:700}
+.card h3{font-size:1.1rem;font-family:var(--font-body);font-weight:700}
+.card .line{display:flex;align-items:center;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums;min-width:0}
+.card .line a,.card .line span{overflow-wrap:anywhere;color:var(--accent);text-decoration:none;font-weight:600}
+.card .note{color:var(--muted);font-size:.88rem}
+.copy{border:1px solid var(--line);background:none;border-radius:6px;padding:2px 8px;font-size:.75rem;cursor:pointer;color:var(--muted);flex:none}
+
+.field{display:grid;gap:4px;font-size:.85rem;font-weight:600;color:var(--muted);min-width:0}
+.field input,.field select,.field textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-weight:400;color:var(--ink);width:100%;min-width:0}
+.field textarea{resize:vertical;min-height:64px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.warn{background:color-mix(in srgb, var(--ember) 12%, var(--surface));border:1px solid color-mix(in srgb, var(--ember) 40%, var(--line));border-radius:8px;padding:10px 12px;font-size:.88rem}
+.warn label{display:flex;gap:8px;align-items:center;margin-top:6px;font-weight:600}
+.err{color:var(--danger);font-size:.88rem}
+.settings{display:grid;gap:18px}
+.edit-list{display:grid;gap:6px;margin-top:10px}
+.edit-item{display:flex;gap:8px;align-items:center;min-width:0;flex-wrap:wrap}
+.edit-item input,.edit-item select{flex:1 1 140px;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.edit-item .txt{flex:1 1 180px;min-width:0;overflow-wrap:anywhere}
+.edit-item .txt small{display:block;color:var(--muted)}
+.admin-toggle{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.admin-toggle input{accent-color:var(--ember);width:16px;height:16px}
+
+.export{display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.export-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.export-row{display:flex;gap:8px;flex-wrap:wrap}
+.done-banner{background:color-mix(in srgb, var(--ok) 14%, var(--surface));border:1px solid color-mix(in srgb, var(--ok) 40%, var(--line));border-radius:8px;padding:8px 12px;font-weight:700}
+
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:0;width:min(540px, calc(100vw - 32px));max-height:calc(100vh - 32px)}
+dialog::backdrop{background:rgba(10,14,13,.45)}
+.dlg{padding:20px;display:grid;gap:14px}
+.dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.dlg-head h2{font-size:1.35rem}
+.dlg-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;align-items:center}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.92rem;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:.88rem;font-weight:600;z-index:50;max-width:calc(100vw - 32px);text-align:center}
+
+@media (max-width:560px){
+  .bar{font-size:.68rem;padding:0 4px}
+  .day{padding:3px}
+  .day .n{font-size:.75rem}
+  .cal-head h2{font-size:1.25rem}
+  .row{grid-template-columns:auto 1fr}
+  .row .right{grid-column:2;text-align:left}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+          <rect x="2" y="2" width="36" height="36" rx="9" fill="var(--accent)"/>
+          <path d="M9 23h17c0-4 3-6 6-6v-3H15c-2 0-4 1.5-6 4z" fill="var(--on-accent)"/>
+          <path d="M15 23v5h-3v3h16v-3h-3v-5z" fill="var(--on-accent)"/>
+          <circle cx="31" cy="10" r="2" fill="var(--ember)"/>
+        </svg>
+        <div><small>Family house</small><h1>Forge Jean-Petit</h1></div>
+      </div>
+      <div class="who" id="who"></div>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs" hidden>
+      <button role="tab" data-tab="calendar" aria-selected="true">Calendar</button>
+      <button role="tab" data-tab="checklist" aria-selected="false">Exit checklist</button>
+      <button role="tab" data-tab="contacts" aria-selected="false">Contacts</button>
+      <button role="tab" data-tab="settings" aria-selected="false" id="tab-settings" hidden>Admin</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+  <div class="panel"><h2>Opening the house book…</h2></div>
+</main>
+
+<dialog id="dlg"></dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc, getDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
+  authDomain: "forge-jean-petit.firebaseapp.com",
+  projectId: "forge-jean-petit",
+  storageBucket: "forge-jean-petit.firebasestorage.app",
+  messagingSenderId: "99671792044",
+  appId: "1:99671792044:web:b087be1faa53bf5b4b8209"
+};
+const MAIN_ADMIN = "gvercauteren@gmail.com";   // must match firestore.rules
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const DEFAULT_SETTINGS = {
+  families: Array.from({length:7},(_,i)=>({id:"f"+(i+1), name:"Family "+(i+1)})),
+  checklist: [
+    "Strip the beds and put used sheets and towels in the laundry basket",
+    "Run and empty the dishwasher; put dishes away",
+    "Empty the fridge of anything that will spoil and wipe it clean",
+    "Take out all rubbish and sort the recycling",
+    "Sweep or vacuum the floors",
+    "Clean bathrooms and leave toilet seats down",
+    "Turn the heating down to frost-protection setting",
+    "Switch off lights, oven, coffee machine and other appliances",
+    "Close and lock all windows and shutters",
+    "Note anything broken or running low for the next family",
+    "Lock all doors and put the key back in its place"
+  ].map((text,i)=>({id:"c"+pad(i+1), text})),
+  contacts: [{id:"k01", name:"Emergency services", role:"Emergency", phone:"112", email:"", note:"Police, fire and ambulance anywhere in the EU."}]
+};
+
+const S = {
+  authUser:null, email:null, member:null, memberLoaded:false,
+  isMain:false, settings:null, bookings:[], members:[],
+  tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[]
+};
+const $ = s => document.querySelector(s);
+const main = $("#main");
+
+/* ---------- helpers ---------- */
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  if (attrs) for (const [k,v] of Object.entries(attrs)){
+    if (v==null || v===false) continue;
+    if (k==="class") el.className=v;
+    else if (k==="style") el.setAttribute("style",v);
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else if (k==="text") el.textContent=v;
+    else if (k==="html") el.innerHTML=v;
+    else el.setAttribute(k, v===true?"":v);
+  }
+  for (const c of kids.flat()) if (c!=null && c!==false) el.append(c.nodeType?c:document.createTextNode(String(c)));
+  return el;
+}
+function pad(n){ return String(n).padStart(2,"0"); }
+const todayStr = () => { const d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
+const dn = s => { const [y,m,d]=s.split("-").map(Number); return Math.round(Date.UTC(y,m-1,d)/864e5); };
+const ds = n => { const d=new Date(n*864e5); return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate()); };
+const fmt = (s, opts={day:"numeric",month:"short"}) => new Date(dn(s)*864e5).toLocaleDateString("en-GB",{timeZone:"UTC",...opts});
+const fmtRange = b => {
+  const sameYear = b.start.slice(0,4)===b.end.slice(0,4);
+  const y = {day:"numeric",month:"short",year:"numeric"};
+  return fmt(b.start, sameYear?{day:"numeric",month:"short"}:y) + " – " + fmt(b.end, y);
+};
+const nights = b => dn(b.end)-dn(b.start);
+const plural = (n,w) => `${n} ${w}${n===1?"":"s"}`;
+const newId = () => Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+let toastT;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3000); }
+function copyText(txt, btn){
+  const done=()=>{ btn.textContent="Copied"; setTimeout(()=>btn.textContent="Copy",1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done,()=>toast("Couldn't copy — select the text instead"));
+}
+function fail(e){
+  console.error(e);
+  if (e && e.code==="permission-denied") toast("You don't have permission to do that.");
+  else toast("Couldn't save. Check your connection and try again.");
+  throw e;
+}
+
+/* ---------- data ---------- */
+const families = () => (S.settings?.families?.length) ? S.settings.families : DEFAULT_SETTINGS.families;
+const famIndex = id => Math.max(0, families().findIndex(f=>f.id===id));
+const famColor = id => `var(--f${(famIndex(id)%7)+1})`;
+const famName = id => (families().find(f=>f.id===id)||{}).name || "Unknown family";
+const isAdmin = () => S.isMain || !!S.member?.admin;
+const myFamily = () => S.member?.family || null;
+const uid = () => S.authUser?.uid;
+const allBookings = () => [...S.bookings].sort((a,b)=>a.start<b.start?-1:a.start>b.start?1:0);
+const canEdit = b => b.uid===uid();
+const canDelete = b => b.uid===uid() || isAdmin();
+const saveSettings = patch => setDoc(doc(db,"config","settings"), {...(S.settings||DEFAULT_SETTINGS), ...patch}).catch(fail);
+
+/* ---------- calendar export (.ics, Google, Outlook) ---------- */
+const APP_LINK = location.origin + location.pathname.replace(/index\.html$/,"");
+const compact = s => s.replace(/-/g,"");
+function eventText(b){
+  return {
+    title: `Forge Jean-Petit · ${famName(b.family)}`,
+    details: [`Stay at Forge Jean-Petit, ${fmtRange(b)} (${plural(nights(b),"night")}).`,
+      b.name?`Booked by ${b.name}.`:"", b.guests?`${b.guests} people.`:"", b.note||"", `Calendar: ${APP_LINK}`].filter(Boolean).join("\n")
+  };
+}
+function icsEscape(s){ return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
+function icsFold(line){
+  const out=[]; let cur="";
+  for (const ch of line){
+    if (new TextEncoder().encode(cur+ch).length > 74){ out.push(cur); cur=" "+ch; } else cur+=ch;
+  }
+  out.push(cur); return out.join("\r\n");
+}
+function buildIcs(list){
+  const stamp = new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+Z$/,"Z");
+  const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Forge Jean-Petit//Bookings//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:Forge Jean-Petit"];
+  for (const b of list){
+    const t = eventText(b);
+    lines.push("BEGIN:VEVENT", `UID:${b.id}@forge-jean-petit.web.app`, `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${compact(b.start)}`, `DTEND;VALUE=DATE:${compact(ds(dn(b.end)+1))}`,
+      `SUMMARY:${icsEscape(t.title)}`, `DESCRIPTION:${icsEscape(t.details)}`, "LOCATION:Forge Jean-Petit",
+      "TRANSP:TRANSPARENT", "END:VEVENT");
+  }
+  lines.push("END:VCALENDAR");
+  return lines.map(icsFold).join("\r\n")+"\r\n";
+}
+function downloadIcs(list, filename){
+  const blob = new Blob([buildIcs(list)], {type:"text/calendar;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = h("a",{href:url, download:filename}); document.body.append(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+}
+const googleUrl = b => { const t=eventText(b);
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(t.title)
+    +"&dates="+compact(b.start)+"/"+compact(ds(dn(b.end)+1))+"&details="+encodeURIComponent(t.details)+"&location="+encodeURIComponent("Forge Jean-Petit"); };
+const outlookUrl = (b,host) => { const t=eventText(b);
+  return `https://${host}/calendar/0/deeplink/compose?path=%2Fcalendar%2Faction%2Fcompose&rru=addevent&allday=true&startdt=${b.start}&enddt=${ds(dn(b.end)+1)}`
+    +"&subject="+encodeURIComponent(t.title)+"&body="+encodeURIComponent(t.details)+"&location="+encodeURIComponent("Forge Jean-Petit"); };
+const fileName = b => `forge-jean-petit-${b.start}.ics`;
+function exportBlock(b){
+  const a=(href,label)=>h("a",{class:"btn",href,target:"_blank",rel:"noopener",text:label});
+  return h("div",{class:"export"},
+    h("span",{class:"export-label",text:"Add to your calendar"}),
+    h("div",{class:"export-row"},
+      h("button",{class:"btn",type:"button",text:"Apple / any calendar (.ics)",onclick:()=>downloadIcs([b], fileName(b))}),
+      a(googleUrl(b),"Google Calendar"),
+      a(outlookUrl(b,"outlook.live.com"),"Outlook.com"),
+      a(outlookUrl(b,"outlook.office.com"),"Outlook (work)")));
+}
+
+/* ---------- WhatsApp ---------- */
+const WA_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.3-.2-.5-.3z"/></svg>';
+function whatsappText(b, kind){
+  const head = kind==="cancel" ? "❌ Booking cancelled at Forge Jean-Petit"
+             : kind==="edit" ? "✏️ Booking changed at Forge Jean-Petit"
+             : "🏡 New booking at Forge Jean-Petit";
+  const lines = [head, `${famName(b.family)}: ${fmt(b.start,{weekday:"short",day:"numeric",month:"short"})} → ${fmt(b.end,{weekday:"short",day:"numeric",month:"short",year:"numeric"})} (${plural(nights(b),"night")})`];
+  if (b.guests) lines.push(`${b.guests} people`);
+  if (b.note && kind!=="cancel") lines.push(`Note: ${b.note}`);
+  lines.push("", `Calendar: ${APP_LINK}`);
+  return lines.join("\n");
+}
+function notifyBlock(b, kind){
+  return h("div",{class:"export"},
+    h("span",{class:"export-label",text: kind==="cancel" ? "Let the families know" : "Tell the other families"}),
+    h("div",{class:"export-row"},
+      h("a",{class:"btn wa",href:"https://wa.me/?text="+encodeURIComponent(whatsappText(b,kind)),target:"_blank",rel:"noopener"},
+        h("span",{style:"display:inline-flex",html:WA_ICON}), "Share on WhatsApp")),
+    h("span",{class:"hint",text:"Opens WhatsApp with the message written. Pick your family group and press send."}));
+}
+
+/* ---------- header ---------- */
+function renderWho(){
+  const w=$("#who"); w.replaceChildren();
+  if (!S.authUser) return;
+  if (S.authUser.photoURL) w.append(h("img",{src:S.authUser.photoURL, alt:"", referrerpolicy:"no-referrer"}));
+  w.append(h("span",{text:S.authUser.displayName || S.email}));
+  if (myFamily()) w.append(h("span",{class:"chip"}, h("span",{class:"dot",style:`background:${famColor(myFamily())}`}), famName(myFamily())));
+  if (isAdmin()) w.append(h("span",{class:"badge-admin",text:S.isMain?"Main admin":"Admin"}));
+  w.append(h("button",{class:"btn ghost",text:"Sign out",onclick:()=>signOut(auth)}));
+}
+
+/* ---------- screens ---------- */
+function render(){
+  renderWho();
+  const inside = S.authUser && (S.member || S.isMain);
+  if (S.tab==="settings" && !isAdmin()) S.tab="calendar";
+  $("#tabs").hidden = !inside;
+  $("#tab-settings").hidden = !isAdmin();
+  for (const b of document.querySelectorAll("#tabs button")) b.setAttribute("aria-selected", b.dataset.tab===S.tab);
+  main.replaceChildren();
+  if (!S.authUser) { main.append(renderSignIn()); return; }
+  if (!S.memberLoaded) { main.append(h("div",{class:"panel"},h("h2",{text:"Checking your invitation…"}))); return; }
+  if (!inside) { main.append(renderNotInvited()); return; }
+  if (S.isMain && !S.member) main.append(renderMainOnboarding());
+  if (S.tab==="calendar") main.append(renderCalendar(), renderList());
+  if (S.tab==="checklist") main.append(renderChecklist());
+  if (S.tab==="contacts") main.append(renderContacts());
+  if (S.tab==="settings" && isAdmin()) main.append(renderSettings());
+}
+
+function inAppBrowser(){ return /FBAN|FBAV|Instagram|WhatsApp|Line\/|; wv\)/i.test(navigator.userAgent); }
+let signInError = "";
+function renderSignIn(){
+  const btn = h("button",{class:"gbtn",onclick:startSignIn},
+    h("span",{html:'<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>'}),
+    "Sign in with Google");
+  return h("div",{class:"gate"}, h("div",{class:"panel"},
+    h("h2",{text:"Welcome to the house book"}),
+    h("p",{class:"sub",text:"Book your stay, see who's at the house, and find the exit checklist and contacts. Sign in with the Gmail address the admin invited."}),
+    btn,
+    signInError ? h("p",{class:"err",text:signInError}) : null,
+    inAppBrowser() ? h("p",{class:"warn",text:"You opened this link inside another app. Google may block sign-in here — tap ⋯ and choose “Open in Chrome” or “Open in Safari”."})
+                   : h("p",{class:"hint",text:"Opened from WhatsApp and sign-in won't work? Open the link in Chrome or Safari."})));
+}
+async function startSignIn(){
+  signInError="";
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({prompt:"select_account"});
+  try { await signInWithPopup(auth, provider); }
+  catch(e){
+    if (["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code)) {
+      try { await signInWithRedirect(auth, provider); } catch(e2){ signInError="Sign-in didn't work. Try opening the link in Chrome or Safari."; render(); }
+    } else if (e.code!=="auth/popup-closed-by-user") { signInError="Sign-in didn't work ("+(e.code||"error")+"). Try again, or open the link in Chrome or Safari."; render(); }
+  }
+}
+function renderNotInvited(){
+  return h("div",{class:"gate"}, h("div",{class:"panel"},
+    h("h2",{text:"You're not on the list yet"}),
+    h("p",{class:"sub"}, "You're signed in as ", h("strong",{text:S.email}), ". Ask the admin to add this exact Gmail address in the app, then reload this page."),
+    h("button",{class:"btn",text:"Use a different account",onclick:()=>signOut(auth)})));
+}
+function renderMainOnboarding(){
+  const sel = h("select",{id:"onb-fam"}, h("option",{value:"",text:"Choose your family…"}), families().map(f=>h("option",{value:f.id,text:f.name})));
+  return h("div",{class:"panel"},
+    h("h2",{text:"Which family are you with?"}),
+    h("p",{class:"sub",text:"You're the main admin. Pick your own family so your bookings get the right colour."}),
+    h("div",{class:"edit-item",style:"margin-top:12px;max-width:420px"}, sel,
+      h("button",{class:"btn primary",text:"Save",onclick:()=>{
+        if(!sel.value) return toast("Pick your family first.");
+        setDoc(doc(db,"members",S.email),{family:sel.value, admin:true, addedBy:S.email}).then(()=>toast("Saved"),fail).catch(()=>{});
+      }})));
+}
+
+function renderCalendar(){
+  const [Y,M] = S.month.split("-").map(Number);
+  const first = dn(S.month), daysIn = new Date(Date.UTC(Y,M,0)).getUTCDate(), last = first+daysIn-1;
+  const gridStart = first - (new Date(first*864e5).getUTCDay()+6)%7;
+  const today = dn(todayStr());
+  const bookings = allBookings().map(b=>({...b, s:dn(b.start), e:dn(b.end)}));
+  const title = new Date(first*864e5).toLocaleDateString("en-GB",{timeZone:"UTC",month:"long",year:"numeric"});
+  const shift = d => { const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); };
+  const canBook = !!myFamily() || S.isMain;
+  const head = h("div",{class:"cal-head"},
+    h("h2",{text:title}),
+    h("div",{class:"cal-nav"},
+      h("button",{class:"btn icon-btn","aria-label":"Previous month",text:"‹",onclick:()=>shift(-1)}),
+      h("button",{class:"btn",text:"Today",onclick:()=>{S.month=todayStr().slice(0,8)+"01"; render();}}),
+      h("button",{class:"btn icon-btn","aria-label":"Next month",text:"›",onclick:()=>shift(1)}),
+      canBook ? h("button",{class:"btn primary",text:"+ New booking",onclick:()=>openForm(null, todayStr())}) : null));
+  const dow = h("div",{class:"dow"}, ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>h("span",{text:d})));
+  const weeks = h("div",{class:"weeks"});
+  for (let ws=gridStart; ws<=last; ws+=7){
+    const we=ws+6, lanes=[], placed=[];
+    for (const b of bookings.filter(b=>b.s<=we && b.e>=ws)){
+      const cs=Math.max(b.s,ws), ce=Math.min(b.e,we);
+      let lane=0; while(lanes[lane]!=null && lanes[lane]>=cs) lane++;
+      lanes[lane]=ce; placed.push({b,cs,ce,lane});
+    }
+    const nl=Math.max(lanes.length,1);
+    const week=h("div",{class:"week",style:`grid-template-rows:26px repeat(${nl},26px) 10px;min-height:${Math.max(84,36+nl*26)}px`});
+    for (let i=0;i<7;i++){
+      const d=ws+i, dstr=ds(d), cls=["day"];
+      if(d<first||d>last) cls.push("other"); if(i>=5) cls.push("weekend"); if(d===today) cls.push("today");
+      week.append(h("button",{class:cls.join(" "),style:`grid-column:${i+1}`,"aria-label":fmt(dstr,{weekday:"long",day:"numeric",month:"long"})+(canBook?", book from this day":""),
+        onclick:()=>{ if(canBook) openForm(null,dstr); else toast("Choose your family first."); }},
+        h("span",{class:"n",text:new Date(d*864e5).getUTCDate()})));
+    }
+    for (const {b,cs,ce,lane} of placed){
+      const cls=["bar"]; if(b.s<ws) cls.push("cont-l"); if(b.e>we) cls.push("cont-r"); if(canEdit(b)) cls.push("mine");
+      week.append(h("button",{class:cls.join(" "),style:`grid-column:${cs-ws+1} / ${ce-ws+2};grid-row:${lane+2};background:${famColor(b.family)}`,
+        title:`${famName(b.family)}${b.name?" ("+b.name+")":""}: ${fmtRange(b)}`,
+        onclick:e=>{e.stopPropagation(); openDetail(b);}, text:famName(b.family)+(b.note?" · "+b.note:"")}));
+    }
+    weeks.append(week);
+  }
+  const legend = h("div",{class:"legend"}, families().map(f=>h("span",null,h("span",{class:"dot",style:`background:${famColor(f.id)}`}),f.name)));
+  return h("section",{class:"panel"}, head, dow, weeks, legend);
+}
+
+function renderList(){
+  const t=todayStr();
+  let list=allBookings();
+  if (S.listMode==="upcoming") list=list.filter(b=>b.end>=t);
+  if (S.listMode==="mine") list=list.filter(b=>b.uid===uid());
+  if (S.listMode==="past") list=list.filter(b=>b.end<t).reverse();
+  const upcomingAll = allBookings().filter(b=>b.end>=t);
+  const seg=h("div",{class:"seg"},[["upcoming","Upcoming"],["mine","Mine"],["past","Past"]].map(([k,l])=>h("button",{"aria-pressed":S.listMode===k,text:l,onclick:()=>{S.listMode=k;render();}})));
+  const body = list.length ? h("div",{class:"list"}, list.map(b=>{
+    const now=b.start<=t && b.end>=t;
+    return h("button",{class:"row",onclick:()=>openDetail(b)},
+      h("span",{class:"stripe",style:`background:${famColor(b.family)}`}),
+      h("div",{style:"min-width:0"}, h("div",{class:"when",text:fmtRange(b)}), h("div",{class:"meta",text:famName(b.family)+(b.name?" · "+b.name:"")+(b.note?" · "+b.note:"")})),
+      h("div",{class:"right"}, now ? h("strong",{style:"color:var(--ok)",text:"At the house now"}) : plural(nights(b),"night")));
+  })) : h("div",{class:"empty",text:S.listMode==="mine"?"You have no bookings yet. Tap a day in the calendar to book.":S.listMode==="past"?"No past stays yet.":"No upcoming stays. Tap a day in the calendar to make the first booking."});
+  return h("section",{class:"panel"},
+    h("div",{class:"split"}, h("div",null,h("h2",{text:"Stays"}),h("p",{class:"sub",text:"Everyone's bookings, so you can plan around each other."})), seg),
+    body,
+    upcomingAll.length ? h("div",{style:"margin-top:14px"}, h("button",{class:"btn",text:`Download all upcoming stays (.ics, ${upcomingAll.length})`,onclick:()=>downloadIcs(upcomingAll,"forge-jean-petit-stays.ics")})) : null);
+}
+
+function renderChecklist(){
+  const items=S.settings?.checklist||[], t=todayStr();
+  const mine=allBookings().filter(b=>b.uid===uid());
+  if (!mine.find(b=>b.id===S.checkBooking)){ const started=mine.filter(b=>b.start<=t); S.checkBooking=(started[started.length-1]||mine[0]||{}).id||null; }
+  const bk=mine.find(b=>b.id===S.checkBooking);
+  const done=bk?items.filter(i=>bk.checklist?.[i.id]).length:0;
+  const panel=h("section",{class:"panel"}, h("h2",{text:"Exit checklist"}),
+    h("p",{class:"sub",text:"Go through this before you lock up. Ticks are saved on your stay, so the next family knows the house was left ready."}));
+  if (mine.length){
+    panel.append(h("label",{class:"field",style:"margin-top:12px;max-width:340px"},"For your stay",
+      h("select",{id:"chk-booking",onchange:e=>{S.checkBooking=e.target.value;render();}}, mine.map(b=>h("option",{value:b.id,selected:b.id===S.checkBooking,text:"Stay "+fmtRange(b)})))));
+    panel.append(h("div",{class:"split",style:"margin-top:12px"}, h("strong",{class:"tnum",text:`${done} of ${items.length} done`}),
+      done===items.length&&items.length ? h("span",{style:"color:var(--ok);font-weight:700",text:"House ready for the next family"}) : null));
+    panel.append(h("div",{class:"progress"}, h("i",{style:`width:${items.length?Math.round(done/items.length*100):0}%`})));
+  } else panel.append(h("p",{class:"sub",style:"margin-top:10px",text:"Make a booking to tick items off. You can still read the list below."}));
+  if (!items.length){ panel.append(h("div",{class:"empty",style:"margin-top:14px",text:isAdmin()?"No checklist items yet. Add them in the Admin tab.":"The admin hasn't added checklist items yet."})); return panel; }
+  panel.append(h("div",{class:"check"}, items.map(it=>{
+    const checked=!!bk?.checklist?.[it.id];
+    return h("label",{class:checked?"done":""},
+      h("input",{type:"checkbox",id:"chk-"+it.id,checked,disabled:!bk,onchange:e=>{
+        const cl={...(bk.checklist||{})}; if(e.target.checked) cl[it.id]=true; else delete cl[it.id];
+        updateDoc(doc(db,"bookings",bk.id),{checklist:cl}).catch(fail).catch(()=>{});
+      }}), h("span",{text:it.text}));
+  })));
+  return panel;
+}
+
+function renderContacts(){
+  const cs=S.settings?.contacts||[];
+  const panel=h("section",{class:"panel"}, h("h2",{text:"Useful contacts"}), h("p",{class:"sub",text:"Who to call about the house. In an emergency, call 112."}));
+  if (!cs.length){ panel.append(h("div",{class:"empty",style:"margin-top:14px",text:isAdmin()?"No contacts yet. Add the neighbour, plumber, electrician and others in the Admin tab.":"The admin hasn't added contacts yet."})); return panel; }
+  panel.append(h("div",{class:"cards"}, cs.map(c=>h("div",{class:"card"},
+    c.role?h("div",{class:"role",text:c.role}):null, h("h3",{text:c.name||"Contact"}),
+    c.phone?h("div",{class:"line"}, h("a",{href:"tel:"+c.phone.replace(/[^\d+]/g,""),text:c.phone}), h("button",{class:"copy",text:"Copy",onclick:e=>copyText(c.phone,e.target)})):null,
+    c.email?h("div",{class:"line"}, h("a",{href:"mailto:"+c.email,text:c.email}), h("button",{class:"copy",text:"Copy",onclick:e=>copyText(c.email,e.target)})):null,
+    c.note?h("div",{class:"note",text:c.note}):null))));
+  return panel;
+}
+
+function renderSettings(){
+  const wrap=h("div",{class:"settings"});
+  // People
+  const email=h("input",{id:"m-email",type:"email",placeholder:"name@gmail.com","aria-label":"Gmail address"});
+  const fam=h("select",{id:"m-fam","aria-label":"Family"}, families().map(f=>h("option",{value:f.id,text:f.name})));
+  const adm=h("input",{type:"checkbox",id:"m-admin"});
+  const add=()=>{
+    const e=email.value.trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return toast("Enter a full email address.");
+    setDoc(doc(db,"members",e),{family:fam.value, admin:S.isMain?adm.checked:false, addedBy:S.email})
+      .then(()=>{ toast(`${e} can now sign in`); email.value=""; adm.checked=false; },fail).catch(()=>{});
+  };
+  email.addEventListener("keydown",e=>{ if(e.key==="Enter") add(); });
+  const people=[...S.members].sort((a,b)=>famIndex(a.family)-famIndex(b.family)||a.id.localeCompare(b.id));
+  wrap.append(h("section",{class:"panel"},
+    h("h2",{text:"People and admins"}),
+    h("p",{class:"sub",text:"Only the Gmail addresses listed here can open the app. Admins can delete anyone's booking and edit families, the checklist and contacts. Only the main admin can make someone an admin."}),
+    h("div",{class:"edit-item",style:"margin-top:12px"}, email, fam,
+      S.isMain?h("label",{class:"admin-toggle"},adm,"Admin"):null,
+      h("button",{class:"btn primary",text:"Add person",onclick:add})),
+    h("div",{class:"edit-list",style:"margin-top:14px"}, people.map(m=>{
+      const locked = m.admin && !S.isMain;
+      const isMe = m.id===S.email;
+      return h("div",{class:"edit-item"},
+        h("span",{class:"dot",style:`background:${famColor(m.family)}`}),
+        h("span",{class:"txt"}, m.id, isMe?" (you)":"", m.id===MAIN_ADMIN?h("small",{text:"Main admin"}):m.admin?h("small",{text:"Admin"}):null),
+        h("select",{id:"mf-"+m.id,"aria-label":"Family",disabled:locked,onchange:e=>updateDoc(doc(db,"members",m.id),{family:e.target.value}).then(()=>toast("Moved"),fail).catch(()=>{})},
+          families().map(f=>h("option",{value:f.id,selected:m.family===f.id,text:f.name}))),
+        S.isMain && m.id!==MAIN_ADMIN ? h("label",{class:"admin-toggle"},
+          h("input",{type:"checkbox",id:"ma-"+m.id,checked:!!m.admin,onchange:e=>updateDoc(doc(db,"members",m.id),{admin:e.target.checked}).then(()=>toast(e.target.checked?"Admin added":"Admin removed"),fail).catch(()=>{})}),"Admin") : null,
+        (!locked && m.id!==MAIN_ADMIN && !isMe) ? removeButton(()=>deleteDoc(doc(db,"members",m.id)).then(()=>toast("Removed"),fail)) : null);
+    }))));
+  // Families
+  wrap.append(h("section",{class:"panel"}, h("h2",{text:"Families"}), h("p",{class:"sub",text:"Rename the seven families. Colours stay the same."}),
+    h("div",{class:"edit-list"}, families().map(f=>h("div",{class:"edit-item"}, h("span",{class:"dot",style:`background:${famColor(f.id)}`}), h("input",{id:"fam-"+f.id,value:f.name,"aria-label":"Family name"})))),
+    h("div",{style:"margin-top:12px"}, h("button",{class:"btn primary",text:"Save names",onclick:()=>{
+      const list=families().map(f=>({id:f.id,name:document.getElementById("fam-"+f.id).value.trim()||f.name}));
+      saveSettings({families:list}).then(()=>toast("Family names saved")).catch(()=>{});
+    }}))));
+  // Checklist
+  const chk=S.settings?.checklist||[];
+  const newItem=h("input",{id:"new-chk",placeholder:"e.g. Turn the heating down to 12°C"});
+  const addItem=()=>{ const v=newItem.value.trim(); if(!v) return; saveSettings({checklist:chk.concat({id:newId(),text:v})}).then(()=>toast("Added")).catch(()=>{}); };
+  newItem.addEventListener("keydown",e=>{ if(e.key==="Enter") addItem(); });
+  wrap.append(h("section",{class:"panel"}, h("h2",{text:"Exit checklist items"}),
+    h("div",{class:"edit-list"}, chk.map((it,i)=>h("div",{class:"edit-item"},
+      h("span",{class:"txt",text:it.text}),
+      h("button",{class:"btn ghost icon-btn","aria-label":"Move up",disabled:i===0,text:"↑",onclick:()=>{const a=[...chk]; [a[i-1],a[i]]=[a[i],a[i-1]]; saveSettings({checklist:a}).catch(()=>{});}}),
+      h("button",{class:"btn ghost icon-btn","aria-label":"Remove",text:"✕",onclick:()=>saveSettings({checklist:chk.filter(x=>x.id!==it.id)}).catch(()=>{})})))),
+    h("div",{class:"edit-item",style:"margin-top:10px"}, newItem, h("button",{class:"btn",text:"Add",onclick:addItem}))));
+  // Contacts
+  const cs=S.settings?.contacts||[];
+  const f={name:h("input",{id:"c-name"}),role:h("input",{id:"c-role",placeholder:"Neighbour, plumber…"}),phone:h("input",{id:"c-phone",inputmode:"tel"}),email:h("input",{id:"c-email",type:"email"}),note:h("input",{id:"c-note"})};
+  let editing=null;
+  const saveBtn=h("button",{class:"btn primary",text:"Add contact",onclick:()=>{
+    const c={id:editing||newId()}; for(const k in f) c[k]=f[k].value.trim();
+    if(!c.name) return toast("Give the contact a name.");
+    const list=[...cs]; const i=list.findIndex(x=>x.id===c.id); if(i>=0) list[i]=c; else list.push(c);
+    saveSettings({contacts:list}).then(()=>toast("Contact saved")).catch(()=>{});
+  }});
+  wrap.append(h("section",{class:"panel"}, h("h2",{text:"Contacts"}),
+    h("div",{class:"edit-list"}, cs.map(c=>h("div",{class:"edit-item"},
+      h("span",{class:"txt",text:c.name+(c.role?" — "+c.role:"")}),
+      h("button",{class:"btn ghost",text:"Edit",onclick:()=>{editing=c.id; for(const k in f) f[k].value=c[k]||""; saveBtn.textContent="Save changes"; f.name.focus();}}),
+      h("button",{class:"btn ghost icon-btn","aria-label":"Remove",text:"✕",onclick:()=>saveSettings({contacts:cs.filter(x=>x.id!==c.id)}).catch(()=>{})})))),
+    h("div",{class:"grid2",style:"margin-top:14px"}, h("label",{class:"field"},"Name",f.name), h("label",{class:"field"},"Role",f.role), h("label",{class:"field"},"Phone",f.phone), h("label",{class:"field"},"Email",f.email)),
+    h("label",{class:"field",style:"margin-top:12px"},"Note",f.note),
+    h("div",{style:"margin-top:12px"}, saveBtn)));
+  return wrap;
+}
+function removeButton(action){
+  const b=h("button",{class:"btn ghost",text:"Remove"});
+  b.addEventListener("click",()=>{ if(!b.classList.contains("armed")){ b.classList.add("armed","danger"); b.textContent="Tap to confirm"; return; } action().catch(()=>{}); });
+  return b;
+}
+
+/* ---------- dialogs ---------- */
+const dlg=$("#dlg");
+function showDlg(content){ dlg.replaceChildren(content); if(!dlg.open) dlg.showModal(); }
+dlg.addEventListener("click",e=>{ if(e.target===dlg) dlg.close(); });
+const closeBtn = () => h("button",{type:"button",class:"btn ghost icon-btn","aria-label":"Close",text:"✕",onclick:()=>dlg.close()});
+
+function openDetail(b, justDone){
+  const items=S.settings?.checklist||[];
+  const done=items.filter(i=>b.checklist?.[i.id]).length;
+  const long={weekday:"long",day:"numeric",month:"long",year:"numeric"};
+  const del=h("button",{class:"btn danger",text:canEdit(b)?"Delete booking":"Delete (admin)"});
+  del.addEventListener("click",()=>{
+    if(!del.classList.contains("armed")){ del.classList.add("armed"); del.textContent="Tap again to delete"; return; }
+    deleteDoc(doc(db,"bookings",b.id)).then(()=>openCancelled(b),fail).catch(()=>{});
+  });
+  showDlg(h("div",{class:"dlg"},
+    h("div",{class:"dlg-head"}, h("div",null, h("span",{class:"chip"},h("span",{class:"dot",style:`background:${famColor(b.family)}`}),famName(b.family)), h("h2",{style:"margin-top:8px",text:fmtRange(b)})), closeBtn()),
+    justDone ? h("div",{class:"done-banner",text:justDone==="edit"?"Changes saved.":"You're booked."}) : null,
+    h("dl",{class:"kv"},
+      h("dt",{text:"Booked by"}), h("dd",{text:(b.name||b.email||"A family member")+(canEdit(b)?" (you)":"")}),
+      h("dt",{text:"Arrival"}), h("dd",{text:fmt(b.start,long)}),
+      h("dt",{text:"Departure"}), h("dd",{text:fmt(b.end,long)}),
+      h("dt",{text:"Nights"}), h("dd",{class:"tnum",text:String(nights(b))}),
+      b.guests?[h("dt",{text:"People"}),h("dd",{class:"tnum",text:String(b.guests)})]:null,
+      b.note?[h("dt",{text:"Note"}),h("dd",{text:b.note})]:null,
+      items.length?[h("dt",{text:"Exit checklist"}),h("dd",{class:"tnum",text:`${done} of ${items.length} done`})]:null),
+    (justDone||canEdit(b)) ? notifyBlock(b, justDone||"new") : null,
+    exportBlock(b),
+    h("div",{class:"dlg-actions"},
+      canDelete(b)?del:h("span",{class:"hint",text:"Only the person who booked this can change it."}),
+      canEdit(b)?h("button",{class:"btn primary",text:"Edit",onclick:()=>openForm(b)}):null)));
+}
+function openCancelled(b){
+  showDlg(h("div",{class:"dlg"},
+    h("div",{class:"dlg-head"}, h("h2",{text:"Booking deleted"}), closeBtn()),
+    h("p",{class:"sub",text:`${famName(b.family)}, ${fmtRange(b)} is now free on the calendar.`}),
+    notifyBlock(b,"cancel")));
+}
+
+function openForm(b, startDefault){
+  const isNew=!b;
+  if (isNew && !myFamily() && !S.isMain) return toast("Choose your family first.");
+  const start=h("input",{type:"date",id:"bk-start",value:b?b.start:startDefault,required:true});
+  const end=h("input",{type:"date",id:"bk-end",value:b?b.end:ds(dn(startDefault)+2),required:true});
+  const guests=h("input",{type:"number",id:"bk-guests",min:"1",max:"50",value:b?.guests||"",placeholder:"Optional"});
+  const note=h("textarea",{id:"bk-note",maxlength:"500",placeholder:"e.g. Grandma joins for the weekend"}); note.value=b?.note||"";
+  const famSel=isAdmin()?h("select",{id:"bk-fam"}, families().map(f=>h("option",{value:f.id,selected:(b?b.family:(myFamily()||families()[0].id))===f.id,text:f.name}))):null;
+  const warnBox=h("div"), err=h("div",{class:"err"});
+  let share=false;
+  const check=()=>{
+    warnBox.replaceChildren(); err.textContent="";
+    if(!start.value||!end.value) return;
+    if(end.value<start.value){ err.textContent="Departure must be on or after arrival."; return; }
+    const s=dn(start.value), e=Math.max(dn(end.value),s+1);
+    const clash=allBookings().filter(o=>o.id!==b?.id && dn(o.start)<e && Math.max(dn(o.end),dn(o.start)+1)>s);
+    if(clash.length) warnBox.append(h("div",{class:"warn"}, h("strong",{text:"These dates overlap with: "}), clash.map(o=>`${famName(o.family)} (${fmtRange(o)})`).join(", "),
+      h("label",null,h("input",{type:"checkbox",id:"bk-share",checked:share,onchange:x=>share=x.target.checked}),"We'll share the house — book anyway")));
+  };
+  start.addEventListener("change",()=>{ if(end.value<start.value) end.value=ds(dn(start.value)+1); check(); });
+  end.addEventListener("change",check);
+  const save=h("button",{class:"btn primary",type:"submit",text:isNew?"Book these dates":"Save changes"});
+  const form=h("form",{class:"dlg",onsubmit:async e=>{
+    e.preventDefault(); check();
+    if(err.textContent) return;
+    if(warnBox.childNodes.length && !share){ err.textContent="Tick the box to confirm you'll share the house, or pick other dates."; return; }
+    const id=b?.id||newId();
+    const data={ uid:uid(), email:S.email, name:S.authUser.displayName||S.email,
+      family: famSel?famSel.value:(b?.family||myFamily()), start:start.value, end:end.value, note:note.value.trim(),
+      checklist:b?.checklist||{}, createdAt:b?.createdAt||new Date().toISOString(), updatedAt:new Date().toISOString() };
+    if(guests.value) data.guests=Math.round(Number(guests.value));
+    if(!b && !data.family){ err.textContent="Choose a family."; return; }
+    save.disabled=true;
+    try{
+      await setDoc(doc(db,"bookings",id), data);
+      S.month=data.start.slice(0,8)+"01"; render();
+      openDetail({...data,id}, isNew?"new":"edit");
+    }catch(e2){ save.disabled=false; try{fail(e2);}catch(_){} }
+  }},
+    h("div",{class:"dlg-head"}, h("h2",{text:isNew?"New booking":"Edit booking"}), closeBtn()),
+    h("div",{class:"grid2"}, h("label",{class:"field"},"Arrival",start), h("label",{class:"field"},"Departure",end)),
+    h("div",{class:"grid2"},
+      famSel?h("label",{class:"field"},"Family",famSel):h("div",{class:"field"},"Family",h("span",{class:"chip",style:"justify-self:start"},h("span",{class:"dot",style:`background:${famColor(myFamily())}`}),famName(myFamily()))),
+      h("label",{class:"field"},"People staying",guests)),
+    h("label",{class:"field"},"Note for the others",note),
+    warnBox, err,
+    h("div",{class:"dlg-actions"}, h("button",{type:"button",class:"btn",text:"Cancel",onclick:()=>dlg.close()}), save));
+  showDlg(form); check();
+}
+
+/* ---------- tabs ---------- */
+$("#tabs").addEventListener("click",e=>{
+  const t=e.target.closest("button[data-tab]"); if(!t) return;
+  S.tab=t.dataset.tab; try{localStorage.setItem("fjp-tab",S.tab);}catch(_){}
+  render();
+});
+
+/* ---------- live data ---------- */
+function stopAll(){ S.unsubs.forEach(u=>u()); S.unsubs=[]; }
+function startData(){
+  if (S.unsubs.length>1) return;
+  const onErr = e => { console.error(e); if(e.code==="permission-denied") toast("Your access changed. Reload the page."); };
+  S.unsubs.push(onSnapshot(doc(db,"config","settings"), async snap=>{
+    if (snap.exists()) S.settings=snap.data();
+    else if (isAdmin()) { try{ await setDoc(doc(db,"config","settings"), DEFAULT_SETTINGS); }catch(e){ console.error(e); } }
+    render();
+  }, onErr));
+  S.unsubs.push(onSnapshot(collection(db,"bookings"), snap=>{ S.bookings=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
+  S.unsubs.push(onSnapshot(collection(db,"members"), snap=>{ S.members=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
+}
+
+S.month=todayStr().slice(0,8)+"01";
+try{ const t=localStorage.getItem("fjp-tab"); if(t) S.tab=t; }catch(_){}
+getRedirectResult(auth).catch(e=>{ signInError="Sign-in didn't work. Try opening the link in Chrome or Safari."; render(); });
+
+onAuthStateChanged(auth, user=>{
+  stopAll();
+  S.authUser=user; S.member=null; S.memberLoaded=false; S.settings=null; S.bookings=[]; S.members=[];
+  if (!user){ S.email=null; S.isMain=false; render(); return; }
+  S.email=(user.email||"").toLowerCase();
+  S.isMain = S.email===MAIN_ADMIN;
+  render();
+  S.unsubs.push(onSnapshot(doc(db,"members",S.email), snap=>{
+    S.member = snap.exists() ? snap.data() : null;
+    S.memberLoaded = true;
+    if (S.member || S.isMain) startData(); else { S.unsubs.slice(1).forEach(u=>u()); S.unsubs=S.unsubs.slice(0,1); }
+    render();
+  }, e=>{ console.error(e); S.memberLoaded=true; render(); }));
+});
+</script>
+</body>
+</html>
