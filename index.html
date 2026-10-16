@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -169,6 +169,23 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
   .row{grid-template-columns:auto 1fr}
   .row .right{grid-column:2;text-align:left}
 }
+
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.lang button{border:0;background:none;padding:3px 8px;font-size:.75rem;font-weight:700;letter-spacing:.06em;color:var(--muted);cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.08em}
+.or::before,.or::after{content:"";flex:1;border-top:1px solid var(--line)}
+.email-form{display:grid;gap:8px}
+.email-form .edit-item input{flex:1 1 180px}
+.ok-msg{background:color-mix(in srgb, var(--ok) 14%, var(--surface));border:1px solid color-mix(in srgb, var(--ok) 40%, var(--line));border-radius:8px;padding:10px 12px;font-size:.9rem}
+.bulk textarea{width:100%;min-height:150px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:.85rem;color:var(--ink);resize:vertical}
+.bulk-table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:12px}
+.bulk-table td,.bulk-table th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.bulk-table th{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.bulk-table select{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 6px;max-width:100%}
+.scroll-x{overflow-x:auto}
+.fam-preview{margin-top:10px;font-size:.88rem;display:flex;flex-wrap:wrap;gap:6px 14px}
+.fam-preview span{display:inline-flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
@@ -182,21 +199,21 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
           <path d="M15 23v5h-3v3h16v-3h-3v-5z" fill="var(--on-accent)"/>
           <circle cx="31" cy="10" r="2" fill="var(--ember)"/>
         </svg>
-        <div><small>Family house</small><h1>Forge Jean-Petit</h1></div>
+        <div><small id="brand-small">Maison de famille</small><h1>Forge Jean-Petit</h1></div>
       </div>
       <div class="who" id="who"></div>
     </div>
     <nav class="tabs" role="tablist" id="tabs" hidden>
-      <button role="tab" data-tab="calendar" aria-selected="true">Calendar</button>
-      <button role="tab" data-tab="checklist" aria-selected="false">Exit checklist</button>
-      <button role="tab" data-tab="contacts" aria-selected="false">Contacts</button>
-      <button role="tab" data-tab="settings" aria-selected="false" id="tab-settings" hidden>Admin</button>
+      <button role="tab" data-tab="calendar" aria-selected="true"></button>
+      <button role="tab" data-tab="checklist" aria-selected="false"></button>
+      <button role="tab" data-tab="contacts" aria-selected="false"></button>
+      <button role="tab" data-tab="settings" aria-selected="false" id="tab-settings" hidden></button>
     </nav>
   </div>
 </header>
 
 <main class="wrap" id="main">
-  <div class="panel"><h2>Opening the house book…</h2></div>
+  <div class="panel"><h2>Forge Jean-Petit…</h2></div>
 </main>
 
 <dialog id="dlg"></dialog>
@@ -204,10 +221,12 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut }
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut,
+         sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc, getDoc }
+import { getFirestore, doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -223,28 +242,38 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+/* ---------- language ---------- */
+const store = { get(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(_){} } };
+function detectLang(){
+  const saved = store.get("fjp-lang"); if (LANGS.includes(saved)) return saved;
+  for (const l of (navigator.languages || [navigator.language || ""])) { const c=(l||"").slice(0,2).toLowerCase(); if (LANGS.includes(c)) return c; }
+  return "fr";
+}
+let LANG = detectLang();
+document.documentElement.lang = LANG;
+function t(key, vars){
+  let s = (STR[LANG] && STR[LANG][key]) ?? STR.en[key] ?? key;
+  if (vars) for (const [k,v] of Object.entries(vars)) s = s.split("{"+k+"}").join(v);
+  return s;
+}
+function setLang(l){ LANG=l; store.set("fjp-lang", l); document.documentElement.lang=l; render(); }
+const locale = () => LOCALES[LANG];
+
+const pad = n => String(n).padStart(2,"0");
 const DEFAULT_SETTINGS = {
   families: Array.from({length:7},(_,i)=>({id:"f"+(i+1), name:"Family "+(i+1)})),
-  checklist: [
-    "Strip the beds and put used sheets and towels in the laundry basket",
-    "Run and empty the dishwasher; put dishes away",
-    "Empty the fridge of anything that will spoil and wipe it clean",
-    "Take out all rubbish and sort the recycling",
-    "Sweep or vacuum the floors",
-    "Clean bathrooms and leave toilet seats down",
-    "Turn the heating down to frost-protection setting",
-    "Switch off lights, oven, coffee machine and other appliances",
-    "Close and lock all windows and shutters",
-    "Note anything broken or running low for the next family",
-    "Lock all doors and put the key back in its place"
-  ].map((text,i)=>({id:"c"+pad(i+1), text})),
-  contacts: [{id:"k01", name:"Emergency services", role:"Emergency", phone:"112", email:"", note:"Police, fire and ambulance anywhere in the EU."}]
+  checklist: Object.entries(DEFAULT_CHECKLIST).map(([id,v])=>({id, text:v.en})),
+  contacts: [{id:"k01", name:DEFAULT_CONTACT.k01.name.en, role:DEFAULT_CONTACT.k01.role.en, phone:"112", email:"", note:DEFAULT_CONTACT.k01.note.en}]
 };
+// Starter text is shown in the reader's language until an admin rewrites it.
+const itemText = it => (DEFAULT_CHECKLIST[it.id] && DEFAULT_CHECKLIST[it.id].en===it.text) ? DEFAULT_CHECKLIST[it.id][LANG] : it.text;
+const contactField = (c, f) => { const d=DEFAULT_CONTACT[c.id]; return (d && d[f] && d[f].en===c[f]) ? d[f][LANG] : (c[f]||""); };
 
 const S = {
-  authUser:null, email:null, member:null, memberLoaded:false,
-  isMain:false, settings:null, bookings:[], members:[],
-  tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[]
+  authUser:null, email:null, member:null, memberLoaded:false, isMain:false,
+  settings:null, bookings:[], members:[],
+  tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[],
+  signInError:"", linkSentTo:"", needEmailConfirm:false, bulk:null
 };
 const $ = s => document.querySelector(s);
 const main = $("#main");
@@ -264,37 +293,41 @@ function h(tag, attrs, ...kids){
   for (const c of kids.flat()) if (c!=null && c!==false) el.append(c.nodeType?c:document.createTextNode(String(c)));
   return el;
 }
-function pad(n){ return String(n).padStart(2,"0"); }
 const todayStr = () => { const d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
 const dn = s => { const [y,m,d]=s.split("-").map(Number); return Math.round(Date.UTC(y,m-1,d)/864e5); };
 const ds = n => { const d=new Date(n*864e5); return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate()); };
-const fmt = (s, opts={day:"numeric",month:"short"}) => new Date(dn(s)*864e5).toLocaleDateString("en-GB",{timeZone:"UTC",...opts});
+const fmt = (s, opts={day:"numeric",month:"short"}) => new Date(dn(s)*864e5).toLocaleDateString(locale(),{timeZone:"UTC",...opts});
 const fmtRange = b => {
-  const sameYear = b.start.slice(0,4)===b.end.slice(0,4);
-  const y = {day:"numeric",month:"short",year:"numeric"};
-  return fmt(b.start, sameYear?{day:"numeric",month:"short"}:y) + " – " + fmt(b.end, y);
+  const y={day:"numeric",month:"short",year:"numeric"};
+  return fmt(b.start, b.start.slice(0,4)===b.end.slice(0,4)?{day:"numeric",month:"short"}:y) + " – " + fmt(b.end, y);
 };
 const nights = b => dn(b.end)-dn(b.start);
-const plural = (n,w) => `${n} ${w}${n===1?"":"s"}`;
+const nightsTxt = n => `${n} ${n===1?t("night"):t("nights")}`;
 const newId = () => Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const isEmail = e => /^[^@\s<>,]+@[^@\s<>,]+\.[^@\s<>,]+$/.test(e);
 let toastT;
-function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3000); }
+function toast(msg){ const el=$("#toast"); el.textContent=msg; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true,3200); }
 function copyText(txt, btn){
-  const done=()=>{ btn.textContent="Copied"; setTimeout(()=>btn.textContent="Copy",1400); };
-  if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done,()=>toast("Couldn't copy — select the text instead"));
+  const done=()=>{ btn.textContent=t("copied"); setTimeout(()=>btn.textContent=t("copy"),1400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done,()=>toast(t("copyFail")));
 }
 function fail(e){
   console.error(e);
-  if (e && e.code==="permission-denied") toast("You don't have permission to do that.");
-  else toast("Couldn't save. Check your connection and try again.");
+  toast(e && e.code==="permission-denied" ? t("noPermission") : t("saveFailed"));
   throw e;
 }
+const quiet = p => p.catch(()=>{});
 
 /* ---------- data ---------- */
 const families = () => (S.settings?.families?.length) ? S.settings.families : DEFAULT_SETTINGS.families;
 const famIndex = id => Math.max(0, families().findIndex(f=>f.id===id));
 const famColor = id => `var(--f${(famIndex(id)%7)+1})`;
-const famName = id => (families().find(f=>f.id===id)||{}).name || "Unknown family";
+function famName(id){
+  const f = families().find(f=>f.id===id);
+  if (!f) return t("unknownFamily");
+  const m = /^Family (\d)$/.exec(f.name);
+  return m ? t("defaultFamily",{n:m[1]}) : f.name;
+}
 const isAdmin = () => S.isMain || !!S.member?.admin;
 const myFamily = () => S.member?.family || null;
 const uid = () => S.authUser?.uid;
@@ -302,105 +335,101 @@ const allBookings = () => [...S.bookings].sort((a,b)=>a.start<b.start?-1:a.start
 const canEdit = b => b.uid===uid();
 const canDelete = b => b.uid===uid() || isAdmin();
 const saveSettings = patch => setDoc(doc(db,"config","settings"), {...(S.settings||DEFAULT_SETTINGS), ...patch}).catch(fail);
+const memberName = email => (S.members.find(m=>m.id===email)||{}).name || "";
 
-/* ---------- calendar export (.ics, Google, Outlook) ---------- */
+/* ---------- calendar export ---------- */
 const APP_LINK = location.origin + location.pathname.replace(/index\.html$/,"");
 const compact = s => s.replace(/-/g,"");
 function eventText(b){
   return {
     title: `Forge Jean-Petit · ${famName(b.family)}`,
-    details: [`Stay at Forge Jean-Petit, ${fmtRange(b)} (${plural(nights(b),"night")}).`,
-      b.name?`Booked by ${b.name}.`:"", b.guests?`${b.guests} people.`:"", b.note||"", `Calendar: ${APP_LINK}`].filter(Boolean).join("\n")
+    details: [t("stayAt",{range:fmtRange(b), nights:nightsTxt(nights(b))}),
+      b.name?t("bookedByX",{name:b.name}):"", b.guests?t("peopleN",{n:b.guests})+".":"", b.note||"", `${t("calendarLink")}: ${APP_LINK}`].filter(Boolean).join("\n")
   };
 }
-function icsEscape(s){ return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
+const icsEscape = s => String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n");
 function icsFold(line){
-  const out=[]; let cur="";
-  for (const ch of line){
-    if (new TextEncoder().encode(cur+ch).length > 74){ out.push(cur); cur=" "+ch; } else cur+=ch;
-  }
+  const enc=new TextEncoder(), out=[]; let cur="";
+  for (const ch of line){ if (enc.encode(cur+ch).length>74){ out.push(cur); cur=" "+ch; } else cur+=ch; }
   out.push(cur); return out.join("\r\n");
 }
 function buildIcs(list){
   const stamp = new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+Z$/,"Z");
   const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Forge Jean-Petit//Bookings//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:Forge Jean-Petit"];
   for (const b of list){
-    const t = eventText(b);
-    lines.push("BEGIN:VEVENT", `UID:${b.id}@forge-jean-petit.web.app`, `DTSTAMP:${stamp}`,
+    const e = eventText(b);
+    lines.push("BEGIN:VEVENT", `UID:${b.id}@forge-jean-petit`, `DTSTAMP:${stamp}`,
       `DTSTART;VALUE=DATE:${compact(b.start)}`, `DTEND;VALUE=DATE:${compact(ds(dn(b.end)+1))}`,
-      `SUMMARY:${icsEscape(t.title)}`, `DESCRIPTION:${icsEscape(t.details)}`, "LOCATION:Forge Jean-Petit",
-      "TRANSP:TRANSPARENT", "END:VEVENT");
+      `SUMMARY:${icsEscape(e.title)}`, `DESCRIPTION:${icsEscape(e.details)}`, "LOCATION:Forge Jean-Petit", "TRANSP:TRANSPARENT", "END:VEVENT");
   }
   lines.push("END:VCALENDAR");
   return lines.map(icsFold).join("\r\n")+"\r\n";
 }
 function downloadIcs(list, filename){
-  const blob = new Blob([buildIcs(list)], {type:"text/calendar;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(new Blob([buildIcs(list)], {type:"text/calendar;charset=utf-8"}));
   const a = h("a",{href:url, download:filename}); document.body.append(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url), 5000);
 }
-const googleUrl = b => { const t=eventText(b);
-  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(t.title)
-    +"&dates="+compact(b.start)+"/"+compact(ds(dn(b.end)+1))+"&details="+encodeURIComponent(t.details)+"&location="+encodeURIComponent("Forge Jean-Petit"); };
-const outlookUrl = (b,host) => { const t=eventText(b);
+const googleUrl = b => { const e=eventText(b);
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(e.title)
+    +"&dates="+compact(b.start)+"/"+compact(ds(dn(b.end)+1))+"&details="+encodeURIComponent(e.details)+"&location="+encodeURIComponent("Forge Jean-Petit"); };
+const outlookUrl = (b,host) => { const e=eventText(b);
   return `https://${host}/calendar/0/deeplink/compose?path=%2Fcalendar%2Faction%2Fcompose&rru=addevent&allday=true&startdt=${b.start}&enddt=${ds(dn(b.end)+1)}`
-    +"&subject="+encodeURIComponent(t.title)+"&body="+encodeURIComponent(t.details)+"&location="+encodeURIComponent("Forge Jean-Petit"); };
-const fileName = b => `forge-jean-petit-${b.start}.ics`;
+    +"&subject="+encodeURIComponent(e.title)+"&body="+encodeURIComponent(e.details)+"&location="+encodeURIComponent("Forge Jean-Petit"); };
 function exportBlock(b){
   const a=(href,label)=>h("a",{class:"btn",href,target:"_blank",rel:"noopener",text:label});
   return h("div",{class:"export"},
-    h("span",{class:"export-label",text:"Add to your calendar"}),
+    h("span",{class:"export-label",text:t("addToCal")}),
     h("div",{class:"export-row"},
-      h("button",{class:"btn",type:"button",text:"Apple / any calendar (.ics)",onclick:()=>downloadIcs([b], fileName(b))}),
-      a(googleUrl(b),"Google Calendar"),
-      a(outlookUrl(b,"outlook.live.com"),"Outlook.com"),
-      a(outlookUrl(b,"outlook.office.com"),"Outlook (work)")));
+      h("button",{class:"btn",type:"button",text:t("appleIcs"),onclick:()=>downloadIcs([b], `forge-jean-petit-${b.start}.ics`)}),
+      a(googleUrl(b),"Google Calendar"), a(outlookUrl(b,"outlook.live.com"),"Outlook.com"), a(outlookUrl(b,"outlook.office.com"),"Outlook 365")));
 }
 
 /* ---------- WhatsApp ---------- */
 const WA_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.3-.2-.5-.3z"/></svg>';
 function whatsappText(b, kind){
-  const head = kind==="cancel" ? "❌ Booking cancelled at Forge Jean-Petit"
-             : kind==="edit" ? "✏️ Booking changed at Forge Jean-Petit"
-             : "🏡 New booking at Forge Jean-Petit";
-  const lines = [head, `${famName(b.family)}: ${fmt(b.start,{weekday:"short",day:"numeric",month:"short"})} → ${fmt(b.end,{weekday:"short",day:"numeric",month:"short",year:"numeric"})} (${plural(nights(b),"night")})`];
-  if (b.guests) lines.push(`${b.guests} people`);
-  if (b.note && kind!=="cancel") lines.push(`Note: ${b.note}`);
-  lines.push("", `Calendar: ${APP_LINK}`);
+  const lines = [kind==="cancel"?t("waCancel"):kind==="edit"?t("waEdit"):t("waNew"),
+    `${famName(b.family)}: ${fmt(b.start,{weekday:"short",day:"numeric",month:"short"})} → ${fmt(b.end,{weekday:"short",day:"numeric",month:"short",year:"numeric"})} (${nightsTxt(nights(b))})`];
+  if (b.guests) lines.push(t("peopleN",{n:b.guests}));
+  if (b.note && kind!=="cancel") lines.push(`${t("noteLabel")}: ${b.note}`);
+  lines.push("", `${t("calendarLink")}: ${APP_LINK}`);
   return lines.join("\n");
 }
 function notifyBlock(b, kind){
   return h("div",{class:"export"},
-    h("span",{class:"export-label",text: kind==="cancel" ? "Let the families know" : "Tell the other families"}),
+    h("span",{class:"export-label",text:kind==="cancel"?t("letKnow"):t("tellFamilies")}),
     h("div",{class:"export-row"},
       h("a",{class:"btn wa",href:"https://wa.me/?text="+encodeURIComponent(whatsappText(b,kind)),target:"_blank",rel:"noopener"},
-        h("span",{style:"display:inline-flex",html:WA_ICON}), "Share on WhatsApp")),
-    h("span",{class:"hint",text:"Opens WhatsApp with the message written. Pick your family group and press send."}));
+        h("span",{style:"display:inline-flex",html:WA_ICON}), t("shareWa"))),
+    h("span",{class:"hint",text:t("waHint2")}));
 }
 
 /* ---------- header ---------- */
-function renderWho(){
+function renderHeader(){
+  $("#brand-small").textContent = t("brandSmall");
+  const labels = {calendar:"tabCalendar", checklist:"tabChecklist", contacts:"tabContacts", settings:"tabAdmin"};
+  for (const b of document.querySelectorAll("#tabs button")){ b.textContent=t(labels[b.dataset.tab]); b.setAttribute("aria-selected", b.dataset.tab===S.tab); }
   const w=$("#who"); w.replaceChildren();
+  w.append(h("div",{class:"lang",role:"group","aria-label":"Language"}, LANGS.map(l=>h("button",{"aria-pressed":l===LANG,text:l.toUpperCase(),onclick:()=>setLang(l)}))));
   if (!S.authUser) return;
   if (S.authUser.photoURL) w.append(h("img",{src:S.authUser.photoURL, alt:"", referrerpolicy:"no-referrer"}));
-  w.append(h("span",{text:S.authUser.displayName || S.email}));
+  w.append(h("span",{text:S.authUser.displayName || memberName(S.email) || S.email}));
   if (myFamily()) w.append(h("span",{class:"chip"}, h("span",{class:"dot",style:`background:${famColor(myFamily())}`}), famName(myFamily())));
-  if (isAdmin()) w.append(h("span",{class:"badge-admin",text:S.isMain?"Main admin":"Admin"}));
-  w.append(h("button",{class:"btn ghost",text:"Sign out",onclick:()=>signOut(auth)}));
+  if (isAdmin()) w.append(h("span",{class:"badge-admin",text:S.isMain?t("mainAdmin"):t("admin")}));
+  w.append(h("button",{class:"btn ghost",text:t("signOut"),onclick:()=>signOut(auth)}));
 }
 
 /* ---------- screens ---------- */
 function render(){
-  renderWho();
   const inside = S.authUser && (S.member || S.isMain);
-  if (S.tab==="settings" && !isAdmin()) S.tab="calendar";
+  if (S.tab==="settings" && S.memberLoaded && !isAdmin()) S.tab="calendar";
+  renderHeader();
   $("#tabs").hidden = !inside;
   $("#tab-settings").hidden = !isAdmin();
-  for (const b of document.querySelectorAll("#tabs button")) b.setAttribute("aria-selected", b.dataset.tab===S.tab);
   main.replaceChildren();
+  if (S.needEmailConfirm) { main.append(renderConfirmEmail()); return; }
   if (!S.authUser) { main.append(renderSignIn()); return; }
-  if (!S.memberLoaded) { main.append(h("div",{class:"panel"},h("h2",{text:"Checking your invitation…"}))); return; }
+  if (!S.memberLoaded) { main.append(h("div",{class:"panel"},h("h2",{text:t("checkingInvite")}))); return; }
   if (!inside) { main.append(renderNotInvited()); return; }
   if (S.isMain && !S.member) main.append(renderMainOnboarding());
   if (S.tab==="calendar") main.append(renderCalendar(), renderList());
@@ -409,66 +438,93 @@ function render(){
   if (S.tab==="settings" && isAdmin()) main.append(renderSettings());
 }
 
-function inAppBrowser(){ return /FBAN|FBAV|Instagram|WhatsApp|Line\/|; wv\)/i.test(navigator.userAgent); }
-let signInError = "";
+const inAppBrowser = () => /FBAN|FBAV|Instagram|WhatsApp|Line\/|; wv\)/i.test(navigator.userAgent);
+const GOOGLE_G = '<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
 function renderSignIn(){
-  const btn = h("button",{class:"gbtn",onclick:startSignIn},
-    h("span",{html:'<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>'}),
-    "Sign in with Google");
+  const email = h("input",{id:"link-email",type:"email",autocomplete:"email",placeholder:t("emailPh"),"aria-label":t("emailAddr")});
+  const send = h("button",{class:"btn",type:"submit",text:t("sendLink")});
+  const form = h("form",{class:"email-form",onsubmit:async e=>{
+    e.preventDefault();
+    const v = email.value.trim().toLowerCase();
+    if (!isEmail(v)) return toast(t("enterEmail"));
+    send.disabled = true;
+    try {
+      await sendSignInLinkToEmail(auth, v, {url: APP_LINK, handleCodeInApp: true});
+      store.set("fjp-email", v); S.linkSentTo = v; S.signInError = ""; render();
+    } catch(err){ console.error(err); send.disabled=false; S.signInError=t("linkSendFailed"); render(); }
+  }}, h("label",{class:"hint",for:"link-email",text:t("emailLabel")}), h("div",{class:"edit-item"}, email, send));
   return h("div",{class:"gate"}, h("div",{class:"panel"},
-    h("h2",{text:"Welcome to the house book"}),
-    h("p",{class:"sub",text:"Book your stay, see who's at the house, and find the exit checklist and contacts. Sign in with the Gmail address the admin invited."}),
-    btn,
-    signInError ? h("p",{class:"err",text:signInError}) : null,
-    inAppBrowser() ? h("p",{class:"warn",text:"You opened this link inside another app. Google may block sign-in here — tap ⋯ and choose “Open in Chrome” or “Open in Safari”."})
-                   : h("p",{class:"hint",text:"Opened from WhatsApp and sign-in won't work? Open the link in Chrome or Safari."})));
+    h("h2",{text:t("welcome")}),
+    h("p",{class:"sub",text:t("welcomeSub")}),
+    h("button",{class:"gbtn",onclick:startGoogle}, h("span",{html:GOOGLE_G}), t("googleBtn")),
+    inAppBrowser() ? h("p",{class:"warn",text:t("inApp")}) : h("p",{class:"hint",text:t("waHint")}),
+    h("div",{class:"or",text:t("or")}),
+    S.linkSentTo ? h("div",{class:"ok-msg",text:t("linkSent",{email:S.linkSentTo})}) : form,
+    S.signInError ? h("p",{class:"err",text:S.signInError}) : null));
 }
-async function startSignIn(){
-  signInError="";
+async function startGoogle(){
+  S.signInError="";
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({prompt:"select_account"});
   try { await signInWithPopup(auth, provider); }
   catch(e){
     if (["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code)) {
-      try { await signInWithRedirect(auth, provider); } catch(e2){ signInError="Sign-in didn't work. Try opening the link in Chrome or Safari."; render(); }
-    } else if (e.code!=="auth/popup-closed-by-user") { signInError="Sign-in didn't work ("+(e.code||"error")+"). Try again, or open the link in Chrome or Safari."; render(); }
+      try { await signInWithRedirect(auth, provider); } catch(_){ S.signInError=t("signInFailed"); render(); }
+    } else if (e.code!=="auth/popup-closed-by-user") { S.signInError=t("signInFailed")+" ("+(e.code||"error")+")"; render(); }
   }
 }
-function renderNotInvited(){
+function renderConfirmEmail(){
+  const email = h("input",{id:"confirm-email",type:"email",autocomplete:"email",placeholder:t("emailPh")});
   return h("div",{class:"gate"}, h("div",{class:"panel"},
-    h("h2",{text:"You're not on the list yet"}),
-    h("p",{class:"sub"}, "You're signed in as ", h("strong",{text:S.email}), ". Ask the admin to add this exact Gmail address in the app, then reload this page."),
-    h("button",{class:"btn",text:"Use a different account",onclick:()=>signOut(auth)})));
+    h("h2",{text:t("confirmEmail")}),
+    h("form",{class:"email-form",onsubmit:e=>{ e.preventDefault(); const v=email.value.trim().toLowerCase(); if(!isEmail(v)) return toast(t("enterEmail")); finishEmailLink(v); }},
+      h("div",{class:"edit-item"}, email, h("button",{class:"btn primary",type:"submit",text:t("finishSignIn")}))),
+    S.signInError ? h("p",{class:"err",text:S.signInError}) : null));
+}
+async function finishEmailLink(email){
+  try {
+    await signInWithEmailLink(auth, email, location.href);
+    store.set("fjp-email", "");
+    S.needEmailConfirm = false;
+  } catch(e){ console.error(e); S.needEmailConfirm=false; S.signInError=t("linkFailed"); }
+  history.replaceState(null, "", APP_LINK);
+  render();
+}
+function renderNotInvited(){
+  const parts = t("notInvitedSub",{email:"\u0000"}).split("\u0000");
+  return h("div",{class:"gate"}, h("div",{class:"panel"},
+    h("h2",{text:t("notInvited")}),
+    h("p",{class:"sub"}, parts[0], h("strong",{text:S.email}), parts[1]||""),
+    h("button",{class:"btn",text:t("otherAccount"),onclick:()=>signOut(auth)})));
 }
 function renderMainOnboarding(){
-  const sel = h("select",{id:"onb-fam"}, h("option",{value:"",text:"Choose your family…"}), families().map(f=>h("option",{value:f.id,text:f.name})));
+  const sel = h("select",{id:"onb-fam"}, h("option",{value:"",text:t("chooseFamily")}), families().map(f=>h("option",{value:f.id,text:famName(f.id)})));
   return h("div",{class:"panel"},
-    h("h2",{text:"Which family are you with?"}),
-    h("p",{class:"sub",text:"You're the main admin. Pick your own family so your bookings get the right colour."}),
+    h("h2",{text:t("whichFamily")}), h("p",{class:"sub",text:t("whichFamilySub")}),
     h("div",{class:"edit-item",style:"margin-top:12px;max-width:420px"}, sel,
-      h("button",{class:"btn primary",text:"Save",onclick:()=>{
-        if(!sel.value) return toast("Pick your family first.");
-        setDoc(doc(db,"members",S.email),{family:sel.value, admin:true, addedBy:S.email}).then(()=>toast("Saved"),fail).catch(()=>{});
+      h("button",{class:"btn primary",text:t("save"),onclick:()=>{
+        if(!sel.value) return toast(t("pickFamilyFirst"));
+        quiet(setDoc(doc(db,"members",S.email),{family:sel.value, admin:true, addedBy:S.email}).then(()=>toast(t("saved")),fail));
       }})));
 }
 
 function renderCalendar(){
   const [Y,M] = S.month.split("-").map(Number);
-  const first = dn(S.month), daysIn = new Date(Date.UTC(Y,M,0)).getUTCDate(), last = first+daysIn-1;
+  const first = dn(S.month), last = first+new Date(Date.UTC(Y,M,0)).getUTCDate()-1;
   const gridStart = first - (new Date(first*864e5).getUTCDay()+6)%7;
   const today = dn(todayStr());
   const bookings = allBookings().map(b=>({...b, s:dn(b.start), e:dn(b.end)}));
-  const title = new Date(first*864e5).toLocaleDateString("en-GB",{timeZone:"UTC",month:"long",year:"numeric"});
+  const title = new Date(first*864e5).toLocaleDateString(locale(),{timeZone:"UTC",month:"long",year:"numeric"});
   const shift = d => { const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); };
   const canBook = !!myFamily() || S.isMain;
   const head = h("div",{class:"cal-head"},
-    h("h2",{text:title}),
+    h("h2",{text:title.charAt(0).toUpperCase()+title.slice(1)}),
     h("div",{class:"cal-nav"},
-      h("button",{class:"btn icon-btn","aria-label":"Previous month",text:"‹",onclick:()=>shift(-1)}),
-      h("button",{class:"btn",text:"Today",onclick:()=>{S.month=todayStr().slice(0,8)+"01"; render();}}),
-      h("button",{class:"btn icon-btn","aria-label":"Next month",text:"›",onclick:()=>shift(1)}),
-      canBook ? h("button",{class:"btn primary",text:"+ New booking",onclick:()=>openForm(null, todayStr())}) : null));
-  const dow = h("div",{class:"dow"}, ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>h("span",{text:d})));
+      h("button",{class:"btn icon-btn","aria-label":t("prevMonth"),text:"‹",onclick:()=>shift(-1)}),
+      h("button",{class:"btn",text:t("today"),onclick:()=>{S.month=todayStr().slice(0,8)+"01"; render();}}),
+      h("button",{class:"btn icon-btn","aria-label":t("nextMonth"),text:"›",onclick:()=>shift(1)}),
+      canBook ? h("button",{class:"btn primary",text:t("newBooking"),onclick:()=>openForm(null, todayStr())}) : null));
+  const dow = h("div",{class:"dow"}, t("dow").map(d=>h("span",{text:d})));
   const weeks = h("div",{class:"weeks"});
   for (let ws=gridStart; ws<=last; ws+=7){
     const we=ws+6, lanes=[], placed=[];
@@ -482,8 +538,8 @@ function renderCalendar(){
     for (let i=0;i<7;i++){
       const d=ws+i, dstr=ds(d), cls=["day"];
       if(d<first||d>last) cls.push("other"); if(i>=5) cls.push("weekend"); if(d===today) cls.push("today");
-      week.append(h("button",{class:cls.join(" "),style:`grid-column:${i+1}`,"aria-label":fmt(dstr,{weekday:"long",day:"numeric",month:"long"})+(canBook?", book from this day":""),
-        onclick:()=>{ if(canBook) openForm(null,dstr); else toast("Choose your family first."); }},
+      week.append(h("button",{class:cls.join(" "),style:`grid-column:${i+1}`,"aria-label":fmt(dstr,{weekday:"long",day:"numeric",month:"long"})+(canBook?t("bookFromDay"):""),
+        onclick:()=>{ if(canBook) openForm(null,dstr); else toast(t("pickFamilyFirst")); }},
         h("span",{class:"n",text:new Date(d*864e5).getUTCDate()})));
     }
     for (const {b,cs,ce,lane} of placed){
@@ -494,143 +550,189 @@ function renderCalendar(){
     }
     weeks.append(week);
   }
-  const legend = h("div",{class:"legend"}, families().map(f=>h("span",null,h("span",{class:"dot",style:`background:${famColor(f.id)}`}),f.name)));
+  const legend = h("div",{class:"legend"}, families().map(f=>h("span",null,h("span",{class:"dot",style:`background:${famColor(f.id)}`}),famName(f.id))));
   return h("section",{class:"panel"}, head, dow, weeks, legend);
 }
 
 function renderList(){
-  const t=todayStr();
+  const td=todayStr();
   let list=allBookings();
-  if (S.listMode==="upcoming") list=list.filter(b=>b.end>=t);
+  if (S.listMode==="upcoming") list=list.filter(b=>b.end>=td);
   if (S.listMode==="mine") list=list.filter(b=>b.uid===uid());
-  if (S.listMode==="past") list=list.filter(b=>b.end<t).reverse();
-  const upcomingAll = allBookings().filter(b=>b.end>=t);
-  const seg=h("div",{class:"seg"},[["upcoming","Upcoming"],["mine","Mine"],["past","Past"]].map(([k,l])=>h("button",{"aria-pressed":S.listMode===k,text:l,onclick:()=>{S.listMode=k;render();}})));
-  const body = list.length ? h("div",{class:"list"}, list.map(b=>{
-    const now=b.start<=t && b.end>=t;
-    return h("button",{class:"row",onclick:()=>openDetail(b)},
+  if (S.listMode==="past") list=list.filter(b=>b.end<td).reverse();
+  const upcomingAll = allBookings().filter(b=>b.end>=td);
+  const seg=h("div",{class:"seg"},["upcoming","mine","past"].map(k=>h("button",{"aria-pressed":S.listMode===k,text:t(k),onclick:()=>{S.listMode=k;render();}})));
+  const body = list.length ? h("div",{class:"list"}, list.map(b=>h("button",{class:"row",onclick:()=>openDetail(b)},
       h("span",{class:"stripe",style:`background:${famColor(b.family)}`}),
       h("div",{style:"min-width:0"}, h("div",{class:"when",text:fmtRange(b)}), h("div",{class:"meta",text:famName(b.family)+(b.name?" · "+b.name:"")+(b.note?" · "+b.note:"")})),
-      h("div",{class:"right"}, now ? h("strong",{style:"color:var(--ok)",text:"At the house now"}) : plural(nights(b),"night")));
-  })) : h("div",{class:"empty",text:S.listMode==="mine"?"You have no bookings yet. Tap a day in the calendar to book.":S.listMode==="past"?"No past stays yet.":"No upcoming stays. Tap a day in the calendar to make the first booking."});
+      h("div",{class:"right"}, (b.start<=td && b.end>=td) ? h("strong",{style:"color:var(--ok)",text:t("atHouse")}) : nightsTxt(nights(b))))))
+    : h("div",{class:"empty",text:S.listMode==="mine"?t("emptyMine"):S.listMode==="past"?t("emptyPast"):t("emptyUpcoming")});
   return h("section",{class:"panel"},
-    h("div",{class:"split"}, h("div",null,h("h2",{text:"Stays"}),h("p",{class:"sub",text:"Everyone's bookings, so you can plan around each other."})), seg),
+    h("div",{class:"split"}, h("div",null,h("h2",{text:t("stays")}),h("p",{class:"sub",text:t("staysSub")})), seg),
     body,
-    upcomingAll.length ? h("div",{style:"margin-top:14px"}, h("button",{class:"btn",text:`Download all upcoming stays (.ics, ${upcomingAll.length})`,onclick:()=>downloadIcs(upcomingAll,"forge-jean-petit-stays.ics")})) : null);
+    upcomingAll.length ? h("div",{style:"margin-top:14px"}, h("button",{class:"btn",text:t("downloadAll",{n:upcomingAll.length}),onclick:()=>downloadIcs(upcomingAll,"forge-jean-petit.ics")})) : null);
 }
 
 function renderChecklist(){
-  const items=S.settings?.checklist||[], t=todayStr();
+  const items=S.settings?.checklist||[], td=todayStr();
   const mine=allBookings().filter(b=>b.uid===uid());
-  if (!mine.find(b=>b.id===S.checkBooking)){ const started=mine.filter(b=>b.start<=t); S.checkBooking=(started[started.length-1]||mine[0]||{}).id||null; }
+  if (!mine.find(b=>b.id===S.checkBooking)){ const started=mine.filter(b=>b.start<=td); S.checkBooking=(started[started.length-1]||mine[0]||{}).id||null; }
   const bk=mine.find(b=>b.id===S.checkBooking);
   const done=bk?items.filter(i=>bk.checklist?.[i.id]).length:0;
-  const panel=h("section",{class:"panel"}, h("h2",{text:"Exit checklist"}),
-    h("p",{class:"sub",text:"Go through this before you lock up. Ticks are saved on your stay, so the next family knows the house was left ready."}));
+  const panel=h("section",{class:"panel"}, h("h2",{text:t("tabChecklist")}), h("p",{class:"sub",text:t("checklistSub")}));
   if (mine.length){
-    panel.append(h("label",{class:"field",style:"margin-top:12px;max-width:340px"},"For your stay",
-      h("select",{id:"chk-booking",onchange:e=>{S.checkBooking=e.target.value;render();}}, mine.map(b=>h("option",{value:b.id,selected:b.id===S.checkBooking,text:"Stay "+fmtRange(b)})))));
-    panel.append(h("div",{class:"split",style:"margin-top:12px"}, h("strong",{class:"tnum",text:`${done} of ${items.length} done`}),
-      done===items.length&&items.length ? h("span",{style:"color:var(--ok);font-weight:700",text:"House ready for the next family"}) : null));
+    panel.append(h("label",{class:"field",style:"margin-top:12px;max-width:340px"},t("forYourStay"),
+      h("select",{id:"chk-booking",onchange:e=>{S.checkBooking=e.target.value;render();}}, mine.map(b=>h("option",{value:b.id,selected:b.id===S.checkBooking,text:t("stayLabel",{range:fmtRange(b)})})))));
+    panel.append(h("div",{class:"split",style:"margin-top:12px"}, h("strong",{class:"tnum",text:t("doneOf",{d:done,n:items.length})}),
+      done===items.length&&items.length ? h("span",{style:"color:var(--ok);font-weight:700",text:t("houseReady")}) : null));
     panel.append(h("div",{class:"progress"}, h("i",{style:`width:${items.length?Math.round(done/items.length*100):0}%`})));
-  } else panel.append(h("p",{class:"sub",style:"margin-top:10px",text:"Make a booking to tick items off. You can still read the list below."}));
-  if (!items.length){ panel.append(h("div",{class:"empty",style:"margin-top:14px",text:isAdmin()?"No checklist items yet. Add them in the Admin tab.":"The admin hasn't added checklist items yet."})); return panel; }
+  } else panel.append(h("p",{class:"sub",style:"margin-top:10px",text:t("makeBookingFirst")}));
+  if (!items.length){ panel.append(h("div",{class:"empty",style:"margin-top:14px",text:isAdmin()?t("noChecklistAdmin"):t("noChecklist")})); return panel; }
   panel.append(h("div",{class:"check"}, items.map(it=>{
     const checked=!!bk?.checklist?.[it.id];
     return h("label",{class:checked?"done":""},
       h("input",{type:"checkbox",id:"chk-"+it.id,checked,disabled:!bk,onchange:e=>{
         const cl={...(bk.checklist||{})}; if(e.target.checked) cl[it.id]=true; else delete cl[it.id];
-        updateDoc(doc(db,"bookings",bk.id),{checklist:cl}).catch(fail).catch(()=>{});
-      }}), h("span",{text:it.text}));
+        quiet(updateDoc(doc(db,"bookings",bk.id),{checklist:cl}).catch(fail));
+      }}), h("span",{text:itemText(it)}));
   })));
   return panel;
 }
 
 function renderContacts(){
   const cs=S.settings?.contacts||[];
-  const panel=h("section",{class:"panel"}, h("h2",{text:"Useful contacts"}), h("p",{class:"sub",text:"Who to call about the house. In an emergency, call 112."}));
-  if (!cs.length){ panel.append(h("div",{class:"empty",style:"margin-top:14px",text:isAdmin()?"No contacts yet. Add the neighbour, plumber, electrician and others in the Admin tab.":"The admin hasn't added contacts yet."})); return panel; }
+  const panel=h("section",{class:"panel"}, h("h2",{text:t("contactsTitle")}), h("p",{class:"sub",text:t("contactsSub")}));
+  if (!cs.length){ panel.append(h("div",{class:"empty",style:"margin-top:14px",text:isAdmin()?t("noContactsAdmin"):t("noContacts")})); return panel; }
   panel.append(h("div",{class:"cards"}, cs.map(c=>h("div",{class:"card"},
-    c.role?h("div",{class:"role",text:c.role}):null, h("h3",{text:c.name||"Contact"}),
-    c.phone?h("div",{class:"line"}, h("a",{href:"tel:"+c.phone.replace(/[^\d+]/g,""),text:c.phone}), h("button",{class:"copy",text:"Copy",onclick:e=>copyText(c.phone,e.target)})):null,
-    c.email?h("div",{class:"line"}, h("a",{href:"mailto:"+c.email,text:c.email}), h("button",{class:"copy",text:"Copy",onclick:e=>copyText(c.email,e.target)})):null,
-    c.note?h("div",{class:"note",text:c.note}):null))));
+    c.role?h("div",{class:"role",text:contactField(c,"role")}):null, h("h3",{text:contactField(c,"name")}),
+    c.phone?h("div",{class:"line"}, h("a",{href:"tel:"+c.phone.replace(/[^\d+]/g,""),text:c.phone}), h("button",{class:"copy",text:t("copy"),onclick:e=>copyText(c.phone,e.target)})):null,
+    c.email?h("div",{class:"line"}, h("a",{href:"mailto:"+c.email,text:c.email}), h("button",{class:"copy",text:t("copy"),onclick:e=>copyText(c.email,e.target)})):null,
+    c.note?h("div",{class:"note",text:contactField(c,"note")}):null))));
   return panel;
 }
 
+/* ---------- admin ---------- */
+function parseBulk(text){
+  const rows=[], seen=new Set();
+  for (const raw of text.split(/\r?\n/)){
+    const line=raw.trim(); if(!line) continue;
+    const m=line.match(/[^\s<>,;]+@[^\s<>,;]+\.[A-Za-z]{2,}/); if(!m) continue;
+    const email=m[0].toLowerCase(); if(seen.has(email)) continue; seen.add(email);
+    const name=line.slice(0,m.index).replace(/[<,;\-–]+\s*$/,"").replace(/^[\s,;]+/,"").trim();
+    const fm=line.slice(m.index+m[0].length).match(/fam\w*\s*(\d)\s*(?:[-–:]\s*(.+?))?\s*[,;]?\s*$/i);
+    const n=fm?Number(fm[1]):0;
+    rows.push({email, name, family: n>=1&&n<=7?"f"+n:"", label: fm&&fm[2]?fm[2].trim():"", on:true});
+  }
+  return rows;
+}
+function renderBulk(){
+  const box=h("section",{class:"panel bulk"}, h("h2",{text:t("bulkTitle")}), h("p",{class:"sub",text:t("bulkSub")}));
+  const ta=h("textarea",{id:"bulk-text",placeholder:t("bulkPh"),"aria-label":t("bulkTitle")});
+  if (S.bulk?.text) ta.value=S.bulk.text;
+  box.append(h("div",{style:"margin-top:12px"},ta),
+    h("div",{style:"margin-top:10px"}, h("button",{class:"btn",text:t("checkList"),onclick:()=>{
+      const rows=parseBulk(ta.value); if(!rows.length) return toast(t("noEmailsFound"));
+      S.bulk={text:ta.value, rows}; render();
+    }})));
+  if (!S.bulk?.rows?.length) return box;
+  const rows=S.bulk.rows;
+  const labels={}; for (const r of rows) if (r.on && r.family && r.label) labels[r.family]=r.label;
+  const existing=new Set(S.members.map(m=>m.id));
+  box.append(h("div",{class:"scroll-x"}, h("table",{class:"bulk-table"},
+    h("thead",null,h("tr",null,h("th",null,""),h("th",{text:t("name")}),h("th",{text:t("email")}),h("th",{text:t("family")}))),
+    h("tbody",null, rows.map((r,i)=>h("tr",null,
+      h("td",null,h("input",{type:"checkbox",id:"bulk-on-"+i,checked:r.on,"aria-label":r.email,onchange:e=>{r.on=e.target.checked; render();}})),
+      h("td",{text:r.name||"—"}),
+      h("td",null, r.email, existing.has(r.email)?h("div",{class:"hint",text:t("alreadyListed")}):null),
+      h("td",null, h("select",{id:"bulk-fam-"+i,"aria-label":t("family"),onchange:e=>{r.family=e.target.value; render();}},
+        h("option",{value:"",text:t("chooseFam")}), families().map(f=>h("option",{value:f.id,selected:r.family===f.id,text:famName(f.id)})))))))))) ;
+  if (Object.keys(labels).length) box.append(h("div",{class:"fam-preview"}, h("strong",{text:t("familyNamesWill")}),
+    Object.entries(labels).sort().map(([id,l])=>h("span",null,h("span",{class:"dot",style:`background:${famColor(id)}`}),l))));
+  const chosen=rows.filter(r=>r.on);
+  const go=h("button",{class:"btn primary",text:t("addAll",{n:chosen.length}),disabled:!chosen.length,onclick:async()=>{
+    if (chosen.some(r=>!r.family)) return toast(t("needFamily"));
+    go.disabled=true;
+    try{
+      if (Object.keys(labels).length) await saveSettings({families:families().map(f=>labels[f.id]?{...f,name:labels[f.id]}:f)});
+      for (const r of chosen){
+        const data={family:r.family}; if(r.name) data.name=r.name;
+        if (existing.has(r.email)) await updateDoc(doc(db,"members",r.email), data);
+        else await setDoc(doc(db,"members",r.email), {...data, admin:false, addedBy:S.email});
+      }
+      toast(t("addedN",{n:chosen.length})); S.bulk=null; render();
+    }catch(e){ go.disabled=false; try{fail(e);}catch(_){} }
+  }});
+  box.append(h("div",{style:"margin-top:12px"}, go));
+  return box;
+}
 function renderSettings(){
   const wrap=h("div",{class:"settings"});
-  // People
-  const email=h("input",{id:"m-email",type:"email",placeholder:"name@gmail.com","aria-label":"Gmail address"});
-  const fam=h("select",{id:"m-fam","aria-label":"Family"}, families().map(f=>h("option",{value:f.id,text:f.name})));
+  const email=h("input",{id:"m-email",type:"email",placeholder:"name@gmail.com","aria-label":t("emailAddr")});
+  const nm=h("input",{id:"m-name",placeholder:t("nameOpt"),"aria-label":t("nameOpt")});
+  const fam=h("select",{id:"m-fam","aria-label":t("family")}, families().map(f=>h("option",{value:f.id,text:famName(f.id)})));
   const adm=h("input",{type:"checkbox",id:"m-admin"});
   const add=()=>{
     const e=email.value.trim().toLowerCase();
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return toast("Enter a full email address.");
-    setDoc(doc(db,"members",e),{family:fam.value, admin:S.isMain?adm.checked:false, addedBy:S.email})
-      .then(()=>{ toast(`${e} can now sign in`); email.value=""; adm.checked=false; },fail).catch(()=>{});
+    if(!isEmail(e)) return toast(t("enterEmail"));
+    const data={family:fam.value, admin:S.isMain?adm.checked:false, addedBy:S.email}; if(nm.value.trim()) data.name=nm.value.trim();
+    quiet(setDoc(doc(db,"members",e),data).then(()=>{ toast(t("canSignIn",{email:e})); email.value=""; nm.value=""; adm.checked=false; },fail));
   };
   email.addEventListener("keydown",e=>{ if(e.key==="Enter") add(); });
-  const people=[...S.members].sort((a,b)=>famIndex(a.family)-famIndex(b.family)||a.id.localeCompare(b.id));
+  const people=[...S.members].sort((a,b)=>famIndex(a.family)-famIndex(b.family)||(a.name||a.id).localeCompare(b.name||b.id));
   wrap.append(h("section",{class:"panel"},
-    h("h2",{text:"People and admins"}),
-    h("p",{class:"sub",text:"Only the Gmail addresses listed here can open the app. Admins can delete anyone's booking and edit families, the checklist and contacts. Only the main admin can make someone an admin."}),
-    h("div",{class:"edit-item",style:"margin-top:12px"}, email, fam,
-      S.isMain?h("label",{class:"admin-toggle"},adm,"Admin"):null,
-      h("button",{class:"btn primary",text:"Add person",onclick:add})),
+    h("h2",{text:t("peopleTitle")}), h("p",{class:"sub",text:t("peopleSub")}),
+    h("div",{class:"edit-item",style:"margin-top:12px"}, email, nm, fam, S.isMain?h("label",{class:"admin-toggle"},adm,t("admin")):null, h("button",{class:"btn primary",text:t("addPerson"),onclick:add})),
     h("div",{class:"edit-list",style:"margin-top:14px"}, people.map(m=>{
-      const locked = m.admin && !S.isMain;
-      const isMe = m.id===S.email;
+      const locked = m.admin && !S.isMain, isMe = m.id===S.email;
       return h("div",{class:"edit-item"},
         h("span",{class:"dot",style:`background:${famColor(m.family)}`}),
-        h("span",{class:"txt"}, m.id, isMe?" (you)":"", m.id===MAIN_ADMIN?h("small",{text:"Main admin"}):m.admin?h("small",{text:"Admin"}):null),
-        h("select",{id:"mf-"+m.id,"aria-label":"Family",disabled:locked,onchange:e=>updateDoc(doc(db,"members",m.id),{family:e.target.value}).then(()=>toast("Moved"),fail).catch(()=>{})},
-          families().map(f=>h("option",{value:f.id,selected:m.family===f.id,text:f.name}))),
+        h("span",{class:"txt"}, m.name||m.id, isMe?" "+t("you"):"",
+          h("small",{text:(m.name?m.id+" · ":"")+(m.id===MAIN_ADMIN?t("mainAdmin"):m.admin?t("admin"):"")})),
+        h("select",{id:"mf-"+m.id,"aria-label":t("family"),disabled:locked,onchange:e=>quiet(updateDoc(doc(db,"members",m.id),{family:e.target.value}).then(()=>toast(t("moved")),fail))},
+          families().map(f=>h("option",{value:f.id,selected:m.family===f.id,text:famName(f.id)}))),
         S.isMain && m.id!==MAIN_ADMIN ? h("label",{class:"admin-toggle"},
-          h("input",{type:"checkbox",id:"ma-"+m.id,checked:!!m.admin,onchange:e=>updateDoc(doc(db,"members",m.id),{admin:e.target.checked}).then(()=>toast(e.target.checked?"Admin added":"Admin removed"),fail).catch(()=>{})}),"Admin") : null,
-        (!locked && m.id!==MAIN_ADMIN && !isMe) ? removeButton(()=>deleteDoc(doc(db,"members",m.id)).then(()=>toast("Removed"),fail)) : null);
+          h("input",{type:"checkbox",id:"ma-"+m.id,checked:!!m.admin,onchange:e=>quiet(updateDoc(doc(db,"members",m.id),{admin:e.target.checked}).then(()=>toast(e.target.checked?t("adminAdded"):t("adminRemoved")),fail))}),t("admin")) : null,
+        (!locked && m.id!==MAIN_ADMIN && !isMe) ? removeButton(()=>deleteDoc(doc(db,"members",m.id)).then(()=>toast(t("removed")),fail)) : null);
     }))));
-  // Families
-  wrap.append(h("section",{class:"panel"}, h("h2",{text:"Families"}), h("p",{class:"sub",text:"Rename the seven families. Colours stay the same."}),
-    h("div",{class:"edit-list"}, families().map(f=>h("div",{class:"edit-item"}, h("span",{class:"dot",style:`background:${famColor(f.id)}`}), h("input",{id:"fam-"+f.id,value:f.name,"aria-label":"Family name"})))),
-    h("div",{style:"margin-top:12px"}, h("button",{class:"btn primary",text:"Save names",onclick:()=>{
-      const list=families().map(f=>({id:f.id,name:document.getElementById("fam-"+f.id).value.trim()||f.name}));
-      saveSettings({families:list}).then(()=>toast("Family names saved")).catch(()=>{});
+  wrap.append(renderBulk());
+  wrap.append(h("section",{class:"panel"}, h("h2",{text:t("familiesTitle")}), h("p",{class:"sub",text:t("familiesSub")}),
+    h("div",{class:"edit-list"}, families().map(f=>h("div",{class:"edit-item"}, h("span",{class:"dot",style:`background:${famColor(f.id)}`}), h("input",{id:"fam-"+f.id,value:famName(f.id),"aria-label":t("family")})))),
+    h("div",{style:"margin-top:12px"}, h("button",{class:"btn primary",text:t("saveNames"),onclick:()=>{
+      const list=families().map(f=>{ const v=document.getElementById("fam-"+f.id).value.trim(); return {id:f.id, name:(!v||v===famName(f.id))?f.name:v}; });
+      quiet(saveSettings({families:list}).then(()=>toast(t("namesSaved"))));
     }}))));
-  // Checklist
   const chk=S.settings?.checklist||[];
-  const newItem=h("input",{id:"new-chk",placeholder:"e.g. Turn the heating down to 12°C"});
-  const addItem=()=>{ const v=newItem.value.trim(); if(!v) return; saveSettings({checklist:chk.concat({id:newId(),text:v})}).then(()=>toast("Added")).catch(()=>{}); };
+  const newItem=h("input",{id:"new-chk",placeholder:t("checklistPh")});
+  const addItem=()=>{ const v=newItem.value.trim(); if(!v) return; quiet(saveSettings({checklist:chk.concat({id:newId(),text:v})}).then(()=>toast(t("addedOne")))); };
   newItem.addEventListener("keydown",e=>{ if(e.key==="Enter") addItem(); });
-  wrap.append(h("section",{class:"panel"}, h("h2",{text:"Exit checklist items"}),
+  wrap.append(h("section",{class:"panel"}, h("h2",{text:t("checklistItems")}),
     h("div",{class:"edit-list"}, chk.map((it,i)=>h("div",{class:"edit-item"},
-      h("span",{class:"txt",text:it.text}),
-      h("button",{class:"btn ghost icon-btn","aria-label":"Move up",disabled:i===0,text:"↑",onclick:()=>{const a=[...chk]; [a[i-1],a[i]]=[a[i],a[i-1]]; saveSettings({checklist:a}).catch(()=>{});}}),
-      h("button",{class:"btn ghost icon-btn","aria-label":"Remove",text:"✕",onclick:()=>saveSettings({checklist:chk.filter(x=>x.id!==it.id)}).catch(()=>{})})))),
-    h("div",{class:"edit-item",style:"margin-top:10px"}, newItem, h("button",{class:"btn",text:"Add",onclick:addItem}))));
-  // Contacts
+      h("span",{class:"txt",text:itemText(it)}),
+      h("button",{class:"btn ghost icon-btn","aria-label":t("moveUp"),disabled:i===0,text:"↑",onclick:()=>{const a=[...chk]; [a[i-1],a[i]]=[a[i],a[i-1]]; quiet(saveSettings({checklist:a}));}}),
+      h("button",{class:"btn ghost icon-btn","aria-label":t("remove"),text:"✕",onclick:()=>quiet(saveSettings({checklist:chk.filter(x=>x.id!==it.id)}))})))),
+    h("div",{class:"edit-item",style:"margin-top:10px"}, newItem, h("button",{class:"btn",text:t("add"),onclick:addItem}))));
   const cs=S.settings?.contacts||[];
-  const f={name:h("input",{id:"c-name"}),role:h("input",{id:"c-role",placeholder:"Neighbour, plumber…"}),phone:h("input",{id:"c-phone",inputmode:"tel"}),email:h("input",{id:"c-email",type:"email"}),note:h("input",{id:"c-note"})};
+  const f={name:h("input",{id:"c-name"}),role:h("input",{id:"c-role",placeholder:t("rolePh")}),phone:h("input",{id:"c-phone",inputmode:"tel"}),email:h("input",{id:"c-email",type:"email"}),note:h("input",{id:"c-note"})};
   let editing=null;
-  const saveBtn=h("button",{class:"btn primary",text:"Add contact",onclick:()=>{
+  const saveBtn=h("button",{class:"btn primary",text:t("addContact"),onclick:()=>{
     const c={id:editing||newId()}; for(const k in f) c[k]=f[k].value.trim();
-    if(!c.name) return toast("Give the contact a name.");
+    if(!c.name) return toast(t("contactName"));
     const list=[...cs]; const i=list.findIndex(x=>x.id===c.id); if(i>=0) list[i]=c; else list.push(c);
-    saveSettings({contacts:list}).then(()=>toast("Contact saved")).catch(()=>{});
+    quiet(saveSettings({contacts:list}).then(()=>toast(t("contactSaved"))));
   }});
-  wrap.append(h("section",{class:"panel"}, h("h2",{text:"Contacts"}),
+  wrap.append(h("section",{class:"panel"}, h("h2",{text:t("contactsAdmin")}),
     h("div",{class:"edit-list"}, cs.map(c=>h("div",{class:"edit-item"},
-      h("span",{class:"txt",text:c.name+(c.role?" — "+c.role:"")}),
-      h("button",{class:"btn ghost",text:"Edit",onclick:()=>{editing=c.id; for(const k in f) f[k].value=c[k]||""; saveBtn.textContent="Save changes"; f.name.focus();}}),
-      h("button",{class:"btn ghost icon-btn","aria-label":"Remove",text:"✕",onclick:()=>saveSettings({contacts:cs.filter(x=>x.id!==c.id)}).catch(()=>{})})))),
-    h("div",{class:"grid2",style:"margin-top:14px"}, h("label",{class:"field"},"Name",f.name), h("label",{class:"field"},"Role",f.role), h("label",{class:"field"},"Phone",f.phone), h("label",{class:"field"},"Email",f.email)),
-    h("label",{class:"field",style:"margin-top:12px"},"Note",f.note),
+      h("span",{class:"txt",text:contactField(c,"name")+(c.role?" — "+contactField(c,"role"):"")}),
+      h("button",{class:"btn ghost",text:t("edit"),onclick:()=>{editing=c.id; for(const k in f) f[k].value=c[k]||""; saveBtn.textContent=t("saveChanges"); f.name.focus();}}),
+      h("button",{class:"btn ghost icon-btn","aria-label":t("remove"),text:"✕",onclick:()=>quiet(saveSettings({contacts:cs.filter(x=>x.id!==c.id)}))})))),
+    h("div",{class:"grid2",style:"margin-top:14px"}, h("label",{class:"field"},t("name"),f.name), h("label",{class:"field"},t("role"),f.role), h("label",{class:"field"},t("phone"),f.phone), h("label",{class:"field"},t("email"),f.email)),
+    h("label",{class:"field",style:"margin-top:12px"},t("note"),f.note),
     h("div",{style:"margin-top:12px"}, saveBtn)));
   return wrap;
 }
 function removeButton(action){
-  const b=h("button",{class:"btn ghost",text:"Remove"});
-  b.addEventListener("click",()=>{ if(!b.classList.contains("armed")){ b.classList.add("armed","danger"); b.textContent="Tap to confirm"; return; } action().catch(()=>{}); });
+  const b=h("button",{class:"btn ghost",text:t("remove")});
+  b.addEventListener("click",()=>{ if(!b.classList.contains("armed")){ b.classList.add("armed","danger"); b.textContent=t("tapConfirm"); return; } quiet(action()); });
   return b;
 }
 
@@ -638,103 +740,103 @@ function removeButton(action){
 const dlg=$("#dlg");
 function showDlg(content){ dlg.replaceChildren(content); if(!dlg.open) dlg.showModal(); }
 dlg.addEventListener("click",e=>{ if(e.target===dlg) dlg.close(); });
-const closeBtn = () => h("button",{type:"button",class:"btn ghost icon-btn","aria-label":"Close",text:"✕",onclick:()=>dlg.close()});
+const closeBtn = () => h("button",{type:"button",class:"btn ghost icon-btn","aria-label":t("close"),text:"✕",onclick:()=>dlg.close()});
 
 function openDetail(b, justDone){
   const items=S.settings?.checklist||[];
   const done=items.filter(i=>b.checklist?.[i.id]).length;
   const long={weekday:"long",day:"numeric",month:"long",year:"numeric"};
-  const del=h("button",{class:"btn danger",text:canEdit(b)?"Delete booking":"Delete (admin)"});
+  const del=h("button",{class:"btn danger",text:canEdit(b)?t("deleteBooking"):t("deleteAdmin")});
   del.addEventListener("click",()=>{
-    if(!del.classList.contains("armed")){ del.classList.add("armed"); del.textContent="Tap again to delete"; return; }
-    deleteDoc(doc(db,"bookings",b.id)).then(()=>openCancelled(b),fail).catch(()=>{});
+    if(!del.classList.contains("armed")){ del.classList.add("armed"); del.textContent=t("tapAgain"); return; }
+    quiet(deleteDoc(doc(db,"bookings",b.id)).then(()=>openCancelled(b),fail));
   });
   showDlg(h("div",{class:"dlg"},
     h("div",{class:"dlg-head"}, h("div",null, h("span",{class:"chip"},h("span",{class:"dot",style:`background:${famColor(b.family)}`}),famName(b.family)), h("h2",{style:"margin-top:8px",text:fmtRange(b)})), closeBtn()),
-    justDone ? h("div",{class:"done-banner",text:justDone==="edit"?"Changes saved.":"You're booked."}) : null,
+    justDone ? h("div",{class:"done-banner",text:justDone==="edit"?t("changesSaved"):t("youBooked")}) : null,
     h("dl",{class:"kv"},
-      h("dt",{text:"Booked by"}), h("dd",{text:(b.name||b.email||"A family member")+(canEdit(b)?" (you)":"")}),
-      h("dt",{text:"Arrival"}), h("dd",{text:fmt(b.start,long)}),
-      h("dt",{text:"Departure"}), h("dd",{text:fmt(b.end,long)}),
-      h("dt",{text:"Nights"}), h("dd",{class:"tnum",text:String(nights(b))}),
-      b.guests?[h("dt",{text:"People"}),h("dd",{class:"tnum",text:String(b.guests)})]:null,
-      b.note?[h("dt",{text:"Note"}),h("dd",{text:b.note})]:null,
-      items.length?[h("dt",{text:"Exit checklist"}),h("dd",{class:"tnum",text:`${done} of ${items.length} done`})]:null),
+      h("dt",{text:t("bookedBy")}), h("dd",{text:(b.name||b.email||t("aMember"))+(canEdit(b)?" "+t("you"):"")}),
+      h("dt",{text:t("arrival")}), h("dd",{text:fmt(b.start,long)}),
+      h("dt",{text:t("departure")}), h("dd",{text:fmt(b.end,long)}),
+      h("dt",{text:t("nightsLabel")}), h("dd",{class:"tnum",text:String(nights(b))}),
+      b.guests?[h("dt",{text:t("peopleLabel")}),h("dd",{class:"tnum",text:String(b.guests)})]:null,
+      b.note?[h("dt",{text:t("noteLabel")}),h("dd",{text:b.note})]:null,
+      items.length?[h("dt",{text:t("checklistLabel")}),h("dd",{class:"tnum",text:t("doneOf",{d:done,n:items.length})})]:null),
     (justDone||canEdit(b)) ? notifyBlock(b, justDone||"new") : null,
     exportBlock(b),
     h("div",{class:"dlg-actions"},
-      canDelete(b)?del:h("span",{class:"hint",text:"Only the person who booked this can change it."}),
-      canEdit(b)?h("button",{class:"btn primary",text:"Edit",onclick:()=>openForm(b)}):null)));
+      canDelete(b)?del:h("span",{class:"hint",text:t("onlyBooker")}),
+      canEdit(b)?h("button",{class:"btn primary",text:t("edit"),onclick:()=>openForm(b)}):null)));
 }
 function openCancelled(b){
   showDlg(h("div",{class:"dlg"},
-    h("div",{class:"dlg-head"}, h("h2",{text:"Booking deleted"}), closeBtn()),
-    h("p",{class:"sub",text:`${famName(b.family)}, ${fmtRange(b)} is now free on the calendar.`}),
+    h("div",{class:"dlg-head"}, h("h2",{text:t("bookingDeleted")}), closeBtn()),
+    h("p",{class:"sub",text:t("nowFree",{family:famName(b.family),range:fmtRange(b)})}),
     notifyBlock(b,"cancel")));
 }
 
 function openForm(b, startDefault){
   const isNew=!b;
-  if (isNew && !myFamily() && !S.isMain) return toast("Choose your family first.");
+  if (isNew && !myFamily() && !S.isMain) return toast(t("pickFamilyFirst"));
   const start=h("input",{type:"date",id:"bk-start",value:b?b.start:startDefault,required:true});
   const end=h("input",{type:"date",id:"bk-end",value:b?b.end:ds(dn(startDefault)+2),required:true});
-  const guests=h("input",{type:"number",id:"bk-guests",min:"1",max:"50",value:b?.guests||"",placeholder:"Optional"});
-  const note=h("textarea",{id:"bk-note",maxlength:"500",placeholder:"e.g. Grandma joins for the weekend"}); note.value=b?.note||"";
-  const famSel=isAdmin()?h("select",{id:"bk-fam"}, families().map(f=>h("option",{value:f.id,selected:(b?b.family:(myFamily()||families()[0].id))===f.id,text:f.name}))):null;
+  const guests=h("input",{type:"number",id:"bk-guests",min:"1",max:"50",value:b?.guests||"",placeholder:t("optional")});
+  const note=h("textarea",{id:"bk-note",maxlength:"500",placeholder:t("notePh")}); note.value=b?.note||"";
+  const famSel=isAdmin()?h("select",{id:"bk-fam"}, families().map(f=>h("option",{value:f.id,selected:(b?b.family:(myFamily()||families()[0].id))===f.id,text:famName(f.id)}))):null;
   const warnBox=h("div"), err=h("div",{class:"err"});
   let share=false;
   const check=()=>{
     warnBox.replaceChildren(); err.textContent="";
     if(!start.value||!end.value) return;
-    if(end.value<start.value){ err.textContent="Departure must be on or after arrival."; return; }
+    if(end.value<start.value){ err.textContent=t("depAfter"); return; }
     const s=dn(start.value), e=Math.max(dn(end.value),s+1);
     const clash=allBookings().filter(o=>o.id!==b?.id && dn(o.start)<e && Math.max(dn(o.end),dn(o.start)+1)>s);
-    if(clash.length) warnBox.append(h("div",{class:"warn"}, h("strong",{text:"These dates overlap with: "}), clash.map(o=>`${famName(o.family)} (${fmtRange(o)})`).join(", "),
-      h("label",null,h("input",{type:"checkbox",id:"bk-share",checked:share,onchange:x=>share=x.target.checked}),"We'll share the house — book anyway")));
+    if(clash.length) warnBox.append(h("div",{class:"warn"}, h("strong",{text:t("overlap")}), clash.map(o=>`${famName(o.family)} (${fmtRange(o)})`).join(", "),
+      h("label",null,h("input",{type:"checkbox",id:"bk-share",checked:share,onchange:x=>share=x.target.checked}),t("shareHouse"))));
   };
   start.addEventListener("change",()=>{ if(end.value<start.value) end.value=ds(dn(start.value)+1); check(); });
   end.addEventListener("change",check);
-  const save=h("button",{class:"btn primary",type:"submit",text:isNew?"Book these dates":"Save changes"});
+  const save=h("button",{class:"btn primary",type:"submit",text:isNew?t("bookDates"):t("saveChanges")});
   const form=h("form",{class:"dlg",onsubmit:async e=>{
     e.preventDefault(); check();
     if(err.textContent) return;
-    if(warnBox.childNodes.length && !share){ err.textContent="Tick the box to confirm you'll share the house, or pick other dates."; return; }
+    if(warnBox.childNodes.length && !share){ err.textContent=t("confirmShare"); return; }
     const id=b?.id||newId();
-    const data={ uid:uid(), email:S.email, name:S.authUser.displayName||S.email,
+    const data={ uid:uid(), email:S.email, name:S.authUser.displayName||memberName(S.email)||S.email,
       family: famSel?famSel.value:(b?.family||myFamily()), start:start.value, end:end.value, note:note.value.trim(),
       checklist:b?.checklist||{}, createdAt:b?.createdAt||new Date().toISOString(), updatedAt:new Date().toISOString() };
     if(guests.value) data.guests=Math.round(Number(guests.value));
-    if(!b && !data.family){ err.textContent="Choose a family."; return; }
+    if(!data.family){ err.textContent=t("chooseAFamily"); return; }
     save.disabled=true;
     try{
       await setDoc(doc(db,"bookings",id), data);
       S.month=data.start.slice(0,8)+"01"; render();
+      toast(isNew?t("booked"):t("bookingUpdated"));
       openDetail({...data,id}, isNew?"new":"edit");
     }catch(e2){ save.disabled=false; try{fail(e2);}catch(_){} }
   }},
-    h("div",{class:"dlg-head"}, h("h2",{text:isNew?"New booking":"Edit booking"}), closeBtn()),
-    h("div",{class:"grid2"}, h("label",{class:"field"},"Arrival",start), h("label",{class:"field"},"Departure",end)),
+    h("div",{class:"dlg-head"}, h("h2",{text:isNew?t("newBookingTitle"):t("editBooking")}), closeBtn()),
+    h("div",{class:"grid2"}, h("label",{class:"field"},t("arrival"),start), h("label",{class:"field"},t("departure"),end)),
     h("div",{class:"grid2"},
-      famSel?h("label",{class:"field"},"Family",famSel):h("div",{class:"field"},"Family",h("span",{class:"chip",style:"justify-self:start"},h("span",{class:"dot",style:`background:${famColor(myFamily())}`}),famName(myFamily()))),
-      h("label",{class:"field"},"People staying",guests)),
-    h("label",{class:"field"},"Note for the others",note),
+      famSel?h("label",{class:"field"},t("family"),famSel):h("div",{class:"field"},t("family"),h("span",{class:"chip",style:"justify-self:start"},h("span",{class:"dot",style:`background:${famColor(myFamily())}`}),famName(myFamily()))),
+      h("label",{class:"field"},t("peopleStaying"),guests)),
+    h("label",{class:"field"},t("noteForOthers"),note),
     warnBox, err,
-    h("div",{class:"dlg-actions"}, h("button",{type:"button",class:"btn",text:"Cancel",onclick:()=>dlg.close()}), save));
+    h("div",{class:"dlg-actions"}, h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}), save));
   showDlg(form); check();
 }
 
 /* ---------- tabs ---------- */
 $("#tabs").addEventListener("click",e=>{
-  const t=e.target.closest("button[data-tab]"); if(!t) return;
-  S.tab=t.dataset.tab; try{localStorage.setItem("fjp-tab",S.tab);}catch(_){}
-  render();
+  const b=e.target.closest("button[data-tab]"); if(!b) return;
+  S.tab=b.dataset.tab; store.set("fjp-tab",S.tab); render();
 });
 
 /* ---------- live data ---------- */
 function stopAll(){ S.unsubs.forEach(u=>u()); S.unsubs=[]; }
 function startData(){
   if (S.unsubs.length>1) return;
-  const onErr = e => { console.error(e); if(e.code==="permission-denied") toast("Your access changed. Reload the page."); };
+  const onErr = e => { console.error(e); if(e.code==="permission-denied") toast(t("accessChanged")); };
   S.unsubs.push(onSnapshot(doc(db,"config","settings"), async snap=>{
     if (snap.exists()) S.settings=snap.data();
     else if (isAdmin()) { try{ await setDoc(doc(db,"config","settings"), DEFAULT_SETTINGS); }catch(e){ console.error(e); } }
@@ -745,8 +847,14 @@ function startData(){
 }
 
 S.month=todayStr().slice(0,8)+"01";
-try{ const t=localStorage.getItem("fjp-tab"); if(t) S.tab=t; }catch(_){}
-getRedirectResult(auth).catch(e=>{ signInError="Sign-in didn't work. Try opening the link in Chrome or Safari."; render(); });
+{ const tb=store.get("fjp-tab"); if(tb) S.tab=tb; }
+getRedirectResult(auth).catch(()=>{ S.signInError=t("signInFailed"); render(); });
+
+// Arriving from an emailed sign-in link
+if (isSignInWithEmailLink(auth, location.href)) {
+  const saved = store.get("fjp-email");
+  if (saved) finishEmailLink(saved); else S.needEmailConfirm = true;
+}
 
 onAuthStateChanged(auth, user=>{
   stopAll();
@@ -762,6 +870,7 @@ onAuthStateChanged(auth, user=>{
     render();
   }, e=>{ console.error(e); S.memberLoaded=true; render(); }));
 });
+render();
 </script>
 </body>
 </html>
