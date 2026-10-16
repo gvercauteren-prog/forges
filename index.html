@@ -186,6 +186,14 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
 .scroll-x{overflow-x:auto}
 .fam-preview{margin-top:10px;font-size:.88rem;display:flex;flex-wrap:wrap;gap:6px 14px}
 .fam-preview span{display:inline-flex;align-items:center;gap:6px}
+.tip-cats{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.tip-cats button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.84rem;font-weight:600;color:var(--muted);cursor:pointer}
+.tip-cats button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tip .addr{font-size:.9rem;overflow-wrap:anywhere}
+.tip .links{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tip .links a{text-decoration:none}
+.tip .by{font-size:.8rem;color:var(--muted);margin-top:4px}
+.tip .acts{display:flex;gap:6px;margin-top:6px}
 </style>
 </head>
 <body>
@@ -207,6 +215,7 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
       <button role="tab" data-tab="calendar" aria-selected="true"></button>
       <button role="tab" data-tab="checklist" aria-selected="false"></button>
       <button role="tab" data-tab="contacts" aria-selected="false"></button>
+      <button role="tab" data-tab="tips" aria-selected="false"></button>
       <button role="tab" data-tab="settings" aria-selected="false" id="tab-settings" hidden></button>
     </nav>
   </div>
@@ -273,7 +282,7 @@ const S = {
   authUser:null, email:null, member:null, memberLoaded:false, isMain:false,
   settings:null, bookings:[], members:[],
   tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[],
-  signInError:"", linkSentTo:"", needEmailConfirm:false, bulk:null
+  signInError:"", linkSentTo:"", needEmailConfirm:false, bulk:null, tips:[], tipCat:"all"
 };
 const $ = s => document.querySelector(s);
 const main = $("#main");
@@ -407,7 +416,7 @@ function notifyBlock(b, kind){
 /* ---------- header ---------- */
 function renderHeader(){
   $("#brand-small").textContent = t("brandSmall");
-  const labels = {calendar:"tabCalendar", checklist:"tabChecklist", contacts:"tabContacts", settings:"tabAdmin"};
+  const labels = {calendar:"tabCalendar", checklist:"tabChecklist", contacts:"tabContacts", tips:"tabTips", settings:"tabAdmin"};
   for (const b of document.querySelectorAll("#tabs button")){ b.textContent=t(labels[b.dataset.tab]); b.setAttribute("aria-selected", b.dataset.tab===S.tab); }
   const w=$("#who"); w.replaceChildren();
   w.append(h("div",{class:"lang",role:"group","aria-label":"Language"}, LANGS.map(l=>h("button",{"aria-pressed":l===LANG,text:l.toUpperCase(),onclick:()=>setLang(l)}))));
@@ -435,6 +444,7 @@ function render(){
   if (S.tab==="calendar") main.append(renderCalendar(), renderList());
   if (S.tab==="checklist") main.append(renderChecklist());
   if (S.tab==="contacts") main.append(renderContacts());
+  if (S.tab==="tips") main.append(renderTips());
   if (S.tab==="settings" && isAdmin()) main.append(renderSettings());
 }
 
@@ -609,6 +619,67 @@ function renderContacts(){
     c.email?h("div",{class:"line"}, h("a",{href:"mailto:"+c.email,text:c.email}), h("button",{class:"copy",text:t("copy"),onclick:e=>copyText(c.email,e.target)})):null,
     c.note?h("div",{class:"note",text:contactField(c,"note")}):null))));
   return panel;
+}
+
+/* ---------- tips ---------- */
+const TIP_CATS = ["eat","shop","walk","visit","kids","practical"];
+const mapsUrl = tip => "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(tip.address || tip.title);
+const safeUrl = u => /^https?:\/\/\S+$/i.test(u||"") ? u : "";
+function renderTips(){
+  const all=[...S.tips].sort((a,b)=>TIP_CATS.indexOf(a.category)-TIP_CATS.indexOf(b.category) || a.title.localeCompare(b.title, locale()));
+  const shown = S.tipCat==="all" ? all : all.filter(x=>x.category===S.tipCat);
+  const used = new Set(all.map(x=>x.category));
+  const panel=h("section",{class:"panel"},
+    h("div",{class:"split"}, h("div",null, h("h2",{text:t("tipsTitle")}), h("p",{class:"sub",text:t("tipsSub")})),
+      h("button",{class:"btn primary",text:t("addTip"),onclick:()=>openTipForm(null)})));
+  if (all.length) panel.append(h("div",{class:"tip-cats",role:"group"},
+    ["all",...TIP_CATS.filter(c=>used.has(c))].map(c=>h("button",{"aria-pressed":S.tipCat===c,text:c==="all"?t("allCats"):t("cat_"+c),onclick:()=>{S.tipCat=c;render();}}))));
+  if (!shown.length){ panel.append(h("div",{class:"empty",style:"margin-top:14px",text:all.length?t("noTipsCat"):t("noTips")})); return panel; }
+  panel.append(h("div",{class:"cards"}, shown.map(x=>{
+    const mine = x.uid===uid(), canDel = mine || isAdmin();
+    const del = h("button",{class:"btn ghost",text:t("deleteTip")});
+    del.addEventListener("click",()=>{ if(!del.classList.contains("armed")){ del.classList.add("armed","danger"); del.textContent=t("tapAgain"); return; }
+      quiet(deleteDoc(doc(db,"tips",x.id)).then(()=>toast(t("tipDeleted")),fail)); });
+    const web = safeUrl(x.url);
+    return h("div",{class:"card tip"},
+      h("div",{class:"role",text:t("cat_"+x.category)}),
+      h("h3",{text:x.title}),
+      x.address ? h("div",{class:"addr",text:x.address}) : null,
+      x.note ? h("div",{class:"note",text:x.note}) : null,
+      h("div",{class:"links"},
+        h("a",{class:"btn",href:mapsUrl(x),target:"_blank",rel:"noopener",text:t("openMaps")}),
+        web ? h("a",{class:"btn",href:web,target:"_blank",rel:"noopener noreferrer",text:t("website")}) : null),
+      h("div",{class:"by",text:t("addedBy",{name:x.name||memberName(x.email)||x.email||t("aMember")})}),
+      (mine||canDel) ? h("div",{class:"acts"}, mine?h("button",{class:"btn ghost",text:t("edit"),onclick:()=>openTipForm(x)}):null, canDel?del:null) : null);
+  })));
+  return panel;
+}
+function openTipForm(x){
+  const title=h("input",{id:"tip-title",maxlength:"120",value:x?.title||""});
+  const cat=h("select",{id:"tip-cat"}, TIP_CATS.map(c=>h("option",{value:c,selected:(x?.category||"eat")===c,text:t("cat_"+c)})));
+  const address=h("input",{id:"tip-address",maxlength:"300",value:x?.address||""});
+  const url=h("input",{id:"tip-url",type:"url",maxlength:"500",placeholder:"https://",value:x?.url||""});
+  const note=h("textarea",{id:"tip-note",maxlength:"1000",placeholder:t("tipNotePh")}); note.value=x?.note||"";
+  const err=h("div",{class:"err"});
+  const save=h("button",{class:"btn primary",type:"submit",text:x?t("saveChanges"):t("addTip").replace(/^\+\s*/,"")});
+  showDlg(h("form",{class:"dlg",onsubmit:async e=>{
+    e.preventDefault(); err.textContent="";
+    const data={ uid:uid(), email:S.email, name:S.authUser.displayName||memberName(S.email)||S.email,
+      title:title.value.trim(), category:cat.value, address:address.value.trim(), url:url.value.trim(), note:note.value.trim(),
+      createdAt:x?.createdAt||new Date().toISOString(), updatedAt:new Date().toISOString() };
+    if(!data.title){ err.textContent=t("tipNeedName"); return; }
+    if(data.url && !safeUrl(data.url)){ err.textContent=t("badUrl"); return; }
+    save.disabled=true;
+    try{ await setDoc(doc(db,"tips",x?.id||newId()), data); dlg.close(); toast(t("tipSaved")); S.tipCat="all"; render(); }
+    catch(e2){ save.disabled=false; try{fail(e2);}catch(_){} }
+  }},
+    h("div",{class:"dlg-head"}, h("h2",{text:x?t("editTip"):t("newTip")}), closeBtn()),
+    h("div",{class:"grid2"}, h("label",{class:"field"},t("name"),title), h("label",{class:"field"},t("category"),cat)),
+    h("label",{class:"field"},t("tipAddress"),address),
+    h("label",{class:"field"},t("tipWebsite"),url),
+    h("label",{class:"field"},t("tipNote"),note),
+    err,
+    h("div",{class:"dlg-actions"}, h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}), save)));
 }
 
 /* ---------- admin ---------- */
@@ -844,6 +915,7 @@ function startData(){
   }, onErr));
   S.unsubs.push(onSnapshot(collection(db,"bookings"), snap=>{ S.bookings=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
   S.unsubs.push(onSnapshot(collection(db,"members"), snap=>{ S.members=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
+  S.unsubs.push(onSnapshot(collection(db,"tips"), snap=>{ S.tips=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
 }
 
 S.month=todayStr().slice(0,8)+"01";
@@ -858,7 +930,7 @@ if (isSignInWithEmailLink(auth, location.href)) {
 
 onAuthStateChanged(auth, user=>{
   stopAll();
-  S.authUser=user; S.member=null; S.memberLoaded=false; S.settings=null; S.bookings=[]; S.members=[];
+  S.authUser=user; S.member=null; S.memberLoaded=false; S.settings=null; S.bookings=[]; S.members=[]; S.tips=[];
   if (!user){ S.email=null; S.isMain=false; render(); return; }
   S.email=(user.email||"").toLowerCase();
   S.isMain = S.email===MAIN_ADMIN;

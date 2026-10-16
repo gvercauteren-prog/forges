@@ -6,6 +6,17 @@ export const LOCALES = { en: "en-GB", fr: "fr-BE", nl: "nl-BE" };
 
 export const STR = {
   en: {
+
+    tabTips: "Tips", tipsTitle: "Tips nearby",
+    tipsSub: "Restaurants, walks, shops and things to do near the house. Everyone can add a tip.",
+    addTip: "+ Add a tip", newTip: "New tip", editTip: "Edit tip", allCats: "All", category: "Category",
+    cat_eat: "Restaurants & cafés", cat_shop: "Shops & markets", cat_walk: "Walks & nature",
+    cat_visit: "Things to do", cat_kids: "For children", cat_practical: "Practical",
+    tipAddress: "Address or place", tipWebsite: "Website (optional)", tipNote: "Why go? (optional)",
+    tipNotePh: "e.g. Great pancakes, closed on Mondays", openMaps: "Open in Maps", website: "Website",
+    addedBy: "Added by {name}", noTips: "No tips yet. Add the first one: a restaurant, a walk, the bakery…",
+    noTipsCat: "No tips in this category yet.", tipSaved: "Tip saved", tipDeleted: "Tip removed", deleteTip: "Delete",
+    tipNeedName: "Give the tip a name.", badUrl: "Enter a web address starting with https://",
     brandSmall: "Family house",
     tabCalendar: "Calendar", tabChecklist: "Exit checklist", tabContacts: "Contacts", tabAdmin: "Admin",
     signOut: "Sign out", mainAdmin: "Main admin", admin: "Admin",
@@ -108,6 +119,17 @@ export const STR = {
   },
 
   fr: {
+
+    tabTips: "Bons plans", tipsTitle: "Bons plans dans le coin",
+    tipsSub: "Restos, balades, commerces et activités près de la maison. Tout le monde peut ajouter un bon plan.",
+    addTip: "+ Ajouter un bon plan", newTip: "Nouveau bon plan", editTip: "Modifier le bon plan", allCats: "Tout", category: "Catégorie",
+    cat_eat: "Restos & cafés", cat_shop: "Commerces & marchés", cat_walk: "Balades & nature",
+    cat_visit: "À faire", cat_kids: "Pour les enfants", cat_practical: "Pratique",
+    tipAddress: "Adresse ou lieu", tipWebsite: "Site web (facultatif)", tipNote: "Pourquoi y aller ? (facultatif)",
+    tipNotePh: "p. ex. Super crêpes, fermé le lundi", openMaps: "Ouvrir dans Maps", website: "Site web",
+    addedBy: "Ajouté par {name}", noTips: "Pas encore de bons plans. Ajoutez le premier : un resto, une balade, la boulangerie…",
+    noTipsCat: "Pas encore de bon plan dans cette catégorie.", tipSaved: "Bon plan enregistré", tipDeleted: "Bon plan supprimé", deleteTip: "Supprimer",
+    tipNeedName: "Donnez un nom au bon plan.", badUrl: "Entrez une adresse web commençant par https://",
     brandSmall: "Maison de famille",
     tabCalendar: "Calendrier", tabChecklist: "Checklist de départ", tabContacts: "Contacts", tabAdmin: "Admin",
     signOut: "Se déconnecter", mainAdmin: "Admin principal", admin: "Admin",
@@ -210,6 +232,17 @@ export const STR = {
   },
 
   nl: {
+
+    tabTips: "Tips", tipsTitle: "Tips in de buurt",
+    tipsSub: "Restaurants, wandelingen, winkels en uitstappen in de buurt van het huis. Iedereen kan een tip toevoegen.",
+    addTip: "+ Tip toevoegen", newTip: "Nieuwe tip", editTip: "Tip bewerken", allCats: "Alles", category: "Categorie",
+    cat_eat: "Restaurants & cafés", cat_shop: "Winkels & markten", cat_walk: "Wandelingen & natuur",
+    cat_visit: "Te doen", cat_kids: "Voor kinderen", cat_practical: "Praktisch",
+    tipAddress: "Adres of plaats", tipWebsite: "Website (optioneel)", tipNote: "Waarom erheen? (optioneel)",
+    tipNotePh: "bv. Heerlijke pannenkoeken, gesloten op maandag", openMaps: "Openen in Maps", website: "Website",
+    addedBy: "Toegevoegd door {name}", noTips: "Nog geen tips. Voeg de eerste toe: een restaurant, een wandeling, de bakker…",
+    noTipsCat: "Nog geen tips in deze categorie.", tipSaved: "Tip opgeslagen", tipDeleted: "Tip verwijderd", deleteTip: "Verwijderen",
+    tipNeedName: "Geef de tip een naam.", badUrl: "Vul een webadres in dat begint met https://",
     brandSmall: "Familiehuis",
     tabCalendar: "Kalender", tabChecklist: "Vertrekchecklist", tabContacts: "Contacten", tabAdmin: "Beheer",
     signOut: "Afmelden", mainAdmin: "Hoofdbeheerder", admin: "Beheerder",

@@ -67,6 +67,30 @@ service cloud.firestore {
       allow delete: if isMember() && (resource.data.uid == request.auth.uid || isAdmin());
     }
 
+    // Tips nearby: everyone in reads and adds; you change your own; admins delete any.
+    function validTip(d) {
+      return d.keys().hasOnly(['uid', 'email', 'name', 'title', 'category', 'address', 'url', 'note', 'createdAt', 'updatedAt'])
+        && d.uid is string && d.email is string
+        && d.title is string && d.title.size() >= 1 && d.title.size() <= 120
+        && d.category in ['eat', 'shop', 'walk', 'visit', 'kids', 'practical']
+        && d.address is string && d.address.size() <= 300
+        && d.url is string && d.url.size() <= 500
+        && d.note is string && d.note.size() <= 1000;
+    }
+    match /tips/{id} {
+      allow read: if isMember();
+      allow create: if isMember()
+        && validTip(request.resource.data)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == myEmail();
+      allow update: if isMember()
+        && resource.data.uid == request.auth.uid
+        && validTip(request.resource.data)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email;
+      allow delete: if isMember() && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
     // Family names, exit checklist and contacts: everyone reads, admins edit.
     match /config/{docId} {
       allow read: if isMember();
