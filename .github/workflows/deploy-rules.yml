@@ -1,0 +1,66 @@
+# Tests firestore.rules in the Firebase emulator, then publishes them to the
+# forge-jean-petit Firebase project. Runs when firestore.rules or the tests change,
+# or by hand from the Actions tab ("Run workflow").
+name: Deploy Firestore rules
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - firestore.rules
+      - tests/**
+      - .github/workflows/deploy-rules.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-rules
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Test rules in the emulator
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm install --no-audit --no-fund --prefix tests
+      - run: tests/node_modules/.bin/firebase emulators:exec --only firestore --project forge-jean-petit "node tests/rules.test.mjs"
+
+  deploy:
+    name: Publish rules to Firebase
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      PROJECT: forge-jean-petit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Upload and release the rules
+        run: |
+          set -euo pipefail
+          TOKEN="$(gcloud auth print-access-token)"
+          API="https://firebaserules.googleapis.com/v1/projects/$PROJECT"
+
+          BODY="$(jq -n --rawfile src firestore.rules '{source:{files:[{name:"firestore.rules",content:$src}]}}')"
+          RESP="$(curl -sS -X POST "$API/rulesets" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$BODY")"
+          RULESET="$(echo "$RESP" | jq -r '.name // empty')"
+          if [ -z "$RULESET" ]; then echo "Firebase refused the rules:"; echo "$RESP"; exit 1; fi
+          echo "Created $RULESET"
+
+          REL="projects/$PROJECT/releases/cloud.firestore"
+          RESP="$(curl -sS -X PATCH "https://firebaserules.googleapis.com/v1/$REL" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+            -d "$(jq -n --arg n "$REL" --arg r "$RULESET" '{release:{name:$n,rulesetName:$r}}')")"
+          if [ "$(echo "$RESP" | jq -r '.rulesetName // empty')" != "$RULESET" ]; then echo "Release failed:"; echo "$RESP"; exit 1; fi
+          echo "Firestore now uses $RULESET"
