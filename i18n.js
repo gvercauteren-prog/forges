@@ -7,6 +7,15 @@ export const LOCALES = { en: "en-GB", fr: "fr-BE", nl: "nl-BE" };
 export const STR = {
   en: {
 
+    tabMore: "More", tabInfoShort: "Info", myAccount: "My account", language: "Language",
+    thisMonth: "This month", noStaysMonth: "No stays this month.",
+    atHouseNow: "At the house", nobody: "Nobody right now", untilDate: "until {date}",
+    nextArrival: "Next arrival", nonePlanned: "Nothing planned",
+    yourNextStay: "Your next stay", noStayYet: "No stay booked yet", bookNow: "Book",
+    todayLow: "today", tomorrow: "tomorrow", inDays: "in {n} days",
+    toFixN: "{n} to fix", toBuyN: "{n} to buy", allGood: "All good",
+    admPeople: "People", admFamilies: "Families", admChecklist: "Checklist", admContacts: "Contacts",
+
     tabCarnet: "Logbook", tabInfo: "House info",
     viewMonth: "Month", viewYear: "Year", prevYear: "Previous year", nextYear: "Next year",
     yearSub: "Every stay in {y}. Tap a month to open it, or a free day to book.",
@@ -146,6 +155,15 @@ export const STR = {
 
   fr: {
 
+    tabMore: "Plus", tabInfoShort: "Infos", myAccount: "Mon compte", language: "Langue",
+    thisMonth: "Ce mois-ci", noStaysMonth: "Aucun séjour ce mois-ci.",
+    atHouseNow: "À la maison", nobody: "Personne pour l'instant", untilDate: "jusqu'au {date}",
+    nextArrival: "Prochaine arrivée", nonePlanned: "Rien de prévu",
+    yourNextStay: "Votre prochain séjour", noStayYet: "Pas encore de séjour", bookNow: "Réserver",
+    todayLow: "aujourd'hui", tomorrow: "demain", inDays: "dans {n} jours",
+    toFixN: "{n} à réparer", toBuyN: "{n} à racheter", allGood: "Rien à signaler",
+    admPeople: "Personnes", admFamilies: "Familles", admChecklist: "Checklist", admContacts: "Contacts",
+
     tabCarnet: "Carnet", tabInfo: "Infos pratiques",
     viewMonth: "Mois", viewYear: "Année", prevYear: "Année précédente", nextYear: "Année suivante",
     yearSub: "Tous les séjours de {y}. Touchez un mois pour l'ouvrir, un jour libre pour réserver.",
@@ -284,6 +302,15 @@ export const STR = {
   },
 
   nl: {
+
+    tabMore: "Meer", tabInfoShort: "Info", myAccount: "Mijn account", language: "Taal",
+    thisMonth: "Deze maand", noStaysMonth: "Geen verblijven deze maand.",
+    atHouseNow: "In het huis", nobody: "Niemand op dit moment", untilDate: "tot {date}",
+    nextArrival: "Volgende aankomst", nonePlanned: "Niets gepland",
+    yourNextStay: "Jouw volgende verblijf", noStayYet: "Nog geen verblijf", bookNow: "Boeken",
+    todayLow: "vandaag", tomorrow: "morgen", inDays: "over {n} dagen",
+    toFixN: "{n} te herstellen", toBuyN: "{n} te kopen", allGood: "Niets te melden",
+    admPeople: "Personen", admFamilies: "Families", admChecklist: "Checklist", admContacts: "Contacten",
 
     tabCarnet: "Logboek", tabInfo: "Praktische info",
     viewMonth: "Maand", viewYear: "Jaar", prevYear: "Vorig jaar", nextYear: "Volgend jaar",

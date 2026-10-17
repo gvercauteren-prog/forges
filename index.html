@@ -35,7 +35,7 @@
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5;margin:0}
 [hidden]{display:none!important}
-.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
 h1,h2,h3{font-family:var(--font-display);font-weight:400;text-wrap:balance;margin:0}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -238,6 +238,82 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chips button{border:1px dashed var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:.84rem;font-weight:600;color:var(--muted);cursor:pointer}
 .chips button:hover{border-color:var(--accent);color:var(--accent)}
+/* header account button */
+.top{flex-wrap:nowrap}
+.brand h1{white-space:nowrap}
+.avatar-btn{display:inline-flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px 3px 3px;cursor:pointer;color:var(--ink);font-weight:600;font-size:.88rem;min-width:0}
+.avatar-btn:hover{border-color:var(--muted)}
+.avatar{width:30px;height:30px;border-radius:50%;flex:none;display:inline-grid;place-items:center;color:#FFFFFF;font-size:.78rem;font-weight:700;object-fit:cover}
+.avatar-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22ch}
+.account .lang{justify-self:start}
+.account .acct-id{display:flex;gap:12px;align-items:center;min-width:0}
+.account .acct-id .avatar{width:44px;height:44px;font-size:1rem}
+/* today summary */
+.today-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.tile{display:grid;gap:3px;align-content:start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;min-width:0;color:var(--ink)}
+.tile:hover{border-color:var(--muted)}
+.tile .lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.tile .val{font-weight:700;font-size:1rem;min-width:0;overflow-wrap:anywhere}
+.tile .sub{font-size:.84rem;color:var(--muted)}
+.tile.live{border-left:4px solid var(--ok)}
+.tile.attn{border-left:4px solid var(--ember)}
+.val-fams{display:flex;flex-wrap:wrap;gap:2px 10px}
+.fam-inline{display:inline-flex;align-items:center;gap:6px}
+/* calendar + stays side by side on wide screens */
+.cal-layout{display:grid;gap:22px;align-items:start;min-width:0}
+.cal-layout > *{min-width:0}
+@media (min-width:1100px){ .cal-layout{grid-template-columns:minmax(0,1fr) 350px} .cal-layout .year-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .cal-layout > section:last-child .row{grid-template-columns:auto 1fr} .cal-layout > section:last-child .row .right{grid-column:2;text-align:left} }
+/* compact month (phones) */
+.mc-dow,.mc-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.mc-dow{margin-bottom:4px}
+.mc-dow span{font-size:.68rem;text-align:center;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.mcd{aspect-ratio:1;border:0;border-radius:8px;background:var(--sunk);font-size:.9rem;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink);cursor:pointer;padding:0;min-width:0}
+.mcd.blank{visibility:hidden}
+.mcd.booked{color:var(--on-fam);font-weight:700}
+.mcd.today{box-shadow:inset 0 0 0 2px var(--ember)}
+.mc-title{font-family:var(--font-body);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:18px 0 0}
+/* compact note actions */
+.link{background:none;border:0;padding:0;font:inherit;font-size:.8rem;font-weight:700;color:var(--accent);cursor:pointer}
+.link:hover{text-decoration:underline}
+.link.muted{color:var(--muted)}
+.link.armed{color:var(--danger)}
+.note .meta .acts{margin-left:auto;display:inline-flex;gap:14px}
+/* admin sub-tabs */
+.admin-seg{justify-self:start;max-width:100%;overflow-x:auto}
+/* bottom bar, round booking button, "more" sheet */
+.bottom-nav,.fab{display:none}
+.more-list{display:grid;gap:6px}
+.more-item{display:flex;align-items:center;gap:14px;width:100%;background:none;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-weight:600;color:var(--ink);cursor:pointer;text-align:left}
+.more-item.on{border-color:var(--accent);color:var(--accent)}
+.bn-ico{display:inline-flex}
+@media (max-width:720px){
+  nav.tabs{display:none}
+  .hide-phone{display:none!important}
+  .top{padding-block:10px}
+  .mark{width:32px;height:32px}
+  .brand h1{font-size:1.3rem}
+  .brand small{font-size:.68rem}
+  .avatar-btn{padding:2px;border-color:transparent}
+  .avatar-name{display:none}
+  main{padding-block:14px 24px;gap:14px}
+  body:has(.bottom-nav:not([hidden])){padding-bottom:calc(68px + env(safe-area-inset-bottom, 0px))}
+  .bottom-nav:not([hidden]){display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--surface);border-top:1px solid var(--line);
+    padding:4px max(8px, env(safe-area-inset-right, 0px)) calc(4px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px))}
+  .bn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:6px 2px;color:var(--muted);font-size:.7rem;font-weight:600;cursor:pointer;min-width:0}
+  .bn.on{color:var(--accent)}
+  .bn-lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .fab:not([hidden]){display:grid;place-items:center;position:fixed;z-index:41;right:max(16px, env(safe-area-inset-right, 0px));bottom:calc(80px + env(safe-area-inset-bottom, 0px));
+    width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);font-size:1.9rem;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom, 0px))}
+  .today-sum{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tile{padding:10px 12px}
+  .tile .val{font-size:.92rem}
+  .year-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}
+  .yd{font-size:.58rem;border-radius:3px}
+  .cal-head h2{font-size:1.2rem;min-width:0}
+  .panel{padding:14px}
+}
 </style>
 </head>
 <body>
@@ -271,6 +347,8 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
   <div class="panel"><h2>Forge Jean-Petit…</h2></div>
 </main>
 
+<nav class="bottom-nav" id="bottom-nav" aria-label="Navigation" hidden></nav>
+<button class="fab" id="fab" type="button" hidden>+</button>
 <dialog id="dlg"></dialog>
 <div class="toast" id="toast" hidden></div>
 
@@ -282,7 +360,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=8ce4ba50";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=956c83fa";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -337,7 +415,7 @@ const S = {
   settings:null, bookings:[], members:[],
   tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[],
   signInError:"", linkSentTo:"", needEmailConfirm:false, bulk:null, tips:[], tipCat:"all",
-  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear()
+  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear(), adminTab:"people"
 };
 const $ = s => document.querySelector(s);
 const main = $("#main");
@@ -469,19 +547,124 @@ function notifyBlock(b, kind){
     h("span",{class:"hint",text:t("waHint2")}));
 }
 
-/* ---------- header ---------- */
+/* ---------- navigation, header and layout ---------- */
+const TAB_LABELS = {calendar:"tabCalendar", carnet:"tabCarnet", info:"tabInfo", checklist:"tabChecklist", contacts:"tabContacts", tips:"tabTips", settings:"tabAdmin"};
+const PRIMARY_TABS = ["calendar","carnet","info"], MORE_TABS = ["checklist","tips","contacts","settings"];
+const svg = d => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONS = {
+  calendar: svg('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'),
+  carnet: svg('<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 8.5h6M9 12.5h6M9 16.5h3"/>'),
+  info: svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.7v.1"/>'),
+  more: svg('<circle cx="5.5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="18.5" cy="12" r="1.3" fill="currentColor"/>'),
+  checklist: svg('<path d="M4 7l1.8 1.8L9 5.5M4 14l1.8 1.8L9 12.5M12.5 7.5H20M12.5 14.5H20M12.5 19.5H20"/>'),
+  tips: svg('<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>'),
+  contacts: svg('<path d="M6.5 3.5h3l1.5 4.5-2 1.5a11 11 0 0 0 5.5 5.5l1.5-2 4.5 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z"/>'),
+  settings: svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
+};
+const phoneMQ = matchMedia("(max-width: 720px)");
+const isPhone = () => phoneMQ.matches;
+phoneMQ.addEventListener?.("change", () => render());
+function go(tab){ S.tab=tab; store.set("fjp-tab",tab); if (dlg.open) dlg.close(); render(); scrollTo({top:0}); }
+
+function langSwitch(inMenu){
+  return h("div",{class:"lang",role:"group","aria-label":t("language")}, LANGS.map(l=>h("button",{type:"button","aria-pressed":l===LANG,text:l.toUpperCase(),
+    onclick:()=>{ setLang(l); if (inMenu) openAccountMenu(); }})));
+}
+const initials = n => (n||"?").split(/[\s@._-]+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join("");
+function avatarEl(){
+  return S.authUser?.photoURL
+    ? h("img",{class:"avatar",src:S.authUser.photoURL,alt:"",referrerpolicy:"no-referrer"})
+    : h("span",{class:"avatar",style:`background:${myFamily()?famColor(myFamily()):"var(--accent)"}`,text:initials(myName())});
+}
+function openAccountMenu(){
+  showDlg(h("div",{class:"dlg account"},
+    h("div",{class:"dlg-head"}, h("div",{class:"acct-id"}, avatarEl(), h("div",{style:"min-width:0"}, h("strong",{text:myName()}), h("div",{class:"hint",style:"overflow-wrap:anywhere",text:S.email}))), closeBtn()),
+    (myFamily()||isAdmin()) ? h("div",{class:"export-row"},
+      myFamily()?h("span",{class:"chip"}, h("span",{class:"dot",style:`background:${famColor(myFamily())}`}), famName(myFamily())):null,
+      isAdmin()?h("span",{class:"badge-admin",text:S.isMain?t("mainAdmin"):t("admin")}):null) : null,
+    h("div",{class:"field"}, t("language"), langSwitch(true)),
+    h("div",{class:"dlg-actions"}, h("button",{class:"btn",type:"button",text:t("signOut"),onclick:doSignOut}))));
+}
 function renderHeader(){
   $("#brand-small").textContent = t("brandSmall");
-  const labels = {calendar:"tabCalendar", carnet:"tabCarnet", info:"tabInfo", checklist:"tabChecklist", contacts:"tabContacts", tips:"tabTips", settings:"tabAdmin"};
-  for (const b of document.querySelectorAll("#tabs button")){ b.textContent=t(labels[b.dataset.tab]); b.setAttribute("aria-selected", b.dataset.tab===S.tab); }
+  for (const b of document.querySelectorAll("#tabs button")){ b.textContent=t(TAB_LABELS[b.dataset.tab]); b.setAttribute("aria-selected", b.dataset.tab===S.tab); }
   const w=$("#who"); w.replaceChildren();
-  w.append(h("div",{class:"lang",role:"group","aria-label":"Language"}, LANGS.map(l=>h("button",{"aria-pressed":l===LANG,text:l.toUpperCase(),onclick:()=>setLang(l)}))));
-  if (!S.authUser) return;
-  if (S.authUser.photoURL) w.append(h("img",{src:S.authUser.photoURL, alt:"", referrerpolicy:"no-referrer"}));
-  w.append(h("span",{text:S.authUser.displayName || memberName(S.email) || S.email}));
-  if (myFamily()) w.append(h("span",{class:"chip"}, h("span",{class:"dot",style:`background:${famColor(myFamily())}`}), famName(myFamily())));
-  if (isAdmin()) w.append(h("span",{class:"badge-admin",text:S.isMain?t("mainAdmin"):t("admin")}));
-  w.append(h("button",{class:"btn ghost",text:t("signOut"),onclick:doSignOut}));
+  if (!S.authUser){ w.append(langSwitch(false)); return; }
+  w.append(h("button",{class:"avatar-btn",type:"button","aria-label":t("myAccount"),"aria-haspopup":"dialog",onclick:openAccountMenu}, avatarEl(),
+    h("span",{class:"avatar-name",text:myName()})));
+}
+function renderBottomNav(inside){
+  const nav=$("#bottom-nav"); nav.hidden=!inside; if (!inside) return;
+  const btn=(k,active,onclick)=>h("button",{type:"button",class:"bn"+(active?" on":""),"aria-current":active?"page":null,onclick},
+    h("span",{class:"bn-ico",html:ICONS[k]}), h("span",{class:"bn-lbl",text:t(k==="more"?"tabMore":k==="info"?"tabInfoShort":TAB_LABELS[k])}));
+  nav.replaceChildren(...PRIMARY_TABS.map(k=>btn(k, S.tab===k, ()=>go(k))), btn("more", MORE_TABS.includes(S.tab), openMore));
+}
+function openMore(){
+  const items = MORE_TABS.filter(k=>k!=="settings"||isAdmin());
+  showDlg(h("div",{class:"dlg"},
+    h("div",{class:"dlg-head"}, h("h2",{text:t("tabMore")}), closeBtn()),
+    h("div",{class:"more-list"}, items.map(k=>h("button",{type:"button",class:"more-item"+(S.tab===k?" on":""),onclick:()=>go(k)},
+      h("span",{class:"bn-ico",html:ICONS[k]}), h("span",{text:t(TAB_LABELS[k])}))))));
+}
+
+/* ---------- calendar tab pieces ---------- */
+function bookingRow(b){
+  const td=todayStr();
+  return h("button",{class:"row",onclick:()=>openDetail(b)},
+    h("span",{class:"stripe",style:`background:${famColor(b.family)}`}),
+    h("div",{style:"min-width:0"}, h("div",{class:"when",text:fmtRange(b)}), h("div",{class:"meta",text:famName(b.family)+(b.name?" · "+b.name:"")+(b.note?" · "+b.note:"")})),
+    h("div",{class:"right"}, (b.start<=td && b.end>=td) ? h("strong",{style:"color:var(--ok)",text:t("atHouse")}) : nightsTxt(nights(b))));
+}
+function dayFill(fams){
+  return !fams.length ? null : fams.length===1 ? `background:${famColor(fams[0])}` : `background:linear-gradient(135deg, ${famColor(fams[0])} 50%, ${famColor(fams[1])} 50%)`;
+}
+function renderMonthCompact(){
+  const [Y,M] = S.month.split("-").map(Number);
+  const first=dn(S.month), days=new Date(Date.UTC(Y,M,0)).getUTCDate(), last=first+days-1, today=dn(todayStr());
+  const canBook=!!myFamily()||S.isMain;
+  const bk=allBookings().map(b=>({...b,s:dn(b.start),e:dn(b.end)})).filter(b=>b.s<=last&&b.e>=first);
+  const title=new Date(first*864e5).toLocaleDateString(locale(),{timeZone:"UTC",month:"long",year:"numeric"});
+  const shift=d=>{ const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); };
+  const head=h("div",{class:"cal-head"},
+    h("h2",{text:title.charAt(0).toUpperCase()+title.slice(1)}),
+    h("div",{class:"cal-nav"}, calSwitch(),
+      h("button",{class:"btn icon-btn","aria-label":t("prevMonth"),text:"‹",onclick:()=>shift(-1)}),
+      h("button",{class:"btn",text:t("today"),onclick:()=>{S.month=todayStr().slice(0,8)+"01"; render();}}),
+      h("button",{class:"btn icon-btn","aria-label":t("nextMonth"),text:"›",onclick:()=>shift(1)})));
+  const cells=[]; const lead=(new Date(first*864e5).getUTCDay()+6)%7;
+  for (let i=0;i<lead;i++) cells.push(h("span",{class:"mcd blank","aria-hidden":"true"}));
+  for (let d=first; d<=last; d++){
+    const here=bk.filter(b=>b.s<=d&&b.e>=d), fams=[...new Set(here.map(b=>b.family))], dstr=ds(d);
+    const label=fmt(dstr,{weekday:"long",day:"numeric",month:"long"})+(here.length?": "+[...new Set(here.map(b=>famName(b.family)))].join(", "):"");
+    cells.push(h("button",{class:"mcd"+(here.length?" booked":"")+(d===today?" today":""),style:dayFill(fams),"aria-label":label,text:String(d-first+1),
+      onclick:()=>{ if(here.length) openDetail(here[0]); else if(canBook) openForm(null,dstr); else toast(t("pickFamilyFirst")); }}));
+  }
+  return h("section",{class:"panel"}, head,
+    h("div",{class:"mc-dow","aria-hidden":"true"}, t("dow").map(x=>h("span",{text:x}))),
+    h("div",{class:"mc-days"}, cells),
+    h("h3",{class:"mc-title",text:t("thisMonth")}),
+    bk.length ? h("div",{class:"list",style:"margin-top:8px"}, bk.map(bookingRow)) : h("div",{class:"empty",style:"margin-top:8px",text:t("noStaysMonth")}));
+}
+function renderToday(){
+  const td=todayStr(), T=dn(td), all=allBookings(), canBook=!!myFamily()||S.isMain;
+  const now=all.filter(b=>b.start<=td&&b.end>=td);
+  const next=all.find(b=>b.start>td);
+  const mine=all.find(b=>b.uid===uid()&&b.end>=td);
+  const issues=S.notes.filter(n=>n.kind==="issue"&&!n.resolved).length, buy=S.supplies.filter(s=>!s.done).length;
+  const rel=s=>{ const d=dn(s)-T; return d<=0?t("todayLow"):d===1?t("tomorrow"):t("inDays",{n:d}); };
+  const famLine=list=>{ const ids=[...new Set(list.map(b=>b.family))];
+    return h("span",{class:"val-fams"}, ids.map(id=>h("span",{class:"fam-inline"}, h("span",{class:"dot",style:`background:${famColor(id)}`}), famName(id)))); };
+  const tile=(cls,label,val,sub,onclick)=>h("button",{type:"button",class:"tile"+(cls?" "+cls:""),onclick},
+    h("span",{class:"lbl",text:label}), h("span",{class:"val"},val), sub?h("span",{class:"sub",text:sub}):null);
+  const lastEnd = now.length ? now.reduce((a,b)=>b.end>a?b.end:a, now[0].end) : null;
+  return h("section",{class:"today-sum","aria-label":t("todayLow")},
+    tile(now.length?"live":"", t("atHouseNow"), now.length?famLine(now):t("nobody"),
+      now.length?t("untilDate",{date:fmt(lastEnd,{weekday:"short",day:"numeric",month:"short"})}):null, ()=>now.length?openDetail(now[0]):null),
+    tile("", t("nextArrival"), next?famLine([next]):t("nonePlanned"),
+      next?fmt(next.start,{weekday:"short",day:"numeric",month:"short"})+" · "+rel(next.start):null, ()=>next?openDetail(next):null),
+    tile("", t("yourNextStay"), mine?fmtRange(mine):t("noStayYet"),
+      mine?(mine.start<=td?t("atHouse"):rel(mine.start)):(canBook?t("bookNow")+" →":null), ()=>mine?openDetail(mine):(canBook?openForm(null,td):null)),
+    tile(issues?"attn":"", t("tabCarnet"), (issues||buy)?[t("toFixN",{n:issues}), " · ", t("toBuyN",{n:buy})].join(""):t("allGood"), null, ()=>go("carnet")));
 }
 
 /* ---------- screens ---------- */
@@ -491,6 +674,8 @@ function render(){
   renderHeader();
   $("#tabs").hidden = !inside;
   $("#tab-settings").hidden = !isAdmin();
+  renderBottomNav(!!inside);
+  { const fab=$("#fab"); fab.hidden = !(inside && S.tab==="calendar" && (!!myFamily()||S.isMain)); fab.setAttribute("aria-label", t("newBookingTitle")); }
   // Keep what someone is typing when the page redraws because another person saved something.
   const typed={}; const act=document.activeElement; let focus=null;
   for (const el of main.querySelectorAll("input[id],textarea[id]")) if (!["checkbox","radio","file"].includes(el.type) && el.value!==el.defaultValue) typed[el.id]=el.value;
@@ -507,7 +692,12 @@ function draw(){
   if (!S.memberLoaded) { main.append(h("div",{class:"panel"},h("h2",{text:t("checkingInvite")}))); return; }
   if (!inside) { main.append(renderNotInvited()); return; }
   if (S.isMain && !S.member) main.append(renderMainOnboarding());
-  if (S.tab==="calendar"){ const ins=renderInstall(); if (ins) main.append(ins); main.append(S.calView==="year"?renderYear():renderCalendar(), renderList()); }
+  if (S.tab==="calendar"){
+    const ins=renderInstall(); if (ins) main.append(ins);
+    main.append(renderToday(), h("div",{class:"cal-layout"},
+      S.calView==="year" ? renderYear() : (isPhone() ? renderMonthCompact() : renderCalendar()),
+      renderList()));
+  }
   if (S.tab==="carnet") main.append(renderCarnet());
   if (S.tab==="info") main.append(renderInfo());
   if (S.tab==="checklist") main.append(renderChecklist());
@@ -601,7 +791,7 @@ function renderCalendar(){
       h("button",{class:"btn icon-btn","aria-label":t("prevMonth"),text:"‹",onclick:()=>shift(-1)}),
       h("button",{class:"btn",text:t("today"),onclick:()=>{S.month=todayStr().slice(0,8)+"01"; render();}}),
       h("button",{class:"btn icon-btn","aria-label":t("nextMonth"),text:"›",onclick:()=>shift(1)}),
-      canBook ? h("button",{class:"btn primary",text:t("newBooking"),onclick:()=>openForm(null, todayStr())}) : null));
+      canBook ? h("button",{class:"btn primary hide-phone",text:t("newBooking"),onclick:()=>openForm(null, todayStr())}) : null));
   const dow = h("div",{class:"dow"}, t("dow").map(d=>h("span",{text:d})));
   const weeks = h("div",{class:"weeks"});
   for (let ws=gridStart; ws<=last; ws+=7){
@@ -640,10 +830,7 @@ function renderList(){
   if (S.listMode==="past") list=list.filter(b=>b.end<td).reverse();
   const upcomingAll = allBookings().filter(b=>b.end>=td);
   const seg=h("div",{class:"seg"},["upcoming","mine","past"].map(k=>h("button",{"aria-pressed":S.listMode===k,text:t(k),onclick:()=>{S.listMode=k;render();}})));
-  const body = list.length ? h("div",{class:"list"}, list.map(b=>h("button",{class:"row",onclick:()=>openDetail(b)},
-      h("span",{class:"stripe",style:`background:${famColor(b.family)}`}),
-      h("div",{style:"min-width:0"}, h("div",{class:"when",text:fmtRange(b)}), h("div",{class:"meta",text:famName(b.family)+(b.name?" · "+b.name:"")+(b.note?" · "+b.note:"")})),
-      h("div",{class:"right"}, (b.start<=td && b.end>=td) ? h("strong",{style:"color:var(--ok)",text:t("atHouse")}) : nightsTxt(nights(b))))))
+  const body = list.length ? h("div",{class:"list"}, list.map(bookingRow))
     : h("div",{class:"empty",text:S.listMode==="mine"?t("emptyMine"):S.listMode==="past"?t("emptyPast"):t("emptyUpcoming")});
   return h("section",{class:"panel"},
     h("div",{class:"split"}, h("div",null,h("h2",{text:t("stays")}),h("p",{class:"sub",text:t("staysSub")})), seg),
@@ -791,7 +978,7 @@ function renderYear(){
       h("button",{class:"btn icon-btn","aria-label":t("prevYear"),text:"‹",onclick:()=>{S.year--;render();}}),
       h("button",{class:"btn",text:t("today"),onclick:()=>{S.year=new Date().getFullYear();render();}}),
       h("button",{class:"btn icon-btn","aria-label":t("nextYear"),text:"›",onclick:()=>{S.year++;render();}}),
-      canBook?h("button",{class:"btn primary",text:t("newBooking"),onclick:()=>openForm(null,todayStr())}):null));
+      canBook?h("button",{class:"btn primary hide-phone",text:t("newBooking"),onclick:()=>openForm(null,todayStr())}):null));
   const grid=h("div",{class:"year-grid"});
   for (let m=1;m<=12;m++){
     const mfirst=dn(`${Y}-${pad(m)}-01`), days=new Date(Date.UTC(Y,m,0)).getUTCDate();
@@ -823,12 +1010,12 @@ function noteCard(n){
     h("div",{class:"meta"},
       h("span",{class:"pill"+(issue?" issue":""),text:t(issue?"kindIssue":"kindNote")}),
       n.resolved?h("span",{class:"pill ok",text:t("resolved")}):null,
-      h("span",{text:(n.name||t("aMember"))+" · "+fmtWhen(n.createdAt)})),
-    h("div",{class:"txt",text:n.text}),
-    (issue || mine || isAdmin()) ? h("div",{class:"export-row"},
-      issue ? h("button",{class:"btn",type:"button",text:n.resolved?t("reopen"):t("markResolved"),
-        onclick:()=>quiet(updateDoc(doc(db,"notes",n.id),{resolved:!n.resolved,resolvedBy:S.email,resolvedAt:new Date().toISOString()}).catch(fail))}) : null,
-      (mine||isAdmin()) ? armed(t("deleteTip"), ()=>deleteDoc(doc(db,"notes",n.id)).then(()=>toast(t("removed")),fail)) : null) : null);
+      h("span",{text:(n.name||t("aMember"))+" · "+fmtWhen(n.createdAt)}),
+      h("span",{class:"acts"},
+        issue ? h("button",{class:"link",type:"button",text:n.resolved?t("reopen"):t("markResolved"),
+          onclick:()=>quiet(updateDoc(doc(db,"notes",n.id),{resolved:!n.resolved,resolvedBy:S.email,resolvedAt:new Date().toISOString()}).catch(fail))}) : null,
+        (mine||isAdmin()) ? armed(t("deleteTip"), ()=>deleteDoc(doc(db,"notes",n.id)).then(()=>toast(t("removed")),fail), "link muted") : null)),
+    h("div",{class:"txt",text:n.text}));
 }
 function renderCarnet(){
   const wrap=h("div",{class:"carnet"});
@@ -975,7 +1162,7 @@ function renderSettings(){
   };
   email.addEventListener("keydown",e=>{ if(e.key==="Enter") add(); });
   const people=[...S.members].sort((a,b)=>famIndex(a.family)-famIndex(b.family)||(a.name||a.id).localeCompare(b.name||b.id));
-  wrap.append(h("section",{class:"panel"},
+  const secPeople=(h("section",{class:"panel"},
     h("h2",{text:t("peopleTitle")}), h("p",{class:"sub",text:t("peopleSub")}),
     h("div",{class:"edit-item",style:"margin-top:12px"}, email, nm, fam, S.isMain?h("label",{class:"admin-toggle"},adm,t("admin")):null, h("button",{class:"btn primary",text:t("addPerson"),onclick:add})),
     h("div",{class:"edit-list",style:"margin-top:14px"}, people.map(m=>{
@@ -990,8 +1177,8 @@ function renderSettings(){
           h("input",{type:"checkbox",id:"ma-"+m.id,checked:!!m.admin,onchange:e=>quiet(updateDoc(doc(db,"members",m.id),{admin:e.target.checked}).then(()=>toast(e.target.checked?t("adminAdded"):t("adminRemoved")),fail))}),t("admin")) : null,
         (!locked && m.id!==MAIN_ADMIN && !isMe) ? removeButton(()=>deleteDoc(doc(db,"members",m.id)).then(()=>toast(t("removed")),fail)) : null);
     }))));
-  wrap.append(renderBulk());
-  wrap.append(h("section",{class:"panel"}, h("h2",{text:t("familiesTitle")}), h("p",{class:"sub",text:t("familiesSub")}),
+  const secBulk=renderBulk();
+  const secFam=(h("section",{class:"panel"}, h("h2",{text:t("familiesTitle")}), h("p",{class:"sub",text:t("familiesSub")}),
     h("div",{class:"edit-list"}, families().map(f=>h("div",{class:"edit-item"}, h("span",{class:"dot",style:`background:${famColor(f.id)}`}), h("input",{id:"fam-"+f.id,value:famName(f.id),"aria-label":t("family")})))),
     h("div",{style:"margin-top:12px"}, h("button",{class:"btn primary",text:t("saveNames"),onclick:()=>{
       const list=families().map(f=>{ const v=document.getElementById("fam-"+f.id).value.trim(); return {id:f.id, name:(!v||v===famName(f.id))?f.name:v}; });
@@ -1001,7 +1188,7 @@ function renderSettings(){
   const newItem=h("input",{id:"new-chk",placeholder:t("checklistPh")});
   const addItem=()=>{ const v=newItem.value.trim(); if(!v) return; quiet(saveSettings({checklist:chk.concat({id:newId(),text:v})}).then(()=>toast(t("addedOne")))); };
   newItem.addEventListener("keydown",e=>{ if(e.key==="Enter") addItem(); });
-  wrap.append(h("section",{class:"panel"}, h("h2",{text:t("checklistItems")}),
+  const secChk=(h("section",{class:"panel"}, h("h2",{text:t("checklistItems")}),
     h("div",{class:"edit-list"}, chk.map((it,i)=>h("div",{class:"edit-item"},
       h("span",{class:"txt",text:itemText(it)}),
       h("button",{class:"btn ghost icon-btn","aria-label":t("moveUp"),disabled:i===0,text:"↑",onclick:()=>{const a=[...chk]; [a[i-1],a[i]]=[a[i],a[i-1]]; quiet(saveSettings({checklist:a}));}}),
@@ -1016,7 +1203,7 @@ function renderSettings(){
     const list=[...cs]; const i=list.findIndex(x=>x.id===c.id); if(i>=0) list[i]=c; else list.push(c);
     quiet(saveSettings({contacts:list}).then(()=>toast(t("contactSaved"))));
   }});
-  wrap.append(h("section",{class:"panel"}, h("h2",{text:t("contactsAdmin")}),
+  const secCon=(h("section",{class:"panel"}, h("h2",{text:t("contactsAdmin")}),
     h("div",{class:"edit-list"}, cs.map(c=>h("div",{class:"edit-item"},
       h("span",{class:"txt",text:contactField(c,"name")+(c.role?" — "+contactField(c,"role"):"")}),
       h("button",{class:"btn ghost",text:t("edit"),onclick:()=>{editing=c.id; for(const k in f) f[k].value=c[k]||""; saveBtn.textContent=t("saveChanges"); f.name.focus();}}),
@@ -1024,6 +1211,9 @@ function renderSettings(){
     h("div",{class:"grid2",style:"margin-top:14px"}, h("label",{class:"field"},t("name"),f.name), h("label",{class:"field"},t("role"),f.role), h("label",{class:"field"},t("phone"),f.phone), h("label",{class:"field"},t("email"),f.email)),
     h("label",{class:"field",style:"margin-top:12px"},t("note"),f.note),
     h("div",{style:"margin-top:12px"}, saveBtn)));
+  const parts=[["people","admPeople"],["families","admFamilies"],["checklist","admChecklist"],["contacts","admContacts"]];
+  wrap.append(h("div",{class:"seg admin-seg",role:"group"}, parts.map(([k,l])=>h("button",{type:"button","aria-pressed":S.adminTab===k,text:t(l),onclick:()=>{S.adminTab=k;render();}}))));
+  wrap.append(...({people:[secPeople,secBulk],families:[secFam],checklist:[secChk],contacts:[secCon]}[S.adminTab]||[secPeople,secBulk]));
   return wrap;
 }
 function removeButton(action){
@@ -1123,6 +1313,7 @@ function openForm(b, startDefault){
 }
 
 /* ---------- tabs ---------- */
+$("#fab").addEventListener("click",()=>openForm(null, todayStr()));
 $("#tabs").addEventListener("click",e=>{
   const b=e.target.closest("button[data-tab]"); if(!b) return;
   S.tab=b.dataset.tab; store.set("fjp-tab",S.tab); render();
