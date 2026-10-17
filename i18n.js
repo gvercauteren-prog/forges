@@ -7,6 +7,18 @@ export const LOCALES = { en: "en-GB", fr: "fr-BE", nl: "nl-BE" };
 export const STR = {
   en: {
 
+    back: "← Back", importList: "Import a list", addPersonBtn: "+ Add", addPersonTitle: "Add a person",
+    searchPeople: "Search for a person…", peopleSubShort: "Only the addresses listed here can open the app. Tap someone to edit them.",
+    noFamily: "No family", noMatch: "Nobody matches this search.", noPeople: "Nobody yet. Add the first address.",
+    makeAdmin: "Admin (can delete any booking and manage the app)", removeAccess: "Remove access",
+    mainAdminHint: "Main admin: this account always keeps every permission.",
+    lockedHint: "Only the main admin can change another admin.",
+    adminHint: "They can sign in with this address as soon as it's added.",
+    coAdminHint: "Only the main admin can make someone an admin.",
+    personExists: "This address is already on the list.", noFamilyMembers: "Nobody in this family",
+    checklistAdminSub: "Items appear in this order in the exit checklist.",
+    contactsAdminSub: "Tap a contact to edit it.", addContactBtn: "+ Add",
+
     tabMore: "More", tabInfoShort: "Info", myAccount: "My account", language: "Language",
     thisMonth: "This month", noStaysMonth: "No stays this month.",
     atHouseNow: "At the house", nobody: "Nobody right now", untilDate: "until {date}",
@@ -155,6 +167,18 @@ export const STR = {
 
   fr: {
 
+    back: "← Retour", importList: "Importer une liste", addPersonBtn: "+ Ajouter", addPersonTitle: "Ajouter une personne",
+    searchPeople: "Rechercher une personne…", peopleSubShort: "Seules les adresses listées ici peuvent ouvrir l'app. Touchez une personne pour la modifier.",
+    noFamily: "Sans famille", noMatch: "Personne ne correspond à cette recherche.", noPeople: "Personne pour l'instant. Ajoutez la première adresse.",
+    makeAdmin: "Admin (peut supprimer toute réservation et gérer l'app)", removeAccess: "Retirer l'accès",
+    mainAdminHint: "Admin principal : ce compte garde toujours tous les droits.",
+    lockedHint: "Seul l'admin principal peut modifier un autre admin.",
+    adminHint: "La personne pourra se connecter avec cette adresse dès qu'elle est ajoutée.",
+    coAdminHint: "Seul l'admin principal peut nommer un admin.",
+    personExists: "Cette adresse est déjà sur la liste.", noFamilyMembers: "Personne dans cette famille",
+    checklistAdminSub: "Les éléments s'affichent dans cet ordre dans la checklist de départ.",
+    contactsAdminSub: "Touchez un contact pour le modifier.", addContactBtn: "+ Ajouter",
+
     tabMore: "Plus", tabInfoShort: "Infos", myAccount: "Mon compte", language: "Langue",
     thisMonth: "Ce mois-ci", noStaysMonth: "Aucun séjour ce mois-ci.",
     atHouseNow: "À la maison", nobody: "Personne pour l'instant", untilDate: "jusqu'au {date}",
@@ -302,6 +326,18 @@ export const STR = {
   },
 
   nl: {
+
+    back: "← Terug", importList: "Lijst importeren", addPersonBtn: "+ Toevoegen", addPersonTitle: "Persoon toevoegen",
+    searchPeople: "Persoon zoeken…", peopleSubShort: "Alleen de adressen hier kunnen de app openen. Tik op een persoon om te bewerken.",
+    noFamily: "Zonder familie", noMatch: "Niemand gevonden voor deze zoekopdracht.", noPeople: "Nog niemand. Voeg het eerste adres toe.",
+    makeAdmin: "Beheerder (kan elke boeking verwijderen en de app beheren)", removeAccess: "Toegang intrekken",
+    mainAdminHint: "Hoofdbeheerder: dit account behoudt altijd alle rechten.",
+    lockedHint: "Alleen de hoofdbeheerder kan een andere beheerder wijzigen.",
+    adminHint: "De persoon kan zich met dit adres aanmelden zodra het is toegevoegd.",
+    coAdminHint: "Alleen de hoofdbeheerder kan iemand beheerder maken.",
+    personExists: "Dit adres staat al op de lijst.", noFamilyMembers: "Niemand in deze familie",
+    checklistAdminSub: "De items verschijnen in deze volgorde in de vertrekchecklist.",
+    contactsAdminSub: "Tik op een contact om het te bewerken.", addContactBtn: "+ Toevoegen",
 
     tabMore: "Meer", tabInfoShort: "Info", myAccount: "Mijn account", language: "Taal",
     thisMonth: "Deze maand", noStaysMonth: "Geen verblijven deze maand.",

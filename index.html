@@ -246,8 +246,12 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
 .avatar{width:30px;height:30px;border-radius:50%;flex:none;display:inline-grid;place-items:center;color:#FFFFFF;font-size:.78rem;font-weight:700;object-fit:cover}
 .avatar-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22ch}
 .account .lang{justify-self:start}
-.account .acct-id{display:flex;gap:12px;align-items:center;min-width:0}
-.account .acct-id .avatar{width:44px;height:44px;font-size:1rem}
+.acct-id{display:flex;gap:12px;align-items:center;min-width:0}
+.acct-id h2{min-width:0;overflow-wrap:anywhere}
+.acct-id .avatar{width:44px;height:44px;font-size:1rem}
+.dlg{grid-template-columns:minmax(0,1fr)}
+.dlg .admin-toggle{white-space:normal;align-items:flex-start;line-height:1.35}
+.dlg .admin-toggle input{margin-top:1px}
 /* today summary */
 .today-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
 .tile{display:grid;gap:3px;align-content:start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;min-width:0;color:var(--ink)}
@@ -279,8 +283,33 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
 .link.muted{color:var(--muted)}
 .link.armed{color:var(--danger)}
 .note .meta .acts{margin-left:auto;display:inline-flex;gap:14px}
-/* admin sub-tabs */
-.admin-seg{justify-self:start;max-width:100%;overflow-x:auto}
+/* admin menu and lists */
+.admin-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.an{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;color:var(--ink);font-weight:600;text-align:left;min-width:0}
+.an:hover{border-color:var(--muted)}
+.an.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
+.an-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.an-n{font-variant-numeric:tabular-nums;font-size:.75rem;font-weight:700;background:var(--sunk);color:var(--muted);border-radius:999px;padding:1px 8px}
+.people-search{width:100%;margin-top:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ink)}
+.pgroups{display:grid;gap:18px;margin-top:14px}
+.pg-head{display:flex;align-items:center;gap:8px;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--muted);margin-bottom:4px}
+.prow{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;border-top:1px solid var(--line);padding:10px 6px;cursor:pointer;text-align:left;color:var(--ink);min-width:0}
+.prow:hover{background:var(--sunk)}
+.pr-main{display:grid;flex:1;min-width:0}
+.pr-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr-mail{font-size:.8rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr-chev{color:var(--muted);font-size:1.3rem;line-height:1}
+.frows{display:grid;margin-top:12px}
+.frow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.frow input{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:0;width:100%;max-width:360px}
+.frow .fm{grid-column:2;font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+.crows{margin:14px 0 0;padding:0;list-style:none;counter-reset:c;display:grid}
+.crows li{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);counter-increment:c}
+.crows li::before{content:counter(c);font-variant-numeric:tabular-nums;font-size:.8rem;font-weight:700;color:var(--muted);min-width:1.4em}
+.crows .txt{flex:1;min-width:0;overflow-wrap:anywhere}
+.crows .acts{display:inline-flex;gap:14px;flex:none}
+.link:disabled{opacity:.35;cursor:default;text-decoration:none}
+@media (max-width:720px){ .admin-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px} .an{padding:10px 12px} }
 /* bottom bar, round booking button, "more" sheet */
 .bottom-nav,.fab{display:none}
 .more-list{display:grid;gap:6px}
@@ -360,7 +389,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=956c83fa";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=7232076e";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -415,7 +444,7 @@ const S = {
   settings:null, bookings:[], members:[],
   tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[],
   signInError:"", linkSentTo:"", needEmailConfirm:false, bulk:null, tips:[], tipCat:"all",
-  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear(), adminTab:"people"
+  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear(), adminTab:"people", adminImport:false, peopleQuery:""
 };
 const $ = s => document.querySelector(s);
 const main = $("#main");
@@ -559,6 +588,8 @@ const ICONS = {
   checklist: svg('<path d="M4 7l1.8 1.8L9 5.5M4 14l1.8 1.8L9 12.5M12.5 7.5H20M12.5 14.5H20M12.5 19.5H20"/>'),
   tips: svg('<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>'),
   contacts: svg('<path d="M6.5 3.5h3l1.5 4.5-2 1.5a11 11 0 0 0 5.5 5.5l1.5-2 4.5 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z"/>'),
+  people: svg('<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M15.5 5.6a3 3 0 0 1 0 5.8M17.5 14.3c1.7.6 2.8 2.2 3 4.7"/>'),
+  home: svg('<path d="M4 11l8-6.5 8 6.5M6.5 9.5V19.5h11V9.5M10 19.5v-5h4v5"/>'),
   settings: svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
 };
 const phoneMQ = matchMedia("(max-width: 720px)");
@@ -1150,71 +1181,148 @@ function renderBulk(){
 }
 function renderSettings(){
   const wrap=h("div",{class:"settings"});
-  const email=h("input",{id:"m-email",type:"email",placeholder:"name@gmail.com","aria-label":t("emailAddr")});
-  const nm=h("input",{id:"m-name",placeholder:t("nameOpt"),"aria-label":t("nameOpt")});
-  const fam=h("select",{id:"m-fam","aria-label":t("family")}, families().map(f=>h("option",{value:f.id,text:famName(f.id)})));
-  const adm=h("input",{type:"checkbox",id:"m-admin"});
-  const add=()=>{
-    const e=email.value.trim().toLowerCase();
-    if(!isEmail(e)) return toast(t("enterEmail"));
-    const data={family:fam.value, admin:S.isMain?adm.checked:false, addedBy:S.email}; if(nm.value.trim()) data.name=nm.value.trim();
-    quiet(setDoc(doc(db,"members",e),data).then(()=>{ toast(t("canSignIn",{email:e})); email.value=""; nm.value=""; adm.checked=false; },fail));
-  };
-  email.addEventListener("keydown",e=>{ if(e.key==="Enter") add(); });
-  const people=[...S.members].sort((a,b)=>famIndex(a.family)-famIndex(b.family)||(a.name||a.id).localeCompare(b.name||b.id));
-  const secPeople=(h("section",{class:"panel"},
-    h("h2",{text:t("peopleTitle")}), h("p",{class:"sub",text:t("peopleSub")}),
-    h("div",{class:"edit-item",style:"margin-top:12px"}, email, nm, fam, S.isMain?h("label",{class:"admin-toggle"},adm,t("admin")):null, h("button",{class:"btn primary",text:t("addPerson"),onclick:add})),
-    h("div",{class:"edit-list",style:"margin-top:14px"}, people.map(m=>{
-      const locked = m.admin && !S.isMain, isMe = m.id===S.email;
-      return h("div",{class:"edit-item"},
-        h("span",{class:"dot",style:`background:${famColor(m.family)}`}),
-        h("span",{class:"txt"}, m.name||m.id, isMe?" "+t("you"):"",
-          h("small",{text:(m.name?m.id+" · ":"")+(m.id===MAIN_ADMIN?t("mainAdmin"):m.admin?t("admin"):"")})),
-        h("select",{id:"mf-"+m.id,"aria-label":t("family"),disabled:locked,onchange:e=>quiet(updateDoc(doc(db,"members",m.id),{family:e.target.value}).then(()=>toast(t("moved")),fail))},
-          families().map(f=>h("option",{value:f.id,selected:m.family===f.id,text:famName(f.id)}))),
-        S.isMain && m.id!==MAIN_ADMIN ? h("label",{class:"admin-toggle"},
-          h("input",{type:"checkbox",id:"ma-"+m.id,checked:!!m.admin,onchange:e=>quiet(updateDoc(doc(db,"members",m.id),{admin:e.target.checked}).then(()=>toast(e.target.checked?t("adminAdded"):t("adminRemoved")),fail))}),t("admin")) : null,
-        (!locked && m.id!==MAIN_ADMIN && !isMe) ? removeButton(()=>deleteDoc(doc(db,"members",m.id)).then(()=>toast(t("removed")),fail)) : null);
-    }))));
-  const secBulk=renderBulk();
-  const secFam=(h("section",{class:"panel"}, h("h2",{text:t("familiesTitle")}), h("p",{class:"sub",text:t("familiesSub")}),
-    h("div",{class:"edit-list"}, families().map(f=>h("div",{class:"edit-item"}, h("span",{class:"dot",style:`background:${famColor(f.id)}`}), h("input",{id:"fam-"+f.id,value:famName(f.id),"aria-label":t("family")})))),
-    h("div",{style:"margin-top:12px"}, h("button",{class:"btn primary",text:t("saveNames"),onclick:()=>{
+  const counts={people:S.members.length, families:families().length, checklist:(S.settings?.checklist||[]).length, contacts:(S.settings?.contacts||[]).length};
+  const parts=[["people","admPeople","people"],["families","admFamilies","home"],["checklist","admChecklist","checklist"],["contacts","admContacts","contacts"]];
+  wrap.append(h("nav",{class:"admin-nav","aria-label":t("tabAdmin")}, parts.map(([k,l,ico])=>h("button",{type:"button",class:"an"+(S.adminTab===k?" on":""),"aria-current":S.adminTab===k?"page":null,
+    onclick:()=>{ S.adminTab=k; S.adminImport=false; render(); }},
+    h("span",{class:"bn-ico",html:ICONS[ico]}), h("span",{class:"an-lbl",text:t(l)}), h("span",{class:"an-n",text:String(counts[k])})))));
+  const tab=S.adminTab;
+  if (tab==="families") wrap.append(adminFamilies());
+  else if (tab==="checklist") wrap.append(adminChecklist());
+  else if (tab==="contacts") wrap.append(adminContacts());
+  else if (S.adminImport) wrap.append(h("div",null,h("button",{class:"link",type:"button",text:t("back"),onclick:()=>{S.adminImport=false;render();}})), renderBulk());
+  else wrap.append(adminPeople());
+  return wrap;
+}
+
+/* People: grouped by family; tap someone to change their family, name or admin role. */
+function personAvatar(m){
+  return h("span",{class:"avatar",style:`background:${m.family?famColor(m.family):"var(--muted)"}`,text:initials(m.name||m.id)});
+}
+function adminPeople(){
+  const q=(S.peopleQuery||"").trim().toLowerCase();
+  const list=S.members.filter(m=>!q || (m.name||"").toLowerCase().includes(q) || m.id.includes(q))
+    .sort((a,b)=>(a.name||a.id).localeCompare(b.name||b.id, locale()));
+  const groups=families().map(f=>({id:f.id, people:list.filter(m=>m.family===f.id)}));
+  const loose=list.filter(m=>!families().some(f=>f.id===m.family));
+  const row=m=>h("button",{type:"button",class:"prow",onclick:()=>openPersonForm(m)},
+    personAvatar(m),
+    h("span",{class:"pr-main"}, h("span",{class:"pr-name",text:(m.name||m.id)+(m.id===S.email?" "+t("you"):"")}), m.name?h("span",{class:"pr-mail",text:m.id}):null),
+    m.id===MAIN_ADMIN ? h("span",{class:"pill issue",text:t("mainAdmin")}) : m.admin ? h("span",{class:"pill",text:t("admin")}) : null,
+    h("span",{class:"pr-chev","aria-hidden":"true",text:"›"}));
+  const search=h("input",{id:"people-q",type:"search",class:"people-search",placeholder:t("searchPeople"),value:S.peopleQuery||"","aria-label":t("searchPeople"),
+    oninput:e=>{ S.peopleQuery=e.target.value; render(); }});
+  return h("section",{class:"panel"},
+    h("div",{class:"split"},
+      h("div",{style:"min-width:0"}, h("h2",{text:t("admPeople")}), h("p",{class:"sub",text:t("peopleSubShort")})),
+      h("div",{class:"export-row"},
+        h("button",{class:"btn",type:"button",text:t("importList"),onclick:()=>{ S.adminImport=true; render(); }}),
+        h("button",{class:"btn primary",type:"button",text:t("addPersonBtn"),onclick:()=>openPersonForm(null)}))),
+    S.members.length>6 ? search : null,
+    list.length ? h("div",{class:"pgroups"},
+      groups.filter(g=>g.people.length).map(g=>h("div",{class:"pgroup"},
+        h("div",{class:"pg-head"}, h("span",{class:"dot",style:`background:${famColor(g.id)}`}), famName(g.id), h("span",{class:"an-n",text:String(g.people.length)})),
+        g.people.map(row))),
+      loose.length ? h("div",{class:"pgroup"}, h("div",{class:"pg-head",text:t("noFamily")}), loose.map(row)) : null)
+    : h("div",{class:"empty",style:"margin-top:14px",text:q?t("noMatch"):t("noPeople")}));
+}
+function openPersonForm(m){
+  const isNew=!m, isMainRow=m?.id===MAIN_ADMIN, isMe=m?.id===S.email;
+  const locked = !!m && !!m.admin && !S.isMain;          // co-admins cannot change other admins
+  const email=h("input",{id:"p-email",type:"email",autocomplete:"off",placeholder:"name@gmail.com",value:m?.id||"",disabled:!isNew});
+  const name=h("input",{id:"p-name",placeholder:t("nameOpt"),value:m?.name||"",disabled:locked});
+  const fam=h("select",{id:"p-fam",disabled:locked}, families().map(f=>h("option",{value:f.id,selected:(m?.family||families()[0].id)===f.id,text:famName(f.id)})));
+  const adm=h("input",{type:"checkbox",id:"p-admin",checked:!!m?.admin,disabled:!S.isMain||isMainRow});
+  const err=h("div",{class:"err"});
+  const save=h("button",{class:"btn primary",type:"submit",text:isNew?t("addPerson"):t("saveChanges"),disabled:locked});
+  const canRemove = !isNew && !isMainRow && !isMe && !locked;
+  showDlg(h("form",{class:"dlg",onsubmit:async e=>{
+    e.preventDefault(); err.textContent="";
+    const id=isNew ? email.value.trim().toLowerCase() : m.id;
+    if (isNew && !isEmail(id)) { err.textContent=t("enterEmail"); return; }
+    if (isNew && S.members.some(x=>x.id===id)) { err.textContent=t("personExists"); return; }
+    const data={family:fam.value, name:name.value.trim()};
+    if (S.isMain && !isMainRow) data.admin=adm.checked;
+    save.disabled=true;
+    try {
+      if (isNew) await setDoc(doc(db,"members",id), {...data, admin:S.isMain?adm.checked:false, addedBy:S.email});
+      else await updateDoc(doc(db,"members",id), data);
+      dlg.close(); toast(isNew?t("canSignIn",{email:id}):t("saved"));
+    } catch(e2){ save.disabled=false; try{fail(e2);}catch(_){} }
+  }},
+    h("div",{class:"dlg-head"},
+      h("div",{class:"acct-id"}, m?personAvatar(m):null, h("h2",{text:isNew?t("addPersonTitle"):(m.name||m.id)})), closeBtn()),
+    h("label",{class:"field"}, t("emailAddr"), email),
+    h("div",{class:"grid2"}, h("label",{class:"field"}, t("name"), name), h("label",{class:"field"}, t("family"), fam)),
+    S.isMain && !isMainRow ? h("label",{class:"admin-toggle",style:"justify-self:start"}, adm, t("makeAdmin")) : null,
+    h("p",{class:"hint",text: isMainRow ? t("mainAdminHint") : locked ? t("lockedHint") : S.isMain ? t("adminHint") : t("coAdminHint")}),
+    err,
+    h("div",{class:"dlg-actions"},
+      canRemove ? armed(t("removeAccess"), ()=>deleteDoc(doc(db,"members",m.id)).then(()=>{ dlg.close(); toast(t("removed")); },fail), "btn danger") : null,
+      h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}), save)));
+  setTimeout(()=>(isNew?email:name).focus(),50);
+}
+
+/* Families: rename, see who belongs to each. */
+function adminFamilies(){
+  return h("section",{class:"panel"}, h("h2",{text:t("familiesTitle")}), h("p",{class:"sub",text:t("familiesSub")}),
+    h("div",{class:"frows"}, families().map(f=>{
+      const who=S.members.filter(m=>m.family===f.id).map(m=>m.name||m.id);
+      return h("div",{class:"frow"},
+        h("span",{class:"dot",style:`background:${famColor(f.id)}`}),
+        h("input",{id:"fam-"+f.id,value:famName(f.id),"aria-label":t("family")}),
+        h("span",{class:"fm",text: who.length ? who.join(", ") : t("noFamilyMembers")}));
+    })),
+    h("div",{style:"margin-top:14px"}, h("button",{class:"btn primary",text:t("saveNames"),onclick:()=>{
       const list=families().map(f=>{ const v=document.getElementById("fam-"+f.id).value.trim(); return {id:f.id, name:(!v||v===famName(f.id))?f.name:v}; });
       quiet(saveSettings({families:list}).then(()=>toast(t("namesSaved"))));
-    }}))));
+    }})));
+}
+
+/* Exit checklist items. */
+function adminChecklist(){
   const chk=S.settings?.checklist||[];
-  const newItem=h("input",{id:"new-chk",placeholder:t("checklistPh")});
-  const addItem=()=>{ const v=newItem.value.trim(); if(!v) return; quiet(saveSettings({checklist:chk.concat({id:newId(),text:v})}).then(()=>toast(t("addedOne")))); };
+  const newItem=h("input",{id:"new-chk",placeholder:t("checklistPh"),"aria-label":t("checklistPh")});
+  const addItem=()=>{ const v=newItem.value.trim(); if(!v) return; newItem.value=""; quiet(saveSettings({checklist:chk.concat({id:newId(),text:v})}).then(()=>toast(t("addedOne")))); };
   newItem.addEventListener("keydown",e=>{ if(e.key==="Enter") addItem(); });
-  const secChk=(h("section",{class:"panel"}, h("h2",{text:t("checklistItems")}),
-    h("div",{class:"edit-list"}, chk.map((it,i)=>h("div",{class:"edit-item"},
+  return h("section",{class:"panel"}, h("h2",{text:t("checklistItems")}), h("p",{class:"sub",text:t("checklistAdminSub")}),
+    h("div",{class:"edit-item",style:"margin-top:12px"}, newItem, h("button",{class:"btn primary",text:t("add"),onclick:addItem})),
+    h("ol",{class:"crows"}, chk.map((it,i)=>h("li",null,
       h("span",{class:"txt",text:itemText(it)}),
-      h("button",{class:"btn ghost icon-btn","aria-label":t("moveUp"),disabled:i===0,text:"↑",onclick:()=>{const a=[...chk]; [a[i-1],a[i]]=[a[i],a[i-1]]; quiet(saveSettings({checklist:a}));}}),
-      h("button",{class:"btn ghost icon-btn","aria-label":t("remove"),text:"✕",onclick:()=>quiet(saveSettings({checklist:chk.filter(x=>x.id!==it.id)}))})))),
-    h("div",{class:"edit-item",style:"margin-top:10px"}, newItem, h("button",{class:"btn",text:t("add"),onclick:addItem}))));
+      h("span",{class:"acts"},
+        h("button",{class:"link muted",type:"button","aria-label":t("moveUp"),disabled:i===0,text:"↑",onclick:()=>{const a=[...chk]; [a[i-1],a[i]]=[a[i],a[i-1]]; quiet(saveSettings({checklist:a}));}}),
+        armed(t("remove"), ()=>saveSettings({checklist:chk.filter(x=>x.id!==it.id)}), "link muted"))))));
+}
+
+/* Contacts: list with edit in a window. */
+function adminContacts(){
   const cs=S.settings?.contacts||[];
-  const f={name:h("input",{id:"c-name"}),role:h("input",{id:"c-role",placeholder:t("rolePh")}),phone:h("input",{id:"c-phone",inputmode:"tel"}),email:h("input",{id:"c-email",type:"email"}),note:h("input",{id:"c-note"})};
-  let editing=null;
-  const saveBtn=h("button",{class:"btn primary",text:t("addContact"),onclick:()=>{
-    const c={id:editing||newId()}; for(const k in f) c[k]=f[k].value.trim();
-    if(!c.name) return toast(t("contactName"));
-    const list=[...cs]; const i=list.findIndex(x=>x.id===c.id); if(i>=0) list[i]=c; else list.push(c);
-    quiet(saveSettings({contacts:list}).then(()=>toast(t("contactSaved"))));
-  }});
-  const secCon=(h("section",{class:"panel"}, h("h2",{text:t("contactsAdmin")}),
-    h("div",{class:"edit-list"}, cs.map(c=>h("div",{class:"edit-item"},
-      h("span",{class:"txt",text:contactField(c,"name")+(c.role?" — "+contactField(c,"role"):"")}),
-      h("button",{class:"btn ghost",text:t("edit"),onclick:()=>{editing=c.id; for(const k in f) f[k].value=c[k]||""; saveBtn.textContent=t("saveChanges"); f.name.focus();}}),
-      h("button",{class:"btn ghost icon-btn","aria-label":t("remove"),text:"✕",onclick:()=>quiet(saveSettings({contacts:cs.filter(x=>x.id!==c.id)}))})))),
-    h("div",{class:"grid2",style:"margin-top:14px"}, h("label",{class:"field"},t("name"),f.name), h("label",{class:"field"},t("role"),f.role), h("label",{class:"field"},t("phone"),f.phone), h("label",{class:"field"},t("email"),f.email)),
-    h("label",{class:"field",style:"margin-top:12px"},t("note"),f.note),
-    h("div",{style:"margin-top:12px"}, saveBtn)));
-  const parts=[["people","admPeople"],["families","admFamilies"],["checklist","admChecklist"],["contacts","admContacts"]];
-  wrap.append(h("div",{class:"seg admin-seg",role:"group"}, parts.map(([k,l])=>h("button",{type:"button","aria-pressed":S.adminTab===k,text:t(l),onclick:()=>{S.adminTab=k;render();}}))));
-  wrap.append(...({people:[secPeople,secBulk],families:[secFam],checklist:[secChk],contacts:[secCon]}[S.adminTab]||[secPeople,secBulk]));
-  return wrap;
+  return h("section",{class:"panel"},
+    h("div",{class:"split"}, h("div",null, h("h2",{text:t("contactsAdmin")}), h("p",{class:"sub",text:t("contactsAdminSub")})),
+      h("button",{class:"btn primary",type:"button",text:t("addContactBtn"),onclick:()=>openContactForm(null)})),
+    cs.length ? h("div",{class:"pgroups"}, h("div",{class:"pgroup"}, cs.map(c=>h("button",{type:"button",class:"prow",onclick:()=>openContactForm(c)},
+      h("span",{class:"pr-main"}, h("span",{class:"pr-name",text:contactField(c,"name")}), h("span",{class:"pr-mail",text:[contactField(c,"role"), c.phone].filter(Boolean).join(" · ")})),
+      h("span",{class:"pr-chev","aria-hidden":"true",text:"›"}))))) : h("div",{class:"empty",style:"margin-top:14px",text:t("noContactsAdmin")}));
+}
+function openContactForm(c){
+  const cs=S.settings?.contacts||[];
+  const f={name:h("input",{id:"c-name",value:c?.name||""}), role:h("input",{id:"c-role",placeholder:t("rolePh"),value:c?.role||""}),
+    phone:h("input",{id:"c-phone",inputmode:"tel",value:c?.phone||""}), email:h("input",{id:"c-email",type:"email",value:c?.email||""}), note:h("input",{id:"c-note",value:c?.note||""})};
+  showDlg(h("form",{class:"dlg",onsubmit:async e=>{
+    e.preventDefault();
+    const item={id:c?.id||newId()}; for (const k in f) item[k]=f[k].value.trim();
+    if (!item.name) return toast(t("contactName"));
+    const list=[...cs]; const i=list.findIndex(x=>x.id===item.id); if(i>=0) list[i]=item; else list.push(item);
+    try { await saveSettings({contacts:list}); dlg.close(); toast(t("contactSaved")); } catch(_){}
+  }},
+    h("div",{class:"dlg-head"}, h("h2",{text:c?contactField(c,"name"):t("addContact")}), closeBtn()),
+    h("div",{class:"grid2"}, h("label",{class:"field"},t("name"),f.name), h("label",{class:"field"},t("role"),f.role),
+      h("label",{class:"field"},t("phone"),f.phone), h("label",{class:"field"},t("email"),f.email)),
+    h("label",{class:"field"},t("note"),f.note),
+    h("div",{class:"dlg-actions"},
+      c ? armed(t("remove"), ()=>saveSettings({contacts:cs.filter(x=>x.id!==c.id)}).then(()=>{ dlg.close(); toast(t("removed")); }), "btn danger") : null,
+      h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}),
+      h("button",{class:"btn primary",type:"submit",text:c?t("saveChanges"):t("addContact")}))));
 }
 function removeButton(action){
   const b=h("button",{class:"btn ghost",text:t("remove")});
