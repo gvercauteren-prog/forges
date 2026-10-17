@@ -235,7 +235,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=a0c3bbb";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=37612392";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -255,8 +255,7 @@ const db = getFirestore(app);
 const store = { get(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(_){} } };
 function detectLang(){
   const saved = store.get("fjp-lang"); if (LANGS.includes(saved)) return saved;
-  for (const l of (navigator.languages || [navigator.language || ""])) { const c=(l||"").slice(0,2).toLowerCase(); if (LANGS.includes(c)) return c; }
-  return "fr";
+  return "fr";   // French unless the person picked another language with the FR / NL / EN switch
 }
 let LANG = detectLang();
 document.documentElement.lang = LANG;

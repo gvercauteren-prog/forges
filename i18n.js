@@ -22,8 +22,8 @@ export const STR = {
     signOut: "Sign out", mainAdmin: "Main admin", admin: "Admin",
     loading: "Opening the house book…", checkingInvite: "Checking your invitation…",
 
-    welcome: "Welcome to the house book",
-    welcomeSub: "Book your stay, see who's at the house, and find the exit checklist and contacts. Sign in with the email address the admin invited.",
+    welcome: "Welcome",
+    welcomeSub: "Book your stay and see who's at the house. Sign in with your email address.",
     googleBtn: "Sign in with Google", or: "or",
     emailLabel: "No Google account (e.g. Hotmail)? Get a sign-in link by email",
     emailPh: "your@email.com", sendLink: "Send link",
@@ -135,8 +135,8 @@ export const STR = {
     signOut: "Se déconnecter", mainAdmin: "Admin principal", admin: "Admin",
     loading: "Ouverture du carnet de la maison…", checkingInvite: "Vérification de votre invitation…",
 
-    welcome: "Bienvenue dans le carnet de la maison",
-    welcomeSub: "Réservez votre séjour, voyez qui est à la maison et retrouvez la checklist de départ et les contacts. Connectez-vous avec l'adresse e-mail invitée par l'admin.",
+    welcome: "Bienvenue",
+    welcomeSub: "Réservez votre séjour et voyez qui est à la maison. Connectez-vous avec votre adresse email.",
     googleBtn: "Se connecter avec Google", or: "ou",
     emailLabel: "Pas de compte Google (p. ex. Hotmail) ? Recevez un lien de connexion par e-mail",
     emailPh: "votre@email.com", sendLink: "Envoyer le lien",
@@ -248,8 +248,8 @@ export const STR = {
     signOut: "Afmelden", mainAdmin: "Hoofdbeheerder", admin: "Beheerder",
     loading: "Het huisboek wordt geopend…", checkingInvite: "Je uitnodiging wordt gecontroleerd…",
 
-    welcome: "Welkom in het huisboek",
-    welcomeSub: "Boek je verblijf, zie wie er in het huis is en vind de vertrekchecklist en de contacten. Meld je aan met het e-mailadres dat de beheerder heeft uitgenodigd.",
+    welcome: "Welkom",
+    welcomeSub: "Boek je verblijf en zie wie er in het huis is. Meld je aan met je e-mailadres.",
     googleBtn: "Aanmelden met Google", or: "of",
     emailLabel: "Geen Google-account (bv. Hotmail)? Ontvang een aanmeldlink per e-mail",
     emailPh: "jouw@email.com", sendLink: "Link versturen",
