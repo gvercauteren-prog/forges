@@ -622,7 +622,7 @@ function renderContacts(){
 }
 
 /* ---------- tips ---------- */
-const TIP_CATS = ["eat","shop","walk","visit","kids","practical"];
+const TIP_CATS = ["eat","shop","walk","sport","visit","kids","practical"];
 const mapsUrl = tip => "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(tip.address || tip.title);
 const safeUrl = u => /^https?:\/\/\S+$/i.test(u||"") ? u : "";
 function renderTips(){

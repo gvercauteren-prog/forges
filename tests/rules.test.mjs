@@ -52,6 +52,7 @@ await t("main deletes any booking", assertSucceeds(deleteDoc(doc(main,"bookings"
 const tip = (uid, email, extra={}) => ({ uid, email, name:"x", title:"Boulangerie", category:"shop", address:"Rue 1", url:"", note:"", createdAt:"t", updatedAt:"t", ...extra });
 await t("anna adds a tip", assertSucceeds(setDoc(doc(anna,"tips","t1"), tip("uAnna","anna@gmail.com"))));
 await t("anna cannot add a tip as someone else", assertFails(setDoc(doc(anna,"tips","t2"), tip("uBob","bob@gmail.com"))));
+await t("sport tip allowed", assertSucceeds(setDoc(doc(anna,"tips","s1"), tip("uAnna","anna@gmail.com",{category:"sport"}))));
 await t("bad tip category rejected", assertFails(setDoc(doc(anna,"tips","t3"), tip("uAnna","anna@gmail.com",{category:"spam"}))));
 await t("empty tip title rejected", assertFails(setDoc(doc(anna,"tips","t4"), tip("uAnna","anna@gmail.com",{title:""}))));
 await t("not invited: cannot read tips", assertFails(getDocs(collection(eve,"tips"))));

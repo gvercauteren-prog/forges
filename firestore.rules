@@ -72,7 +72,7 @@ service cloud.firestore {
       return d.keys().hasOnly(['uid', 'email', 'name', 'title', 'category', 'address', 'url', 'note', 'createdAt', 'updatedAt'])
         && d.uid is string && d.email is string
         && d.title is string && d.title.size() >= 1 && d.title.size() <= 120
-        && d.category in ['eat', 'shop', 'walk', 'visit', 'kids', 'practical']
+        && d.category in ['eat', 'shop', 'walk', 'sport', 'visit', 'kids', 'practical']
         && d.address is string && d.address.size() <= 300
         && d.url is string && d.url.size() <= 500
         && d.note is string && d.note.size() <= 1000;
