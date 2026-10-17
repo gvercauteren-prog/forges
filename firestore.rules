@@ -91,7 +91,50 @@ service cloud.firestore {
       allow delete: if isMember() && (resource.data.uid == request.auth.uid || isAdmin());
     }
 
-    // Family names, exit checklist and contacts: everyone reads, admins edit.
+    // Carnet, notes for the next family: everyone in reads and posts; anyone can mark a problem fixed;
+    // only the author edits the text; the author or an admin deletes.
+    function validNote(d) {
+      return d.keys().hasOnly(['uid', 'email', 'name', 'text', 'kind', 'resolved', 'resolvedBy', 'resolvedAt', 'createdAt', 'updatedAt'])
+        && d.uid is string && d.email is string
+        && d.text is string && d.text.size() >= 1 && d.text.size() <= 1000
+        && d.kind in ['note', 'issue']
+        && d.resolved is bool;
+    }
+    match /notes/{id} {
+      allow read: if isMember();
+      allow create: if isMember()
+        && validNote(request.resource.data)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == myEmail()
+        && request.resource.data.resolved == false;
+      allow update: if isMember() && validNote(request.resource.data) && (
+          (resource.data.uid == request.auth.uid
+            && request.resource.data.uid == resource.data.uid
+            && request.resource.data.email == resource.data.email)
+          || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resolved', 'resolvedBy', 'resolvedAt']));
+      allow delete: if isMember() && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    // Carnet, things to buy: everyone in reads, adds, ticks off and clears items.
+    function validSupply(d) {
+      return d.keys().hasOnly(['uid', 'email', 'name', 'text', 'done', 'doneBy', 'createdAt'])
+        && d.uid is string && d.email is string
+        && d.text is string && d.text.size() >= 1 && d.text.size() <= 200
+        && d.done is bool;
+    }
+    match /supplies/{id} {
+      allow read: if isMember();
+      allow create: if isMember()
+        && validSupply(request.resource.data)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == myEmail()
+        && request.resource.data.done == false;
+      allow update: if isMember() && validSupply(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['done', 'doneBy']);
+      allow delete: if isMember();
+    }
+
+    // Family names, exit checklist, contacts and house info: everyone reads, admins edit.
     match /config/{docId} {
       allow read: if isMember();
       allow write: if isAdmin();

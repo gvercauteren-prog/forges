@@ -63,6 +63,33 @@ await t("main cannot edit anna's tip", assertFails(updateDoc(doc(main,"tips","t1
 await t("main adds a tip", assertSucceeds(setDoc(doc(main,"tips","m1"), tip("uMain","gvercauteren@gmail.com"))));
 await t("anna cannot delete main's tip", assertFails(deleteDoc(doc(anna,"tips","m1"))));
 await t("admin deletes anna's tip", assertSucceeds(deleteDoc(doc(bob,"tips","t1"))));
+
+// Carnet and house info
+const note = (uid, email, extra={}) => ({ uid, email, name:"x", text:"Fuite sous l'évier", kind:"issue", resolved:false, createdAt:"t", ...extra });
+await t("anna posts a note", assertSucceeds(setDoc(doc(anna,"notes","n1"), note("uAnna","anna@gmail.com"))));
+await t("note posted as someone else rejected", assertFails(setDoc(doc(anna,"notes","n2"), note("uBob","bob@gmail.com"))));
+await t("note posted already fixed rejected", assertFails(setDoc(doc(anna,"notes","n3"), note("uAnna","anna@gmail.com",{resolved:true}))));
+await t("bad note kind rejected", assertFails(setDoc(doc(anna,"notes","n4"), note("uAnna","anna@gmail.com",{kind:"spam"}))));
+await t("not invited: cannot read notes", assertFails(getDocs(collection(eve,"notes"))));
+await t("main marks anna's problem fixed", assertSucceeds(updateDoc(doc(main,"notes","n1"),{resolved:true,resolvedBy:"gvercauteren@gmail.com",resolvedAt:"t"})));
+await t("main cannot rewrite anna's note", assertFails(updateDoc(doc(main,"notes","n1"),{text:"changed"})));
+await t("anna edits her note text", assertSucceeds(updateDoc(doc(anna,"notes","n1"),{text:"Fuite réparée"})));
+await t("main posts a note", assertSucceeds(setDoc(doc(main,"notes","m1"), note("uMain","gvercauteren@gmail.com",{kind:"note"}))));
+await t("anna cannot delete main's note", assertFails(deleteDoc(doc(anna,"notes","m1"))));
+await t("admin deletes anna's note", assertSucceeds(deleteDoc(doc(bob,"notes","n1"))));
+
+const supply = (uid, email, extra={}) => ({ uid, email, name:"x", text:"Bois", done:false, doneBy:"", createdAt:"t", ...extra });
+await t("anna adds a supply", assertSucceeds(setDoc(doc(anna,"supplies","s1"), supply("uAnna","anna@gmail.com"))));
+await t("supply as someone else rejected", assertFails(setDoc(doc(anna,"supplies","s2"), supply("uBob","bob@gmail.com"))));
+await t("main ticks anna's supply", assertSucceeds(updateDoc(doc(main,"supplies","s1"),{done:true,doneBy:"gvercauteren@gmail.com"})));
+await t("main cannot rename anna's supply", assertFails(updateDoc(doc(main,"supplies","s1"),{text:"Autre"})));
+await t("not invited: cannot add supply", assertFails(setDoc(doc(eve,"supplies","s3"), supply("uEve","eve@gmail.com"))));
+await t("member clears a bought supply", assertSucceeds(deleteDoc(doc(main,"supplies","s1"))));
+
+await t("main writes house info", assertSucceeds(setDoc(doc(main,"config","info"),{sections:[{id:"a",title:"Wi-Fi",text:"x"}]})));
+await t("anna reads house info", assertSucceeds(getDoc(doc(anna,"config","info"))));
+await t("anna cannot edit house info", assertFails(setDoc(doc(anna,"config","info"),{sections:[]})));
+await t("not invited: cannot read house info", assertFails(getDoc(doc(eve,"config","info"))));
 await t("main removes bob's admin", assertSucceeds(updateDoc(doc(main,"members","bob@gmail.com"),{admin:false})));
 
 console.log(`\n${pass} passed, ${failc} failed`);

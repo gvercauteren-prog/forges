@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Forge Jean-Petit</title>
 <meta name="theme-color" content="#24496B">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Forge J-P">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='2' y='2' width='36' height='36' rx='9' fill='%2324496B'/%3E%3Cpath d='M9 23h17c0-4 3-6 6-6v-3H15c-2 0-4 1.5-6 4z' fill='white'/%3E%3Cpath d='M15 23v5h-3v3h16v-3h-3v-5z' fill='white'/%3E%3Ccircle cx='31' cy='10' r='2' fill='%23E59A68'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
@@ -194,6 +199,45 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
 .tip .links a{text-decoration:none}
 .tip .by{font-size:.8rem;color:var(--muted);margin-top:4px}
 .tip .acts{display:flex;gap:6px;margin-top:6px}
+.install{display:flex;gap:10px 14px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);padding:12px 14px}
+.install p{margin:0;font-size:.9rem;min-width:0;flex:1 1 220px}
+.cal-nav .seg{margin-right:6px}
+.year-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px 22px}
+.ym{min-width:0}
+.ym h3{font-family:var(--font-body);font-size:.95rem;font-weight:700;margin:0 0 6px}
+.ym h3 button{background:none;border:0;padding:0;font:inherit;cursor:pointer;color:var(--ink)}
+.ym h3 button:hover{color:var(--accent);text-decoration:underline}
+.ym-dow,.ym-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.ym-dow{margin-bottom:2px}
+.ym-dow span{font-size:.62rem;text-align:center;color:var(--muted);font-weight:700}
+.yd{aspect-ratio:1;border:0;border-radius:4px;background:var(--sunk);font-size:.72rem;font-variant-numeric:tabular-nums;cursor:pointer;padding:0;color:var(--ink);min-width:0}
+.yd.blank{visibility:hidden}
+.yd.booked{color:var(--on-fam);font-weight:700}
+.yd.today{box-shadow:inset 0 0 0 2px var(--ember)}
+.yd:hover{filter:brightness(.92)}
+.legend .n{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600}
+.carnet{display:grid;gap:22px}
+.note-form{display:grid;gap:8px;margin-top:12px}
+.note-form textarea{width:100%;min-height:80px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);resize:vertical}
+.notes{display:grid;gap:8px;margin-top:14px}
+.note{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:6px;min-width:0}
+.note.issue{border-left-color:var(--ember)}
+.note.resolved{opacity:.65}
+.note .txt{white-space:pre-wrap;overflow-wrap:anywhere}
+.note .meta{font-size:.8rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:1px 8px;background:var(--sunk);color:var(--muted)}
+.pill.issue{background:color-mix(in srgb,var(--ember) 18%,var(--surface));color:var(--ember)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 18%,var(--surface));color:var(--ok)}
+.supplies{display:grid;gap:2px;margin-top:12px}
+.supplies label{display:flex;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line);cursor:pointer;min-width:0}
+.supplies input{width:20px;height:20px;accent-color:var(--ok);flex:none}
+.supplies .t{overflow-wrap:anywhere;min-width:0}
+.supplies label.done .t{text-decoration:line-through;color:var(--muted)}
+.supplies small{color:var(--muted);margin-left:auto;font-size:.75rem;white-space:nowrap}
+.info-card .txt{white-space:pre-wrap;overflow-wrap:anywhere}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chips button{border:1px dashed var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:.84rem;font-weight:600;color:var(--muted);cursor:pointer}
+.chips button:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -213,9 +257,11 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
     </div>
     <nav class="tabs" role="tablist" id="tabs" hidden>
       <button role="tab" data-tab="calendar" aria-selected="true"></button>
+      <button role="tab" data-tab="carnet" aria-selected="false"></button>
+      <button role="tab" data-tab="info" aria-selected="false"></button>
       <button role="tab" data-tab="checklist" aria-selected="false"></button>
-      <button role="tab" data-tab="contacts" aria-selected="false"></button>
       <button role="tab" data-tab="tips" aria-selected="false"></button>
+      <button role="tab" data-tab="contacts" aria-selected="false"></button>
       <button role="tab" data-tab="settings" aria-selected="false" id="tab-settings" hidden></button>
     </nav>
   </div>
@@ -233,9 +279,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut,
          sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
+         doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=37612392";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=8ce4ba50";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -249,7 +296,15 @@ const MAIN_ADMIN = "gvercauteren@gmail.com";   // must match firestore.rules
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+// Keep a copy of the data on the device so the app also opens without a connection.
+let db;
+try { db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
+catch(_) { db = getFirestore(app); }
+async function doSignOut(){
+  try { await signOut(auth); } catch(_) {}
+  try { await terminate(db); await clearIndexedDbPersistence(db); } catch(_) {}
+  location.replace(APP_LINK);
+}
 
 /* ---------- language ---------- */
 const store = { get(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(_){} } };
@@ -281,7 +336,8 @@ const S = {
   authUser:null, email:null, member:null, memberLoaded:false, isMain:false,
   settings:null, bookings:[], members:[],
   tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[],
-  signInError:"", linkSentTo:"", needEmailConfirm:false, bulk:null, tips:[], tipCat:"all"
+  signInError:"", linkSentTo:"", needEmailConfirm:false, bulk:null, tips:[], tipCat:"all",
+  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear()
 };
 const $ = s => document.querySelector(s);
 const main = $("#main");
@@ -290,6 +346,7 @@ const main = $("#main");
 function h(tag, attrs, ...kids){
   const el = document.createElement(tag);
   if (attrs) for (const [k,v] of Object.entries(attrs)){
+    if (k.startsWith("aria-") && typeof v==="boolean") { el.setAttribute(k, String(v)); continue; }
     if (v==null || v===false) continue;
     if (k==="class") el.className=v;
     else if (k==="style") el.setAttribute("style",v);
@@ -415,7 +472,7 @@ function notifyBlock(b, kind){
 /* ---------- header ---------- */
 function renderHeader(){
   $("#brand-small").textContent = t("brandSmall");
-  const labels = {calendar:"tabCalendar", checklist:"tabChecklist", contacts:"tabContacts", tips:"tabTips", settings:"tabAdmin"};
+  const labels = {calendar:"tabCalendar", carnet:"tabCarnet", info:"tabInfo", checklist:"tabChecklist", contacts:"tabContacts", tips:"tabTips", settings:"tabAdmin"};
   for (const b of document.querySelectorAll("#tabs button")){ b.textContent=t(labels[b.dataset.tab]); b.setAttribute("aria-selected", b.dataset.tab===S.tab); }
   const w=$("#who"); w.replaceChildren();
   w.append(h("div",{class:"lang",role:"group","aria-label":"Language"}, LANGS.map(l=>h("button",{"aria-pressed":l===LANG,text:l.toUpperCase(),onclick:()=>setLang(l)}))));
@@ -424,7 +481,7 @@ function renderHeader(){
   w.append(h("span",{text:S.authUser.displayName || memberName(S.email) || S.email}));
   if (myFamily()) w.append(h("span",{class:"chip"}, h("span",{class:"dot",style:`background:${famColor(myFamily())}`}), famName(myFamily())));
   if (isAdmin()) w.append(h("span",{class:"badge-admin",text:S.isMain?t("mainAdmin"):t("admin")}));
-  w.append(h("button",{class:"btn ghost",text:t("signOut"),onclick:()=>signOut(auth)}));
+  w.append(h("button",{class:"btn ghost",text:t("signOut"),onclick:doSignOut}));
 }
 
 /* ---------- screens ---------- */
@@ -434,13 +491,25 @@ function render(){
   renderHeader();
   $("#tabs").hidden = !inside;
   $("#tab-settings").hidden = !isAdmin();
+  // Keep what someone is typing when the page redraws because another person saved something.
+  const typed={}; const act=document.activeElement; let focus=null;
+  for (const el of main.querySelectorAll("input[id],textarea[id]")) if (!["checkbox","radio","file"].includes(el.type) && el.value!==el.defaultValue) typed[el.id]=el.value;
+  if (act && act.id && main.contains(act)) focus={id:act.id, a:act.selectionStart, b:act.selectionEnd};
   main.replaceChildren();
+  draw();
+  for (const [id,v] of Object.entries(typed)){ const el=document.getElementById(id); if (el && main.contains(el)) el.value=v; }
+  if (focus){ const el=document.getElementById(focus.id); if (el && main.contains(el)) { el.focus({preventScroll:true}); try{ if(focus.a!=null) el.setSelectionRange(focus.a,focus.b); }catch(_){} } }
+}
+function draw(){
+  const inside = S.authUser && (S.member || S.isMain);
   if (S.needEmailConfirm) { main.append(renderConfirmEmail()); return; }
   if (!S.authUser) { main.append(renderSignIn()); return; }
   if (!S.memberLoaded) { main.append(h("div",{class:"panel"},h("h2",{text:t("checkingInvite")}))); return; }
   if (!inside) { main.append(renderNotInvited()); return; }
   if (S.isMain && !S.member) main.append(renderMainOnboarding());
-  if (S.tab==="calendar") main.append(renderCalendar(), renderList());
+  if (S.tab==="calendar"){ const ins=renderInstall(); if (ins) main.append(ins); main.append(S.calView==="year"?renderYear():renderCalendar(), renderList()); }
+  if (S.tab==="carnet") main.append(renderCarnet());
+  if (S.tab==="info") main.append(renderInfo());
   if (S.tab==="checklist") main.append(renderChecklist());
   if (S.tab==="contacts") main.append(renderContacts());
   if (S.tab==="tips") main.append(renderTips());
@@ -504,7 +573,7 @@ function renderNotInvited(){
   return h("div",{class:"gate"}, h("div",{class:"panel"},
     h("h2",{text:t("notInvited")}),
     h("p",{class:"sub"}, parts[0], h("strong",{text:S.email}), parts[1]||""),
-    h("button",{class:"btn",text:t("otherAccount"),onclick:()=>signOut(auth)})));
+    h("button",{class:"btn",text:t("otherAccount"),onclick:doSignOut})));
 }
 function renderMainOnboarding(){
   const sel = h("select",{id:"onb-fam"}, h("option",{value:"",text:t("chooseFamily")}), families().map(f=>h("option",{value:f.id,text:famName(f.id)})));
@@ -528,7 +597,7 @@ function renderCalendar(){
   const canBook = !!myFamily() || S.isMain;
   const head = h("div",{class:"cal-head"},
     h("h2",{text:title.charAt(0).toUpperCase()+title.slice(1)}),
-    h("div",{class:"cal-nav"},
+    h("div",{class:"cal-nav"}, calSwitch(),
       h("button",{class:"btn icon-btn","aria-label":t("prevMonth"),text:"‹",onclick:()=>shift(-1)}),
       h("button",{class:"btn",text:t("today"),onclick:()=>{S.month=todayStr().slice(0,8)+"01"; render();}}),
       h("button",{class:"btn icon-btn","aria-label":t("nextMonth"),text:"›",onclick:()=>shift(1)}),
@@ -679,6 +748,163 @@ function openTipForm(x){
     h("label",{class:"field"},t("tipNote"),note),
     err,
     h("div",{class:"dlg-actions"}, h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}), save)));
+}
+
+/* ---------- install as an app ---------- */
+let installPrompt = null;
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); installPrompt = e; render(); });
+addEventListener("appinstalled", () => { installPrompt = null; store.set("fjp-install-hide","1"); render(); });
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+function renderInstall(){
+  if (isStandalone() || store.get("fjp-install-hide")==="1") return null;
+  if (!installPrompt && !isIOS()) return null;
+  const later = h("button",{class:"btn ghost",text:t("installLater"),onclick:()=>{ store.set("fjp-install-hide","1"); render(); }});
+  if (installPrompt) return h("div",{class:"install"}, h("p",{text:t("installText")}),
+    h("div",{class:"export-row"},
+      h("button",{class:"btn primary",text:t("installBtn"),onclick:async()=>{ const p=installPrompt; installPrompt=null; p.prompt(); try{ await p.userChoice; }catch(_){} render(); }}),
+      later));
+  return h("div",{class:"install"}, h("p",{text:t("installIos")}), later);
+}
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+
+/* ---------- small shared helpers ---------- */
+const myName = () => S.authUser?.displayName || memberName(S.email) || S.email;
+const fmtWhen = iso => { try { return new Date(iso).toLocaleDateString(locale(),{day:"numeric",month:"short",year:"numeric"}); } catch(_) { return ""; } };
+function armed(label, action, cls="btn ghost"){
+  const b=h("button",{class:cls,type:"button",text:label});
+  b.addEventListener("click",()=>{ if(!b.classList.contains("armed")){ b.classList.add("armed","danger"); b.textContent=t("tapConfirm"); return; } quiet(action()); });
+  return b;
+}
+
+/* ---------- year view ---------- */
+function calSwitch(){
+  return h("div",{class:"seg"}, ["month","year"].map(v=>h("button",{"aria-pressed":S.calView===v,text:t(v==="month"?"viewMonth":"viewYear"),
+    onclick:()=>{ S.calView=v; if(v==="year") S.year=Number(S.month.slice(0,4)); store.set("fjp-calview",v); render(); }})));
+}
+function renderYear(){
+  const Y=S.year, today=dn(todayStr()), canBook=!!myFamily()||S.isMain;
+  const ys=dn(Y+"-01-01"), ye=dn(Y+"-12-31");
+  const yb=allBookings().map(b=>({...b,s:dn(b.start),e:dn(b.end)})).filter(b=>b.s<=ye&&b.e>=ys);
+  const head=h("div",{class:"cal-head"}, h("h2",{text:String(Y)}),
+    h("div",{class:"cal-nav"}, calSwitch(),
+      h("button",{class:"btn icon-btn","aria-label":t("prevYear"),text:"‹",onclick:()=>{S.year--;render();}}),
+      h("button",{class:"btn",text:t("today"),onclick:()=>{S.year=new Date().getFullYear();render();}}),
+      h("button",{class:"btn icon-btn","aria-label":t("nextYear"),text:"›",onclick:()=>{S.year++;render();}}),
+      canBook?h("button",{class:"btn primary",text:t("newBooking"),onclick:()=>openForm(null,todayStr())}):null));
+  const grid=h("div",{class:"year-grid"});
+  for (let m=1;m<=12;m++){
+    const mfirst=dn(`${Y}-${pad(m)}-01`), days=new Date(Date.UTC(Y,m,0)).getUTCDate();
+    const lead=(new Date(mfirst*864e5).getUTCDay()+6)%7;
+    const name=new Date(mfirst*864e5).toLocaleDateString(locale(),{timeZone:"UTC",month:"long"});
+    const cells=[]; for (let i=0;i<lead;i++) cells.push(h("span",{class:"yd blank","aria-hidden":"true"}));
+    for (let d=mfirst; d<mfirst+days; d++){
+      const here=yb.filter(b=>b.s<=d&&b.e>=d), fams=[...new Set(here.map(b=>b.family))], dstr=ds(d);
+      const style = !fams.length ? null : fams.length===1 ? `background:${famColor(fams[0])}` : `background:linear-gradient(135deg, ${famColor(fams[0])} 50%, ${famColor(fams[1])} 50%)`;
+      const label = fmt(dstr,{weekday:"long",day:"numeric",month:"long"}) + (here.length ? ": "+[...new Set(here.map(b=>famName(b.family)))].join(", ") : "");
+      cells.push(h("button",{class:"yd"+(here.length?" booked":"")+(d===today?" today":""),style,"aria-label":label,title:label,text:String(d-mfirst+1),
+        onclick:()=>{ if(here.length) openDetail(here[0]); else if(canBook) openForm(null,dstr); else toast(t("pickFamilyFirst")); }}));
+    }
+    grid.append(h("div",{class:"ym"},
+      h("h3",null,h("button",{text:name.charAt(0).toUpperCase()+name.slice(1),onclick:()=>{ S.calView="month"; S.month=`${Y}-${pad(m)}-01`; store.set("fjp-calview","month"); render(); }})),
+      h("div",{class:"ym-dow","aria-hidden":"true"}, t("dow").map(x=>h("span",{text:x.slice(0,1)}))),
+      h("div",{class:"ym-days"}, cells)));
+  }
+  const nightsBy={};
+  for (const b of yb){ const n=Math.max(0, Math.min(b.e,ye+1)-Math.max(b.s,ys)); nightsBy[b.family]=(nightsBy[b.family]||0)+n; }
+  const legend=h("div",{class:"legend"}, families().map(f=>h("span",null,h("span",{class:"dot",style:`background:${famColor(f.id)}`}),famName(f.id),h("span",{class:"n",text:"· "+nightsTxt(nightsBy[f.id]||0)}))));
+  return h("section",{class:"panel"}, head, h("p",{class:"sub",style:"margin:-6px 0 14px",text:t("yearSub",{y:Y})}), grid, legend);
+}
+
+/* ---------- carnet (notes for the next family + things to buy) ---------- */
+function noteCard(n){
+  const mine=n.uid===uid(), issue=n.kind==="issue";
+  return h("div",{class:"note"+(issue?" issue":"")+(n.resolved?" resolved":"")},
+    h("div",{class:"meta"},
+      h("span",{class:"pill"+(issue?" issue":""),text:t(issue?"kindIssue":"kindNote")}),
+      n.resolved?h("span",{class:"pill ok",text:t("resolved")}):null,
+      h("span",{text:(n.name||t("aMember"))+" · "+fmtWhen(n.createdAt)})),
+    h("div",{class:"txt",text:n.text}),
+    (issue || mine || isAdmin()) ? h("div",{class:"export-row"},
+      issue ? h("button",{class:"btn",type:"button",text:n.resolved?t("reopen"):t("markResolved"),
+        onclick:()=>quiet(updateDoc(doc(db,"notes",n.id),{resolved:!n.resolved,resolvedBy:S.email,resolvedAt:new Date().toISOString()}).catch(fail))}) : null,
+      (mine||isAdmin()) ? armed(t("deleteTip"), ()=>deleteDoc(doc(db,"notes",n.id)).then(()=>toast(t("removed")),fail)) : null) : null);
+}
+function renderCarnet(){
+  const wrap=h("div",{class:"carnet"});
+  // notes
+  const text=h("textarea",{id:"note-text",maxlength:"1000",placeholder:t("notePh2")});
+  const kindSeg=h("div",{class:"seg",role:"group"}, ["note","issue"].map(k=>h("button",{type:"button","aria-pressed":S.noteKind===k,text:t(k==="note"?"kindNote":"kindIssue"),
+    onclick:()=>{ S.noteKind=k; for (const b of kindSeg.children) b.setAttribute("aria-pressed", b.textContent===t(k==="note"?"kindNote":"kindIssue")); }})));
+  const post=h("button",{class:"btn primary",type:"submit",text:t("postNote")});
+  const form=h("form",{class:"note-form",onsubmit:async e=>{
+    e.preventDefault(); const v=text.value.trim(); if(!v) return toast(t("noteEmpty"));
+    post.disabled=true;
+    try { await setDoc(doc(db,"notes",newId()),{uid:uid(),email:S.email,name:myName(),text:v,kind:S.noteKind,resolved:false,createdAt:new Date().toISOString()});
+          text.value=""; S.noteKind="note"; toast(t("notePosted")); render(); }
+    catch(e2){ post.disabled=false; try{fail(e2);}catch(_){} }
+  }}, h("label",{class:"field",for:"note-text"},t("newNote")), text, h("div",{class:"split"}, kindSeg, post));
+  const all=[...S.notes].sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+  const open=all.filter(n=>!n.resolved), closed=all.filter(n=>n.resolved);
+  const notesPanel=h("section",{class:"panel"}, h("h2",{text:t("notesTitle")}), h("p",{class:"sub",text:t("notesSub")}), form,
+    open.length ? h("div",{class:"notes"}, open.map(noteCard)) : h("div",{class:"empty",style:"margin-top:14px",text:t("noNotes")}),
+    closed.length ? h("div",{style:"margin-top:12px"}, h("button",{class:"btn ghost",type:"button",text:S.showResolved?t("hideResolved"):t("showResolved",{n:closed.length}),onclick:()=>{S.showResolved=!S.showResolved;render();}})) : null,
+    (closed.length && S.showResolved) ? h("div",{class:"notes"}, closed.map(noteCard)) : null);
+  wrap.append(notesPanel);
+  // things to buy
+  const inp=h("input",{id:"supply-text",maxlength:"200",placeholder:t("supplyPh"),"aria-label":t("suppliesTitle")});
+  const addSupply=()=>{ const v=inp.value.trim(); if(!v) return; inp.value="";
+    quiet(setDoc(doc(db,"supplies",newId()),{uid:uid(),email:S.email,name:myName(),text:v,done:false,doneBy:"",createdAt:new Date().toISOString()}).catch(fail)); };
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); addSupply(); } });
+  const sup=[...S.supplies].sort((a,b)=>(a.done-b.done)||(a.createdAt||"").localeCompare(b.createdAt||""));
+  const bought=sup.filter(s=>s.done);
+  wrap.append(h("section",{class:"panel"}, h("h2",{text:t("suppliesTitle")}), h("p",{class:"sub",text:t("suppliesSub")}),
+    h("div",{class:"edit-item",style:"margin-top:12px"}, inp, h("button",{class:"btn",type:"button",text:t("addSupply"),onclick:addSupply})),
+    sup.length ? h("div",{class:"supplies"}, sup.map(s=>h("label",{class:s.done?"done":""},
+      h("input",{type:"checkbox",id:"sup-"+s.id,checked:!!s.done,onchange:e=>quiet(updateDoc(doc(db,"supplies",s.id),{done:e.target.checked,doneBy:e.target.checked?S.email:""}).catch(fail))}),
+      h("span",{class:"t",text:s.text}), h("small",{text:s.name||""})))) : h("div",{class:"empty",style:"margin-top:14px",text:t("noSupplies")}),
+    bought.length ? h("div",{style:"margin-top:12px"}, armed(t("clearBought",{n:bought.length}), ()=>Promise.all(bought.map(s=>deleteDoc(doc(db,"supplies",s.id)))).then(()=>toast(t("removed")),fail), "btn")) : null));
+  return wrap;
+}
+
+/* ---------- infos pratiques ---------- */
+const INFO_SUGGEST=["wifi","keys","heating","water","bins","alarm","arrival","departure","electricity","garden"];
+const saveInfo = mutate => { const arr=JSON.parse(JSON.stringify(S.info?.sections||[])); mutate(arr); return setDoc(doc(db,"config","info"),{sections:arr}).catch(fail); };
+function renderInfo(){
+  const secs=S.info?.sections||[];
+  const panel=h("section",{class:"panel"},
+    h("div",{class:"split"}, h("div",null,h("h2",{text:t("infoTitle")}),h("p",{class:"sub",text:t("infoSub")})),
+      isAdmin()?h("button",{class:"btn primary",text:t("addSection"),onclick:()=>openInfoForm(null,"")}):null));
+  if (!secs.length) panel.append(h("div",{class:"empty",style:"margin-top:14px",text:isAdmin()?t("noInfoAdmin"):t("noInfo")}));
+  if (secs.length) panel.append(h("div",{class:"cards"}, secs.map((s,i)=>h("div",{class:"card info-card"},
+    h("h3",{text:s.title}),
+    s.text?h("div",{class:"txt",text:s.text}):null,
+    h("div",{class:"export-row",style:"margin-top:8px"},
+      s.text?h("button",{class:"copy",text:t("copy"),onclick:e=>copyText(s.text,e.target)}):null,
+      isAdmin()?h("button",{class:"copy",text:t("edit"),onclick:()=>openInfoForm(s)}):null,
+      (isAdmin()&&i>0)?h("button",{class:"copy",text:"↑","aria-label":t("moveUp"),onclick:()=>quiet(saveInfo(arr=>{const j=arr.findIndex(x=>x.id===s.id); if(j>0) [arr[j-1],arr[j]]=[arr[j],arr[j-1]];}))}):null)))));
+  if (isAdmin()){
+    const used=new Set(secs.map(s=>s.title));
+    const sug=INFO_SUGGEST.map(k=>t("info_"+k)).filter(x=>!used.has(x));
+    if (sug.length) panel.append(h("p",{class:"hint",style:"margin:16px 0 0",text:t("suggestions")}), h("div",{class:"chips"}, sug.map(x=>h("button",{type:"button",text:"+ "+x,onclick:()=>openInfoForm(null,x)}))));
+  }
+  return panel;
+}
+function openInfoForm(s, titleDefault){
+  const title=h("input",{id:"info-title",maxlength:"80",value:s?.title||titleDefault||""});
+  const text=h("textarea",{id:"info-text",maxlength:"3000",style:"min-height:170px",placeholder:t("infoTextPh")}); text.value=s?.text||"";
+  const del = s ? armed(t("remove"), ()=>saveInfo(arr=>{ const j=arr.findIndex(x=>x.id===s.id); if(j>=0) arr.splice(j,1); }).then(()=>{ dlg.close(); toast(t("removed")); }), "btn danger") : null;
+  showDlg(h("form",{class:"dlg",onsubmit:async e=>{
+    e.preventDefault(); const v=title.value.trim(); if(!v) return toast(t("infoNeedTitle"));
+    try { await saveInfo(arr=>{ const item={id:s?.id||newId(), title:v, text:text.value.trim()}; const j=arr.findIndex(x=>x.id===item.id); if(j>=0) arr[j]=item; else arr.push(item); });
+          dlg.close(); toast(t("saved")); } catch(_){}
+  }},
+    h("div",{class:"dlg-head"}, h("h2",{text:s?t("editSection"):t("newSection")}), closeBtn()),
+    h("label",{class:"field"},t("sectionTitle"),title),
+    h("label",{class:"field"},t("sectionText"),text),
+    h("p",{class:"hint",text:t("infoPrivacy")}),
+    h("div",{class:"dlg-actions"}, del, h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}), h("button",{class:"btn primary",type:"submit",text:t("save")}))));
+  setTimeout(()=>(s||titleDefault?text:title).focus(),50);
 }
 
 /* ---------- admin ---------- */
@@ -915,10 +1141,13 @@ function startData(){
   S.unsubs.push(onSnapshot(collection(db,"bookings"), snap=>{ S.bookings=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
   S.unsubs.push(onSnapshot(collection(db,"members"), snap=>{ S.members=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
   S.unsubs.push(onSnapshot(collection(db,"tips"), snap=>{ S.tips=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
+  S.unsubs.push(onSnapshot(collection(db,"notes"), snap=>{ S.notes=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
+  S.unsubs.push(onSnapshot(collection(db,"supplies"), snap=>{ S.supplies=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
+  S.unsubs.push(onSnapshot(doc(db,"config","info"), snap=>{ S.info=snap.exists()?snap.data():null; render(); }, onErr));
 }
 
 S.month=todayStr().slice(0,8)+"01";
-{ const tb=store.get("fjp-tab"); if(tb) S.tab=tb; }
+{ const tb=store.get("fjp-tab"); if(tb) S.tab=tb; if (store.get("fjp-calview")==="year") S.calView="year"; }
 getRedirectResult(auth).catch(()=>{ S.signInError=t("signInFailed"); render(); });
 
 // Arriving from an emailed sign-in link
@@ -929,7 +1158,7 @@ if (isSignInWithEmailLink(auth, location.href)) {
 
 onAuthStateChanged(auth, user=>{
   stopAll();
-  S.authUser=user; S.member=null; S.memberLoaded=false; S.settings=null; S.bookings=[]; S.members=[]; S.tips=[];
+  S.authUser=user; S.member=null; S.memberLoaded=false; S.settings=null; S.bookings=[]; S.members=[]; S.tips=[]; S.notes=[]; S.supplies=[]; S.info=null;
   if (!user){ S.email=null; S.isMain=false; render(); return; }
   S.email=(user.email||"").toLowerCase();
   S.isMain = S.email===MAIN_ADMIN;
