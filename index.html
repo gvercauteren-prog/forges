@@ -176,6 +176,8 @@ main{padding-block:22px 60px;display:grid;gap:22px}
 
 dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:0;width:min(540px, calc(100vw - 32px));max-height:calc(100vh - 32px)}
 dialog::backdrop{background:rgba(10,14,13,.45)}
+dialog{overscroll-behavior:contain}
+.sheet-handle{touch-action:none}
 .dlg{padding:20px;display:grid;gap:14px}
 .dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .dlg-head h2{font-size:1.35rem}
@@ -1084,9 +1086,9 @@ if ([12,1].includes(new Date().getMonth()+1)){
 }
 const TAB_ORDER = () => [...PRIMARY_TABS, ...MORE_TABS];
 function go(tab){
-  if (tab===S.tab){ if (dlg.open) dlg.close(); scrollTo({top:0,behavior:calmMotion()?"auto":"smooth"}); return; }
+  if (tab===S.tab){ if (dlg.open){ dlg.close(); unlockPage(); } scrollTo({top:0,behavior:calmMotion()?"auto":"smooth"}); return; }
   const dir = TAB_ORDER().indexOf(tab) >= TAB_ORDER().indexOf(S.tab) ? "fwd" : "back";
-  if (dlg.open) dlg.close();
+  if (dlg.open){ dlg.close(); unlockPage(); }
   vt(dir, ()=>{ S.tab=tab; store.set("fjp-tab",tab); render(); scrollTo({top:0}); });
 }
 
@@ -2185,16 +2187,28 @@ const dlg=$("#dlg");
 function showDlg(content){
   dlg.replaceChildren(h("div",{class:"sheet-handle","aria-hidden":"true"}), content);
   dlg.style.transform="";
-  if(!dlg.open) dlg.showModal();
+  if(!dlg.open){ lockPage(); dlg.showModal(); }
 }
 // On phones, windows slide up from the bottom and close with a swipe down.
+// While a window is open the page behind stays still (iPhone otherwise scrolls it along with the swipe).
+let lockedY=null;
+function lockPage(){
+  if (lockedY!=null) return; lockedY=scrollY;
+  const b=document.body.style; b.position="fixed"; b.top=`-${lockedY}px`; b.left="0"; b.right="0"; b.width="100%";
+}
+function unlockPage(){
+  if (lockedY==null) return; const y=lockedY; lockedY=null;
+  const b=document.body.style; b.position=b.top=b.left=b.right=b.width="";
+  scrollTo({top:y, behavior:"instant"});
+}
 { let y0=null, dy=0;
   dlg.addEventListener("touchstart",e=>{ y0 = (isPhone() && dlg.scrollTop<=0) ? e.touches[0].clientY : null; dy=0; },{passive:true});
   dlg.addEventListener("touchmove",e=>{ if (y0==null) return; dy=e.touches[0].clientY-y0;
-    if (dy>0 && dlg.scrollTop<=0){ dlg.style.transition="none"; dlg.style.transform=`translateY(${dy}px)`; } },{passive:true});
+    if (dy>0 && dlg.scrollTop<=0){ e.preventDefault(); dlg.style.transition="none"; dlg.style.transform=`translateY(${dy}px)`; }
+    else if (dy<0) y0=null; },{passive:false});
   dlg.addEventListener("touchend",()=>{ if (y0==null) return; dlg.style.transition="";
     if (dy>110) dlg.close(); else dlg.style.transform=""; y0=null; });
-  dlg.addEventListener("close",()=>{ dlg.style.transform=""; dlg.style.transition=""; });
+  dlg.addEventListener("close",()=>{ dlg.style.transform=""; dlg.style.transition=""; unlockPage(); });
 }
 dlg.addEventListener("click",e=>{ if(e.target===dlg) dlg.close(); });
 const closeBtn = () => h("button",{type:"button",class:"btn ghost icon-btn","aria-label":t("close"),text:"✕",onclick:()=>dlg.close()});
