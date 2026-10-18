@@ -46,6 +46,11 @@ await t("bob cannot make someone admin", assertFails(setDoc(doc(bob,"members","d
 await t("bob cannot promote anna", assertFails(updateDoc(doc(bob,"members","anna@gmail.com"),{admin:true})));
 await t("bob cannot remove main admin", assertFails(deleteDoc(doc(bob,"members","gvercauteren@gmail.com"))));
 await t("bob cannot edit anna's booking", assertFails(updateDoc(doc(bob,"bookings","b1"),{note:"x"})));
+await t("admin bob books for anna's family", assertSucceeds(setDoc(doc(bob,"bookings","fam1"), booking("uBob","bob@gmail.com","f2"))));
+await t("anna ticks checklist on her family's stay", assertSucceeds(updateDoc(doc(anna,"bookings","fam1"),{checklist:{c01:true}})));
+await t("anna cannot change dates of that stay", assertFails(updateDoc(doc(anna,"bookings","fam1"),{end:"2026-11-09"})));
+await t("main cannot tick checklist of another family", assertFails(updateDoc(doc(main,"bookings","fam1"),{checklist:{c02:true}})));
+await t("not invited cannot tick checklist", assertFails(updateDoc(doc(eve,"bookings","fam1"),{checklist:{}})));
 await t("bob deletes anna's booking", assertSucceeds(deleteDoc(doc(bob,"bookings","b1"))));
 await t("main deletes any booking", assertSucceeds(deleteDoc(doc(main,"bookings","m1"))));
 

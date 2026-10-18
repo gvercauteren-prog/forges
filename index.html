@@ -460,7 +460,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=2acd8270";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=9e205a40";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -582,6 +582,7 @@ const myFamily = () => S.member?.family || null;
 const uid = () => S.authUser?.uid;
 const allBookings = () => [...S.bookings].sort((a,b)=>a.start<b.start?-1:a.start>b.start?1:0);
 const canEdit = b => b.uid===uid();
+const isMyFamily = b => !!myFamily() && b.family===myFamily();
 const canDelete = b => b.uid===uid() || isAdmin();
 const saveSettings = patch => setDoc(doc(db,"config","settings"), {...(S.raw.settings||DEFAULT_SETTINGS), ...patch}).catch(fail);
 const memberName = email => (S.members.find(m=>m.id===email)||{}).name || "";
@@ -849,7 +850,7 @@ function renderToday(){
   const td=todayStr(), T=dn(td), all=allBookings(), canBook=!!myFamily()||S.isMain;
   const now=all.filter(b=>b.start<=td&&b.end>=td);
   const next=all.find(b=>b.start>td);
-  const mine=all.find(b=>b.uid===uid()&&b.end>=td);
+  const mine=all.find(b=>isMyFamily(b)&&b.end>=td);
   const issues=S.notes.filter(n=>n.kind==="issue"&&!n.resolved).length, buy=S.supplies.filter(s=>!s.done).length;
   const rel=s=>{ const d=dn(s)-T; return d<=0?t("todayLow"):d===1?t("tomorrow"):t("inDays",{n:d}); };
   const famLine=list=>{ const ids=[...new Set(list.map(b=>b.family))];
@@ -1029,7 +1030,7 @@ function renderList(){
   const td=todayStr();
   let list=allBookings();
   if (S.listMode==="upcoming") list=list.filter(b=>b.end>=td);
-  if (S.listMode==="mine") list=list.filter(b=>b.uid===uid());
+  if (S.listMode==="mine") list=list.filter(isMyFamily);
   if (S.listMode==="past") list=list.filter(b=>b.end<td).reverse();
   const upcomingAll = allBookings().filter(b=>b.end>=td);
   const seg=h("div",{class:"seg"},["upcoming","mine","past"].map(k=>h("button",{"aria-pressed":S.listMode===k,text:t(k),onclick:()=>{S.listMode=k;render();}})));
@@ -1043,7 +1044,7 @@ function renderList(){
 
 function renderChecklist(){
   const items=S.settings?.checklist||[], td=todayStr();
-  const mine=allBookings().filter(b=>b.uid===uid());
+  const mine=allBookings().filter(isMyFamily);
   if (!mine.find(b=>b.id===S.checkBooking)){ const started=mine.filter(b=>b.start<=td); S.checkBooking=(started[started.length-1]||mine[0]||{}).id||null; }
   const bk=mine.find(b=>b.id===S.checkBooking);
   const done=bk?items.filter(i=>bk.checklist?.[i.id]).length:0;

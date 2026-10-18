@@ -58,12 +58,14 @@ service cloud.firestore {
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.email == myEmail()
         && (isAdmin() || request.resource.data.family == myFamily());
-      allow update: if isMember()
-        && resource.data.uid == request.auth.uid
-        && validBooking(request.resource.data)
-        && request.resource.data.uid == resource.data.uid
-        && request.resource.data.email == resource.data.email
-        && (isAdmin() || request.resource.data.family == myFamily());
+      allow update: if isMember() && validBooking(request.resource.data) && (
+          (resource.data.uid == request.auth.uid
+            && request.resource.data.uid == resource.data.uid
+            && request.resource.data.email == resource.data.email
+            && (isAdmin() || request.resource.data.family == myFamily()))
+          // the booking's family can tick its exit checklist, even if someone else booked it
+          || (resource.data.family == myFamily()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['checklist', 'updatedAt'])));
       allow delete: if isMember() && (resource.data.uid == request.auth.uid || isAdmin());
     }
 
