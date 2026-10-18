@@ -7,6 +7,11 @@ export const LOCALES = { en: "en-GB", fr: "fr-BE", nl: "nl-BE" };
 export const STR = {
   en: {
 
+    importStays: "Import stays (file)…", importTitle: "Import stays and tips",
+    importSub: "Choose the import file. You'll see everything before anything is added; items already in the calendar are unticked.",
+    importPick: "Import file (.json)", importBad: "This isn't a valid import file.",
+    importExists: "already there", importGo: "Import ({n})", importing: "Importing… {n}", importDone: "{n} items imported",
+
     inProgress: "Now", yesterday: "yesterday", daysAgo: "{n} days ago", goAdmin: "Open admin",
 
     appearance: "Appearance", themeAuto: "Auto", themeLight: "Light", themeDark: "Dark",
@@ -182,6 +187,11 @@ export const STR = {
 
   fr: {
 
+    importStays: "Importer des séjours (fichier)…", importTitle: "Importer des séjours et bons plans",
+    importSub: "Choisissez le fichier d'import. Vous verrez tout avant que quoi que ce soit soit ajouté ; ce qui est déjà dans l'agenda est décoché.",
+    importPick: "Fichier d'import (.json)", importBad: "Ce fichier n'est pas un fichier d'import valide.",
+    importExists: "déjà présent", importGo: "Importer ({n})", importing: "Import… {n}", importDone: "{n} éléments importés",
+
     inProgress: "En cours", yesterday: "hier", daysAgo: "il y a {n} jours", goAdmin: "Ouvrir l'admin",
 
     appearance: "Apparence", themeAuto: "Auto", themeLight: "Clair", themeDark: "Sombre",
@@ -356,6 +366,11 @@ export const STR = {
   },
 
   nl: {
+
+    importStays: "Verblijven importeren (bestand)…", importTitle: "Verblijven en tips importeren",
+    importSub: "Kies het importbestand. Je ziet alles voordat er iets wordt toegevoegd; wat al in de kalender staat, is uitgevinkt.",
+    importPick: "Importbestand (.json)", importBad: "Dit is geen geldig importbestand.",
+    importExists: "staat er al", importGo: "Importeren ({n})", importing: "Importeren… {n}", importDone: "{n} items geïmporteerd",
 
     inProgress: "Nu bezig", yesterday: "gisteren", daysAgo: "{n} dagen geleden", goAdmin: "Beheer openen",
 

@@ -407,6 +407,20 @@ nav.tabs .badge{margin-left:6px}
   .row .rel{grid-column:2;justify-self:start}
 }
 @media (prefers-reduced-motion: reduce){ dialog[open]{animation:none} dialog{transition:none} }
+
+/* import */
+.admin-extra{display:flex;justify-content:flex-end;margin-top:-8px}
+.imp-box{display:grid;gap:14px}
+.imp-sec{display:grid;gap:2px}
+.imp-sec h3{font-family:var(--font-body);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:0 0 4px}
+.imp-row{display:flex;align-items:center;gap:10px;padding:8px 2px;border-top:1px solid var(--line);cursor:pointer;min-width:0}
+.imp-row.static{cursor:default}
+.imp-row input{width:18px;height:18px;accent-color:var(--accent);flex:none}
+.imp-row.exists .imp-main{opacity:.6}
+.imp-main{display:grid;flex:1;min-width:0}
+.imp-main strong{font-size:.92rem}
+.imp-main .hint{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-av.sm{width:28px;height:28px;font-size:.62rem}
 /* header account button */
 .top{flex-wrap:nowrap}
 .brand h1{white-space:nowrap}
@@ -558,7 +572,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=bc868ce1";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=46b2f1a0";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -1498,6 +1512,7 @@ function renderSettings(){
   wrap.append(h("nav",{class:"admin-nav","aria-label":t("tabAdmin")}, parts.map(([k,l,ico])=>h("button",{type:"button",class:"an"+(S.adminTab===k?" on":""),"aria-current":S.adminTab===k?"page":null,
     onclick:()=>{ S.adminTab=k; S.adminImport=false; render(); }},
     h("span",{class:"bn-ico",html:ICONS[ico]}), h("span",{class:"an-lbl",text:t(l)}), h("span",{class:"an-n",text:String(counts[k])})))));
+  if (S.isMain) wrap.append(h("div",{class:"admin-extra"}, h("button",{type:"button",class:"link",text:t("importStays"),onclick:openImport})));
   const tab=S.adminTab;
   if (tab==="stats") wrap.append(adminStats());
   else if (tab==="families") wrap.append(adminFamilies());
@@ -1506,6 +1521,79 @@ function renderSettings(){
   else if (S.adminImport) wrap.append(h("div",null,h("button",{class:"link",type:"button",text:t("back"),onclick:()=>{S.adminImport=false;render();}})), renderBulk());
   else wrap.append(adminPeople());
   return wrap;
+}
+
+/* ---------- import past stays and tips from a prepared file (main admin) ---------- */
+function checkImport(d){
+  if (!d || d.version!==1) return null;
+  const famIds=families().map(f=>f.id), okDate=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||""), okId=s=>/^[\w-]{1,80}$/.test(s||"");
+  const str=(v,n)=>String(v??"").trim().slice(0,n);
+  const bookings=(d.bookings||[]).filter(b=>okId(b.id)&&famIds.includes(b.family)&&okDate(b.start)&&okDate(b.end)&&b.end>=b.start)
+    .map(b=>({id:b.id,family:b.family,start:b.start,end:b.end,name:str(b.name,80),note:str(b.note,500)}));
+  const tips=(d.tips||[]).filter(x=>okId(x.id)&&TIP_CATS.includes(x.category)&&str(x.title,120))
+    .map(x=>({id:x.id,title:str(x.title,120),category:x.category,address:str(x.address,300),url:safeUrl(x.url)||"",note:str(x.note,1000),name:str(x.name,80)}));
+  const fams=Object.entries(d.families||{}).filter(([id,n])=>famIds.includes(id)&&str(n,60)).map(([id,n])=>({id,name:str(n,60)}));
+  const mem=(d.members||[]).filter(m=>isEmail(String(m.email||"").toLowerCase())&&famIds.includes(m.family))
+    .map(m=>({email:String(m.email).toLowerCase(),family:m.family,name:str(m.name,80)}));
+  if (!bookings.length && !tips.length && !fams.length && !mem.length) return null;
+  for (const b of bookings){ b.exists = S.bookings.some(o=>o.id===b.id || (o.family===b.family && o.start<=b.end && o.end>=b.start)); b.on=!b.exists; }
+  for (const x of tips){ x.exists = S.tips.some(o=>o.id===x.id || o.title.toLowerCase()===x.title.toLowerCase()); x.on=!x.exists; }
+  return {bookings, tips, fams, mem, source:str(d.source,120)};
+}
+function openImport(){
+  const input=h("input",{type:"file",id:"imp-file",accept:".json,application/json"});
+  const box=h("div",{class:"imp-box"});
+  const draw=plan=>{
+    const nameAfter=id=>(plan.fams.find(f=>f.id===id)||{}).name || famName(id);
+    const chosen=()=>plan.bookings.filter(b=>b.on).length+plan.tips.filter(x=>x.on).length;
+    const go=h("button",{class:"btn primary",type:"button"});
+    const setGo=()=>{ const n=chosen()+plan.fams.length+plan.mem.length; go.textContent=t("importGo",{n}); go.disabled=!n; };
+    const row=(item,main,sub,chip)=>h("label",{class:"imp-row"+(item.exists?" exists":"")},
+      h("input",{type:"checkbox",checked:item.on,onchange:e=>{ item.on=e.target.checked; setGo(); }}),
+      chip||null, h("span",{class:"imp-main"}, h("strong",{text:main}), sub?h("span",{class:"hint",text:sub}):null),
+      item.exists?h("span",{class:"pill",text:t("importExists")}):null);
+    go.addEventListener("click", async ()=>{
+      go.disabled=true; let n=0; const now=new Date().toISOString();
+      try{
+        if (plan.fams.length) { await saveSettings({families:families().map(f=>{ const r=plan.fams.find(x=>x.id===f.id); return r?{...f,name:r.name}:f; })}); n+=plan.fams.length; }
+        for (const m of plan.mem){ const data={family:m.family}; if (m.name) data.name=m.name;
+          if (S.raw.members.some(x=>x.id===m.email)) await updateDoc(doc(db,"members",m.email), data);
+          else await setDoc(doc(db,"members",m.email), {...data, admin:false, addedBy:S.email});
+          n++; }
+        for (const b of plan.bookings.filter(b=>b.on)){
+          await setDoc(doc(db,"bookings",b.id), {uid:uid(), email:S.email, name:b.name||myName(), family:b.family, start:b.start, end:b.end, note:b.note, checklist:{}, createdAt:now, updatedAt:now});
+          go.textContent=t("importing",{n:++n}); }
+        for (const x of plan.tips.filter(x=>x.on)){
+          await setDoc(doc(db,"tips",x.id), {uid:uid(), email:S.email, name:x.name||myName(), title:x.title, category:x.category, address:x.address, url:x.url, note:x.note, createdAt:now, updatedAt:now});
+          n++; }
+        dlg.close(); toast(t("importDone",{n}));
+      }catch(e){ go.disabled=false; setGo(); try{fail(e);}catch(_){} }
+    });
+    box.replaceChildren(
+      plan.source ? h("p",{class:"hint",text:plan.source}) : null,
+      plan.fams.length ? h("div",{class:"imp-sec"}, h("h3",{text:t("admFamilies")}),
+        plan.fams.map(f=>h("div",{class:"imp-row static"}, h("span",{class:"dot",style:`background:${famColor(f.id)}`}), h("span",{class:"imp-main"}, h("strong",{text:`${famName(f.id)} → ${f.name}`})))) ) : null,
+      plan.mem.length ? h("div",{class:"imp-sec"}, h("h3",{text:t("admPeople")}),
+        plan.mem.map(m=>h("div",{class:"imp-row static"}, h("span",{class:"dot",style:`background:${famColor(m.family)}`}), h("span",{class:"imp-main"}, h("strong",{text:m.name||m.email}), h("span",{class:"hint",text:`${m.email} → ${nameAfter(m.family)}`}))))) : null,
+      plan.bookings.length ? h("div",{class:"imp-sec"}, h("h3",{text:`${t("stays")} (${plan.bookings.length})`}),
+        plan.bookings.map(b=>row(b, fmtRange(b), [nameAfter(b.family), nightsTxt(nights(b)), b.name, b.note].filter(Boolean).join(" · "),
+          h("span",{class:"row-av sm",style:`background:${famColor(b.family)};color:${famInk(b.family)}`,text:famInitials(b.family)})))) : null,
+      plan.tips.length ? h("div",{class:"imp-sec"}, h("h3",{text:t("tipsTitle")}),
+        plan.tips.map(x=>row(x, x.title, [t("cat_"+x.category), x.address].filter(Boolean).join(" · ")))) : null,
+      h("div",{class:"dlg-actions"}, h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}), go));
+    setGo();
+  };
+  input.addEventListener("change", async ()=>{
+    const f=input.files[0]; if (!f) return;
+    let plan=null; try { plan=checkImport(JSON.parse(await f.text())); } catch(_) {}
+    if (!plan) { box.replaceChildren(h("p",{class:"err",text:t("importBad")})); return; }
+    draw(plan);
+  });
+  showDlg(h("div",{class:"dlg"},
+    h("div",{class:"dlg-head"}, h("h2",{text:t("importTitle")}), closeBtn()),
+    h("p",{class:"sub",text:t("importSub")}),
+    h("label",{class:"field"}, t("importPick"), input),
+    box));
 }
 
 /* ---------- admin: statistics ---------- */
