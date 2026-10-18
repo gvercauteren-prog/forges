@@ -68,6 +68,14 @@ nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
 nav.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;cursor:pointer;color:var(--muted);font-weight:600;white-space:nowrap}
 nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 nav.tabs button:hover{color:var(--ink)}
+/* Admin sits apart on the right, as a button */
+nav.tabs #tab-settings:not([hidden]){margin-left:auto;align-self:center;display:inline-flex;align-items:center;gap:6px;padding:6px 14px 6px 11px;margin-bottom:4px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink)}
+nav.tabs #tab-settings svg{width:16px;height:16px}
+nav.tabs #tab-settings:hover{border-color:var(--ember);color:var(--ember)}
+nav.tabs #tab-settings[aria-selected="true"]{border-color:var(--ember);background:color-mix(in srgb,var(--ember) 12%,var(--surface));color:var(--ember)}
+.more-admin{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:6px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.more-admin.on,.more-admin:hover{border-color:var(--ember);color:var(--ember);background:color-mix(in srgb,var(--ember) 10%,var(--surface))}
+.more-admin .bn-ico svg{width:18px;height:18px}
 
 main{padding-block:22px 60px;display:grid;gap:22px}
 .banner{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ember);border-radius:var(--r);padding:14px 16px}
@@ -1114,6 +1122,7 @@ function renderHeader(){
   const carnetN = S.notes.filter(n=>n.kind==="issue"&&!n.resolved).length + S.supplies.filter(x=>!x.done).length;
   for (const b of document.querySelectorAll("#tabs button")){
     b.textContent=t(TAB_LABELS[b.dataset.tab]); b.setAttribute("aria-selected", b.dataset.tab===S.tab);
+    if (b.dataset.tab==="settings") b.prepend(h("span",{class:"bn-ico","aria-hidden":"true",html:ICONS.settings}));
     if (b.dataset.tab==="carnet" && carnetN) b.append(h("span",{class:"badge"+(S.news?.carnet?" fresh":""),text:String(carnetN)}));
     else if (newDot(b.dataset.tab)) b.append(h("span",{class:"new-dot","aria-label":t("newPill")}));
   }
@@ -1134,11 +1143,13 @@ function renderBottomNav(inside){
   nav.replaceChildren(...PRIMARY_TABS.map(k=>btn(k, S.tab===k, ()=>go(k))), btn("more", MORE_TABS.includes(S.tab), openMore));
 }
 function openMore(){
-  const items = MORE_TABS.filter(k=>k!=="settings"||isAdmin());
+  const items = MORE_TABS.filter(k=>k!=="settings");
   showDlg(h("div",{class:"dlg"},
     h("div",{class:"dlg-head"}, h("h2",{text:t("tabMore")}), closeBtn()),
     h("div",{class:"more-list"}, items.map(k=>h("button",{type:"button",class:"more-item"+(S.tab===k?" on":""),onclick:()=>go(k)},
-      h("span",{class:"bn-ico",html:ICONS[k]}), h("span",{text:t(TAB_LABELS[k])}))))));
+      h("span",{class:"bn-ico",html:ICONS[k]}), h("span",{text:t(TAB_LABELS[k])})))),
+    isAdmin() ? h("button",{type:"button",class:"more-admin"+(S.tab==="settings"?" on":""),onclick:()=>go("settings")},
+      h("span",{class:"bn-ico",html:ICONS.settings}), h("span",{text:t(TAB_LABELS.settings)})) : null));
 }
 
 /* ---------- friendly empty screens ---------- */
