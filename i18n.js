@@ -6,6 +6,13 @@ export const LOCALES = { en: "en-GB", fr: "fr-BE", nl: "nl-BE" };
 
 export const STR = {
   en: {
+
+    backupBtn: "Back up (file)", backupDone: "Backup downloaded", lastBackup: "Last backup: {when}",
+    neverBackup: "No backup yet", backupOld: "Make a backup: nothing is saved automatically.",
+    backupHint: "Keep the file somewhere safe: it contains the emails and every booking.", restoreLink: "Restore or import…",
+    importChecklist: "Exit checklist ({n} items)", importContacts: "Contacts ({n})", importInfo: "House info ({n} sections)",
+    importOther: "Other data", importReplace: "replaces what's there today",
+    weatherAt: "Weather in Chimay", rainChance: "{p} % chance of rain",
     inMonths: "in {n} months", finished: "Past",
 
     statsYearMode: "Year", allTime: "All time", byYear: "Occupancy by year", byYearHint: "Tap a year to show it.",
@@ -191,6 +198,13 @@ export const STR = {
   },
 
   fr: {
+
+    backupBtn: "Sauvegarder (fichier)", backupDone: "Sauvegarde téléchargée", lastBackup: "Dernière sauvegarde : {when}",
+    neverBackup: "Aucune sauvegarde pour l'instant", backupOld: "Pensez à faire une sauvegarde : rien n'est sauvegardé automatiquement.",
+    backupHint: "Gardez le fichier en lieu sûr : il contient les e-mails et toutes les réservations.", restoreLink: "Restaurer ou importer…",
+    importChecklist: "Checklist de départ ({n} éléments)", importContacts: "Contacts ({n})", importInfo: "Infos pratiques ({n} rubriques)",
+    importOther: "Autres données", importReplace: "remplacera ce qui existe aujourd'hui",
+    weatherAt: "Météo à Chimay", rainChance: "{p} % de risque de pluie",
     inMonths: "dans {n} mois", finished: "Terminé",
 
     statsYearMode: "Année", allTime: "Depuis le début", byYear: "Occupation par année", byYearHint: "Touchez une année pour l'afficher.",
@@ -376,6 +390,13 @@ export const STR = {
   },
 
   nl: {
+
+    backupBtn: "Back-up maken (bestand)", backupDone: "Back-up gedownload", lastBackup: "Laatste back-up: {when}",
+    neverBackup: "Nog geen back-up", backupOld: "Maak een back-up: er wordt niets automatisch bewaard.",
+    backupHint: "Bewaar het bestand veilig: het bevat de e-mailadressen en alle boekingen.", restoreLink: "Herstellen of importeren…",
+    importChecklist: "Vertrekchecklist ({n} items)", importContacts: "Contacten ({n})", importInfo: "Praktische info ({n} rubrieken)",
+    importOther: "Andere gegevens", importReplace: "vervangt wat er nu staat",
+    weatherAt: "Weer in Chimay", rainChance: "{p} % kans op regen",
     inMonths: "over {n} maanden", finished: "Afgelopen",
 
     statsYearMode: "Jaar", allTime: "Sinds het begin", byYear: "Bezetting per jaar", byYearHint: "Tik op een jaar om het te tonen.",

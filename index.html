@@ -409,7 +409,6 @@ nav.tabs .badge{margin-left:6px}
 @media (prefers-reduced-motion: reduce){ dialog[open]{animation:none} dialog{transition:none} }
 
 /* import */
-.admin-extra{display:flex;justify-content:flex-end;margin-top:-8px}
 .imp-box{display:grid;gap:14px}
 .imp-sec{display:grid;gap:2px}
 .imp-sec h3{font-family:var(--font-body);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:0 0 4px}
@@ -434,6 +433,27 @@ nav.tabs .badge{margin-left:6px}
 .hb-delta{display:block;font-size:.72rem;color:var(--muted);text-align:right}
 .stats-2col{display:grid;gap:22px}
 @media (min-width:1000px){ .stats-2col{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start} }
+
+/* backups */
+.backup-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
+.backup-bar.stale{border-left:4px solid var(--ember)}
+.bb-ico{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--sunk);color:var(--ink);flex:none}
+.backup-bar.stale .bb-ico{background:color-mix(in srgb,var(--ember) 18%,var(--surface));color:var(--ember)}
+.bb-ico svg{width:18px;height:18px}
+.bb-txt{display:grid;flex:1 1 220px;min-width:0}
+.bb-txt strong{font-size:.9rem}
+.bb-acts{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+/* weather */
+.wx{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.tile .wx{gap:3px;flex-wrap:nowrap}
+.tile .wx-d{min-width:0;flex:1 1 0;padding:4px 2px}
+.wx-d{display:grid;justify-items:center;gap:0;min-width:40px;padding:4px 4px;border-radius:8px;background:var(--sunk);font-size:.72rem;line-height:1.25}
+.wx-l{color:var(--muted);text-transform:capitalize}
+.wx-i{font-size:1.05rem;line-height:1.2}
+.wx-t{font-weight:700;color:var(--ink)}
+.wx-m{color:var(--muted)}
+.bk-wx{display:grid;gap:4px}
+.bk-wx .lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
 /* header account button */
 .top{flex-wrap:nowrap}
 .brand h1{white-space:nowrap}
@@ -585,7 +605,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=08de82e3";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=094a1b39";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -887,6 +907,7 @@ const ICONS = {
   cat_visit: svg('<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>'),
   cat_kids: svg('<path d="M12 3a5.5 5.5 0 0 0-5.5 5.5C6.5 12 9.5 15 12 15s5.5-3 5.5-6.5A5.5 5.5 0 0 0 12 3zM12 15l-1 2h2zM12 17c0 2-1.5 2.5-1.5 4"/>'),
   cat_practical: svg('<path d="M15 4.5a4.5 4.5 0 0 0-4.3 5.8l-6.2 6.2a2.1 2.1 0 0 0 3 3l6.2-6.2A4.5 4.5 0 0 0 19.5 9l-2.7 2.7-2.3-.6-.6-2.3L16.6 6A4.5 4.5 0 0 0 15 4.5z"/>'),
+  shield: svg('<path d="M12 3.5 5 6v5.5c0 4.3 3 7.8 7 9 4-1.2 7-4.7 7-9V6z"/><path d="M9 12l2 2 4-4"/>'),
   settings: svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
 };
 const phoneMQ = matchMedia("(max-width: 720px)");
@@ -1011,9 +1032,9 @@ function renderToday(){
   const rel=s=>{ const d=dn(s)-T; return d<=0?t("todayLow"):d===1?t("tomorrow"):t("inDays",{n:d}); };
   const famLine=list=>{ const ids=[...new Set(list.map(b=>b.family))];
     return h("span",{class:"val-fams"}, ids.map(id=>h("span",{class:"fam-inline"}, h("span",{class:"dot",style:`background:${famColor(id)}`}), famName(id)))); };
-  const tile=(cls,ico,label,val,sub,onclick)=>h("button",{type:"button",class:"tile"+(cls?" "+cls:""),onclick},
+  const tile=(cls,ico,label,val,sub,onclick,extra)=>h("button",{type:"button",class:"tile"+(cls?" "+cls:""),onclick},
     h("span",{class:"tile-top"}, h("span",{class:"tile-ico",html:ICONS[ico]}), h("span",{class:"lbl",text:label})),
-    h("span",{class:"val"},val), sub?h("span",{class:"sub",text:sub}):null);
+    h("span",{class:"val"},val), sub?h("span",{class:"sub",text:sub}):null, extra||null);
   const lastEnd = now.length ? now.reduce((a,b)=>b.end>a?b.end:a, now[0].end) : null;
   return h("section",{class:"today-sum","aria-label":t("todayLow")},
     tile(now.length?"live":"", "home", t("atHouseNow"), now.length?famLine(now):t("nobody"),
@@ -1021,7 +1042,7 @@ function renderToday(){
     tile("", "arrive", t("nextArrival"), next?famLine([next]):t("nonePlanned"),
       next?fmt(next.start,{weekday:"short",day:"numeric",month:"short"})+" · "+rel(next.start):null, ()=>next?openDetail(next):null),
     tile("", "suitcase", t("yourNextStay"), mine?fmtRange(mine):t("noStayYet"),
-      mine?(mine.start<=td?t("atHouse"):rel(mine.start)):(canBook?t("bookNow")+" →":null), ()=>mine?openDetail(mine):(canBook?openForm(null,td):null)),
+      mine?(mine.start<=td?t("atHouse"):rel(mine.start)):(canBook?t("bookNow")+" →":null), ()=>mine?openDetail(mine):(canBook?openForm(null,td):null), stayWeather(mine)),
     tile(issues?"attn":"", "wrench", t("tabCarnet"), (issues||buy)?[t("toFixN",{n:issues}), " · ", t("toBuyN",{n:buy})].join(""):t("allGood"), null, ()=>go("carnet")));
 }
 
@@ -1527,7 +1548,7 @@ function renderSettings(){
   wrap.append(h("nav",{class:"admin-nav","aria-label":t("tabAdmin")}, parts.map(([k,l,ico])=>h("button",{type:"button",class:"an"+(S.adminTab===k?" on":""),"aria-current":S.adminTab===k?"page":null,
     onclick:()=>{ S.adminTab=k; S.adminImport=false; render(); }},
     h("span",{class:"bn-ico",html:ICONS[ico]}), h("span",{class:"an-lbl",text:t(l)}), h("span",{class:"an-n",text:String(counts[k])})))));
-  if (S.isMain) wrap.append(h("div",{class:"admin-extra"}, h("button",{type:"button",class:"link",text:t("importStays"),onclick:openImport})));
+  wrap.append(backupBar());
   const tab=S.adminTab;
   if (tab==="stats") wrap.append(adminStats());
   else if (tab==="families") wrap.append(adminFamilies());
@@ -1538,29 +1559,103 @@ function renderSettings(){
   return wrap;
 }
 
+/* ---------- backups ---------- */
+function backupData(){
+  const R=S.raw;
+  return { version:1, kind:"backup", exportedAt:new Date().toISOString(),
+    source:`Sauvegarde Forge Jean-Petit · ${new Date().toLocaleString(locale(),{dateStyle:"long",timeStyle:"short"})}`,
+    families:Object.fromEntries(families().map(f=>[f.id,f.name])),
+    members:R.members.map(m=>({email:m.id, family:m.family||"", name:m.name||"", admin:!!m.admin})),
+    bookings:R.bookings.map(b=>({id:b.id, family:b.family, start:b.start, end:b.end, name:b.name||"", note:b.note||"",
+      guests:b.guests||null, checklist:b.checklist||{}, bookedBy:b.email||"", createdAt:b.createdAt||""})),
+    tips:R.tips.map(x=>({id:x.id, title:x.title, category:x.category, address:x.address||"", url:x.url||"", note:x.note||"", name:x.name||""})),
+    checklist:R.settings?.checklist||[], contacts:R.settings?.contacts||[], info:R.info?.sections||[],
+    notes:R.notes.map(n=>({...n})), supplies:R.supplies.map(x=>({...x})) };
+}
+function downloadBackup(){
+  const blob=new Blob([JSON.stringify(backupData(),null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=h("a",{href:url,download:`forge-jean-petit-sauvegarde-${todayStr()}.json`}); document.body.append(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+  quiet(saveSettings({lastBackupAt:new Date().toISOString()}).then(()=>toast(t("backupDone"))));
+}
+function backupBar(){
+  const last=S.raw.settings?.lastBackupAt||"", days=last?Math.floor((Date.now()-Date.parse(last))/DAY):null;
+  const when = last==="" ? t("neverBackup") : t("lastBackup",{when: days<=0?t("todayLow"):days===1?t("yesterday"):t("daysAgo",{n:days})});
+  const stale = last==="" || days>30;
+  return h("div",{class:"backup-bar"+(stale?" stale":"")},
+    h("span",{class:"bb-ico","aria-hidden":"true",html:ICONS.shield}),
+    h("span",{class:"bb-txt"}, h("strong",{text:when}), h("span",{class:"hint",text: stale?t("backupOld"):t("backupHint")})),
+    h("span",{class:"bb-acts"},
+      S.isMain ? h("button",{type:"button",class:"link",text:t("restoreLink"),onclick:openImport}) : null,
+      h("button",{type:"button",class:"btn"+(stale?" primary":""),text:t("backupBtn"),onclick:downloadBackup})));
+}
+
+/* ---------- weather for an upcoming stay (Open-Meteo, Chimay) ---------- */
+const HOUSE = { lat:50.0486, lon:4.3170 };
+const WX = {};
+function wxIcon(c){
+  if (c===0) return "☀️"; if (c<=2) return "⛅"; if (c===3) return "☁️"; if (c===45||c===48) return "🌫️";
+  if (c>=51&&c<=57) return "🌦️"; if (c>=61&&c<=67) return "🌧️"; if (c>=71&&c<=77) return "❄️";
+  if (c>=80&&c<=82) return "🌦️"; if (c>=85&&c<=86) return "🌨️"; if (c>=95) return "⛈️"; return "·";
+}
+function stayWeather(b){
+  if (!b) return null;
+  const T=dn(todayStr()), s=dn(b.start), e=dn(b.end);
+  if (s-T>7 || e<T) return null;
+  const a=Math.max(s,T), z=Math.min(e, a+4, T+15), key=`${a}-${z}`;
+  if (!WX[key]){
+    WX[key]={state:"loading"};
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${HOUSE.lat}&longitude=${HOUSE.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Europe%2FBrussels&start_date=${ds(a)}&end_date=${ds(z)}`;
+    fetch(url).then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+      const dd=j.daily; WX[key]={state:"ok", days:dd.time.map((d,i)=>({d, code:dd.weather_code[i], max:dd.temperature_2m_max[i], min:dd.temperature_2m_min[i], rain:dd.precipitation_probability_max?.[i]}))};
+      render();
+    }).catch(()=>{ WX[key]={state:"err"}; });
+    return null;
+  }
+  if (WX[key].state!=="ok") return null;
+  return h("span",{class:"wx","aria-label":t("weatherAt")},
+    WX[key].days.map(x=>h("span",{class:"wx-d",title:`${fmt(x.d,{weekday:"long",day:"numeric",month:"long"})} · ${Math.round(x.max)}° / ${Math.round(x.min)}°${x.rain!=null?` · ${t("rainChance",{p:x.rain})}`:""}`},
+      h("span",{class:"wx-l",text:fmt(x.d,{weekday:"short"}).replace(".","")}),
+      h("span",{class:"wx-i","aria-hidden":"true",text:wxIcon(x.code)}),
+      h("span",{class:"wx-t tnum",text:`${Math.round(x.max)}°`}),
+      h("span",{class:"wx-m tnum",text:`${Math.round(x.min)}°`}))));
+}
+
 /* ---------- import past stays and tips from a prepared file (main admin) ---------- */
 function checkImport(d){
   if (!d || d.version!==1) return null;
   const famIds=families().map(f=>f.id), okDate=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||""), okId=s=>/^[\w-]{1,80}$/.test(s||"");
   const str=(v,n)=>String(v??"").trim().slice(0,n);
   const bookings=(d.bookings||[]).filter(b=>okId(b.id)&&famIds.includes(b.family)&&okDate(b.start)&&okDate(b.end)&&b.end>=b.start)
-    .map(b=>({id:b.id,family:b.family,start:b.start,end:b.end,name:str(b.name,80),note:str(b.note,500)}));
+    .map(b=>({id:b.id,family:b.family,start:b.start,end:b.end,name:str(b.name,80),note:str(b.note,500),
+      guests:Number.isInteger(b.guests)&&b.guests>=1&&b.guests<=50?b.guests:null,
+      checklist:Object.fromEntries(Object.entries(b.checklist&&typeof b.checklist==="object"?b.checklist:{}).filter(([k,v])=>okId(k)&&v===true))}));
   const tips=(d.tips||[]).filter(x=>okId(x.id)&&TIP_CATS.includes(x.category)&&str(x.title,120))
     .map(x=>({id:x.id,title:str(x.title,120),category:x.category,address:str(x.address,300),url:safeUrl(x.url)||"",note:str(x.note,1000),name:str(x.name,80)}));
-  const fams=Object.entries(d.families||{}).filter(([id,n])=>famIds.includes(id)&&str(n,60)).map(([id,n])=>({id,name:str(n,60)}));
+  const backup = d.kind==="backup";
+  const fams=Object.entries(d.families||{}).filter(([id,n])=>famIds.includes(id)&&str(n,60)&&(!backup||str(n,60)!==(families().find(f=>f.id===id)||{}).name)).map(([id,n])=>({id,name:str(n,60)}));
   const mem=(d.members||[]).filter(m=>isEmail(String(m.email||"").toLowerCase())&&famIds.includes(m.family))
-    .map(m=>({email:String(m.email).toLowerCase(),family:m.family,name:str(m.name,80)}));
-  if (!bookings.length && !tips.length && !fams.length && !mem.length) return null;
+    .map(m=>({email:String(m.email).toLowerCase(),family:m.family,name:str(m.name,80),admin:m.admin===true}))
+    .filter(m=>!backup || !S.raw.members.some(x=>x.id===m.email));
+  const extras=[];
+  const chk=(Array.isArray(d.checklist)?d.checklist:[]).filter(x=>okId(x.id)&&str(x.text,300)).map(x=>({id:x.id,text:str(x.text,300)}));
+  if (chk.length) extras.push({key:"checklist", label:t("importChecklist",{n:chk.length}), data:chk, on:!(S.raw.settings?.checklist||[]).length});
+  const con=(Array.isArray(d.contacts)?d.contacts:[]).filter(x=>okId(x.id)&&str(x.name,120)).map(x=>({id:x.id,name:str(x.name,120),role:str(x.role,120),phone:str(x.phone,60),email:str(x.email,120),note:str(x.note,300)}));
+  if (con.length) extras.push({key:"contacts", label:t("importContacts",{n:con.length}), data:con, on:!(S.raw.settings?.contacts||[]).length});
+  const inf=(Array.isArray(d.info)?d.info:[]).filter(x=>okId(x.id)&&str(x.title,80)).map(x=>({id:x.id,title:str(x.title,80),text:str(x.text,3000)}));
+  if (inf.length) extras.push({key:"info", label:t("importInfo",{n:inf.length}), data:inf, on:!(S.raw.info?.sections||[]).length});
+  if (!bookings.length && !tips.length && !fams.length && !mem.length && !extras.length) return null;
   for (const b of bookings){ b.exists = S.bookings.some(o=>o.id===b.id || (o.family===b.family && o.start<=b.end && o.end>=b.start)); b.on=!b.exists; }
   for (const x of tips){ x.exists = S.tips.some(o=>o.id===x.id || o.title.toLowerCase()===x.title.toLowerCase()); x.on=!x.exists; }
-  return {bookings, tips, fams, mem, source:str(d.source,120)};
+  return {bookings, tips, fams, mem, extras, source:str(d.source,120)};
 }
 function openImport(){
   const input=h("input",{type:"file",id:"imp-file",accept:".json,application/json"});
   const box=h("div",{class:"imp-box"});
   const draw=plan=>{
     const nameAfter=id=>(plan.fams.find(f=>f.id===id)||{}).name || famName(id);
-    const chosen=()=>plan.bookings.filter(b=>b.on).length+plan.tips.filter(x=>x.on).length;
+    const chosen=()=>plan.bookings.filter(b=>b.on).length+plan.tips.filter(x=>x.on).length+plan.extras.filter(x=>x.on).length;
     const go=h("button",{class:"btn primary",type:"button"});
     const setGo=()=>{ const n=chosen()+plan.fams.length+plan.mem.length; go.textContent=t("importGo",{n}); go.disabled=!n; };
     const row=(item,main,sub,chip)=>h("label",{class:"imp-row"+(item.exists?" exists":"")},
@@ -1573,13 +1668,19 @@ function openImport(){
         if (plan.fams.length) { await saveSettings({families:families().map(f=>{ const r=plan.fams.find(x=>x.id===f.id); return r?{...f,name:r.name}:f; })}); n+=plan.fams.length; }
         for (const m of plan.mem){ const data={family:m.family}; if (m.name) data.name=m.name;
           if (S.raw.members.some(x=>x.id===m.email)) await updateDoc(doc(db,"members",m.email), data);
-          else await setDoc(doc(db,"members",m.email), {...data, admin:false, addedBy:S.email});
+          else await setDoc(doc(db,"members",m.email), {...data, admin:S.isMain&&m.admin, addedBy:S.email});
           n++; }
         for (const b of plan.bookings.filter(b=>b.on)){
-          await setDoc(doc(db,"bookings",b.id), {uid:uid(), email:S.email, name:b.name||myName(), family:b.family, start:b.start, end:b.end, note:b.note, checklist:{}, createdAt:now, updatedAt:now});
+          const data={uid:uid(), email:S.email, name:b.name||myName(), family:b.family, start:b.start, end:b.end, note:b.note, checklist:b.checklist||{}, createdAt:now, updatedAt:now};
+          if (b.guests) data.guests=b.guests;
+          await setDoc(doc(db,"bookings",b.id), data);
           go.textContent=t("importing",{n:++n}); }
         for (const x of plan.tips.filter(x=>x.on)){
           await setDoc(doc(db,"tips",x.id), {uid:uid(), email:S.email, name:x.name||myName(), title:x.title, category:x.category, address:x.address, url:x.url, note:x.note, createdAt:now, updatedAt:now});
+          n++; }
+        for (const x of plan.extras.filter(x=>x.on)){
+          if (x.key==="info") await setDoc(doc(db,"config","info"), {sections:x.data});
+          else await saveSettings({[x.key]:x.data});
           n++; }
         dlg.close(); toast(t("importDone",{n}));
       }catch(e){ go.disabled=false; setGo(); try{fail(e);}catch(_){} }
@@ -1595,6 +1696,8 @@ function openImport(){
           h("span",{class:"row-av sm",style:`background:${famColor(b.family)};color:${famInk(b.family)}`,text:famInitials(b.family)})))) : null,
       plan.tips.length ? h("div",{class:"imp-sec"}, h("h3",{text:t("tipsTitle")}),
         plan.tips.map(x=>row(x, x.title, [t("cat_"+x.category), x.address].filter(Boolean).join(" · ")))) : null,
+      plan.extras.length ? h("div",{class:"imp-sec"}, h("h3",{text:t("importOther")}),
+        plan.extras.map(x=>row(x, x.label, x.on?null:t("importReplace")))) : null,
       h("div",{class:"dlg-actions"}, h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}), go));
     setGo();
   };
@@ -1933,6 +2036,7 @@ function openDetail(b, justDone){
         h("dt",{text:t("departure")}), h("dd",{text:fmt(b.end,long)}),
         b.note?[h("dt",{text:t("noteLabel")}),h("dd",{text:b.note})]:null,
         items.length?[h("dt",{text:t("checklistLabel")}),h("dd",{class:"tnum",text:t("doneOf",{d:done,n:items.length})})]:null),
+      (()=>{ const w=stayWeather(b); return w ? h("div",{class:"bk-wx"}, h("span",{class:"lbl",text:t("weatherAt")}), w) : null; })(),
       h("div",{class:"bk-share"}, share, agenda),
       share ? h("p",{class:"hint",text:t("waHint2")}) : null),
     h("div",{class:"bk-foot"},
