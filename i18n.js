@@ -7,6 +7,11 @@ export const LOCALES = { en: "en-GB", fr: "fr-BE", nl: "nl-BE" };
 export const STR = {
   en: {
 
+    undo: "Undo", undoDelete: "Undo delete", restored: "Booking restored",
+    call: "Call", emailBtn: "Email", loading: "Loading…",
+    pickHint: "Tap the arrival day, then the departure day.", pickDeparture: "Pick departure",
+    pickBothDates: "Pick an arrival and a departure.", orTypeDates: "Or type the dates", takenBy: "already booked: {f}",
+
     back: "← Back", importList: "Import a list", addPersonBtn: "+ Add", addPersonTitle: "Add a person",
     searchPeople: "Search for a person…", peopleSubShort: "Only the addresses listed here can open the app. Tap someone to edit them.",
     noFamily: "No family", noMatch: "Nobody matches this search.", noPeople: "Nobody yet. Add the first address.",
@@ -167,6 +172,11 @@ export const STR = {
 
   fr: {
 
+    undo: "Annuler", undoDelete: "Annuler la suppression", restored: "Réservation rétablie",
+    call: "Appeler", emailBtn: "E-mail", loading: "Chargement…",
+    pickHint: "Touchez le jour d'arrivée, puis le jour de départ.", pickDeparture: "Choisissez le départ",
+    pickBothDates: "Choisissez l'arrivée et le départ.", orTypeDates: "Ou saisir les dates", takenBy: "déjà réservé : {f}",
+
     back: "← Retour", importList: "Importer une liste", addPersonBtn: "+ Ajouter", addPersonTitle: "Ajouter une personne",
     searchPeople: "Rechercher une personne…", peopleSubShort: "Seules les adresses listées ici peuvent ouvrir l'app. Touchez une personne pour la modifier.",
     noFamily: "Sans famille", noMatch: "Personne ne correspond à cette recherche.", noPeople: "Personne pour l'instant. Ajoutez la première adresse.",
@@ -326,6 +336,11 @@ export const STR = {
   },
 
   nl: {
+
+    undo: "Ongedaan maken", undoDelete: "Verwijderen ongedaan maken", restored: "Boeking hersteld",
+    call: "Bellen", emailBtn: "E-mail", loading: "Laden…",
+    pickHint: "Tik op de aankomstdag en daarna op de vertrekdag.", pickDeparture: "Kies het vertrek",
+    pickBothDates: "Kies aankomst en vertrek.", orTypeDates: "Of typ de data", takenBy: "al geboekt: {f}",
 
     back: "← Terug", importList: "Lijst importeren", addPersonBtn: "+ Toevoegen", addPersonTitle: "Persoon toevoegen",
     searchPeople: "Persoon zoeken…", peopleSubShort: "Alleen de adressen hier kunnen de app openen. Tik op een persoon om te bewerken.",

@@ -4,21 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Forge Jean-Petit</title>
-<meta name="theme-color" content="#24496B">
+<meta name="theme-color" content="#2C2A27">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Forge J-P">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='2' y='2' width='36' height='36' rx='9' fill='%2324496B'/%3E%3Cpath d='M9 23h17c0-4 3-6 6-6v-3H15c-2 0-4 1.5-6 4z' fill='white'/%3E%3Cpath d='M15 23v5h-3v3h16v-3h-3v-5z' fill='white'/%3E%3Ccircle cx='31' cy='10' r='2' fill='%23E59A68'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='2' y='2' width='36' height='36' rx='9' fill='%232C2A27'/%3E%3Cpath d='M9 23h17c0-4 3-6 6-6v-3H15c-2 0-4 1.5-6 4z' fill='white'/%3E%3Cpath d='M15 23v5h-3v3h16v-3h-3v-5z' fill='white'/%3E%3Ccircle cx='31' cy='10' r='2' fill='%23F07A3F'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: a house logbook — slim header with tabs, one working surface below (calendar first, then lists). */
 :root{
-  --bg:#EEF1EF; --surface:#FFFFFF; --sunk:#E4E8E5; --ink:#1C2321; --muted:#5C6763; --line:#D3D9D5;
-  --accent:#24496B; --on-accent:#FFFFFF; --ember:#B4561F; --ok:#2F7A4C; --danger:#A63131; --today:#FFF4E6;
-  --f1:#2F6F9F; --f2:#B2552A; --f3:#4E7D3A; --f4:#7A4E9C; --f5:#A33B5C; --f6:#2B7F78; --f7:#8A6D1F; --on-fam:#FFFFFF;
+  /* Forge: iron-grey surfaces, charcoal ink, one ember accent */
+  --bg:#ECEAE7; --surface:#FFFFFF; --sunk:#E4E1DD; --ink:#1F1D1A; --muted:#66615A; --line:#D7D3CD;
+  --iron:#2C2A27; --accent:#B4461A; --on-accent:#FFFFFF; --ember:#B4461A; --ok:#2E7A4B; --danger:#A3262E; --today:#FBEDE4;
+  --f1:#1F63A8; --f2:#B13A4B; --f3:#2D7D4E; --f4:#6A4FA6; --f5:#9A620C; --f6:#0B7A84; --f7:#59636E; --on-fam:#FFFFFF;
   --wa:#1F7A4D;
   --font-display:"Young Serif", Georgia, "Times New Roman", serif;
   --font-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -26,9 +27,10 @@
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root{
-  --bg:#121615; --surface:#1A1F1E; --sunk:#232A28; --ink:#E5EAE7; --muted:#9AA6A1; --line:#2E3634;
-  --accent:#8FB6DB; --on-accent:#0F1A24; --ember:#E59A68; --ok:#7CC496; --danger:#EF8A8A; --today:#2A2419;
-  --f1:#7FB3DD; --f2:#E8936A; --f3:#93C47D; --f4:#B99BD6; --f5:#E488A6; --f6:#6CC5BC; --f7:#D6B460; --on-fam:#121615;
+  --bg:#141311; --surface:#1D1B19; --sunk:#292623; --ink:#ECE8E2; --muted:#A49E95; --line:#35312C;
+  --iron:#3A3632; --accent:#F07A3F; --on-accent:#1C0F07; --ember:#F07A3F; --ok:#7CC796; --danger:#F08A8F; --today:#33231A;
+  --f1:#7DB2EA; --f2:#EE8C9A; --f3:#7FCB9C; --f4:#B8A3EA; --f5:#E3AE5A; --f6:#63CAD3; --f7:#B3BCC6; --on-fam:#141311;
+  --wa:#2A8C5C;
   color-scheme:dark}}
 
 *{box-sizing:border-box}
@@ -220,11 +222,11 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
 .note-form{display:grid;gap:8px;margin-top:12px}
 .note-form textarea{width:100%;min-height:80px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);resize:vertical}
 .notes{display:grid;gap:8px;margin-top:14px}
-.note{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:6px;min-width:0}
-.note.issue{border-left-color:var(--ember)}
-.note.resolved{opacity:.65}
-.note .txt{white-space:pre-wrap;overflow-wrap:anywhere}
-.note .meta{font-size:.8rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.notes .note{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:6px;min-width:0}
+.notes .note.issue{border-left-color:var(--ember)}
+.notes .note.resolved{opacity:.65}
+.notes .note .txt{white-space:pre-wrap;overflow-wrap:anywhere}
+.notes .note .meta{font-size:.8rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .pill{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:1px 8px;background:var(--sunk);color:var(--muted)}
 .pill.issue{background:color-mix(in srgb,var(--ember) 18%,var(--surface));color:var(--ember)}
 .pill.ok{background:color-mix(in srgb,var(--ok) 18%,var(--surface));color:var(--ok)}
@@ -238,12 +240,81 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chips button{border:1px dashed var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:.84rem;font-weight:600;color:var(--muted);cursor:pointer}
 .chips button:hover{border-color:var(--accent);color:var(--accent)}
+
+/* toast with undo */
+.toast:not([hidden]){display:flex;align-items:center;gap:16px}
+.toast-undo{background:none;border:0;padding:0;color:inherit;font:inherit;font-weight:800;text-decoration:underline;cursor:pointer}
+/* tile icons and Carnet badge */
+.tile-top{display:flex;align-items:center;gap:8px;min-width:0}
+.tile-ico{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:7px;background:var(--sunk);color:var(--ink);flex:none}
+.tile-ico svg{width:16px;height:16px}
+.tile.live .tile-ico{background:color-mix(in srgb,var(--ok) 18%,var(--surface));color:var(--ok)}
+.tile.attn .tile-ico{background:color-mix(in srgb,var(--ember) 18%,var(--surface));color:var(--ember)}
+.badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:.68rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+nav.tabs .badge{margin-left:6px}
+.bn-ico{position:relative}
+.bn .badge{position:absolute;top:-5px;right:-12px}
+/* booking window */
+.dlg.bk{padding:0;gap:0}
+.bk-band{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 20px;color:var(--on-fam)}
+.bk-band-txt{display:grid;gap:2px;min-width:0}
+.bk-fam{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.bk-band h2{font-size:1.5rem;color:inherit}
+.bk-n{font-size:.88rem}
+.bk-close{background:color-mix(in srgb,var(--on-fam) 20%,transparent);border:0;border-radius:50%;width:32px;height:32px;color:inherit;cursor:pointer;flex:none;font-size:.95rem}
+.bk-body{display:grid;gap:14px;padding:16px 20px}
+.bk-share{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.bk-more{flex:1 1 220px;min-width:0}
+.bk-more summary{list-style:none;display:inline-flex;cursor:pointer}
+.bk-more summary::-webkit-details-marker{display:none}
+.bk-more[open] summary{border-color:var(--accent)}
+.bk-more summary .bn-ico svg{width:18px;height:18px}
+.bk-more .export-row{margin-top:8px}
+.bk-foot{position:sticky;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 20px;background:var(--surface);border-top:1px solid var(--line)}
+.link.danger{color:var(--danger)}
+/* date range picker */
+.rp{border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:6px}
+.rp-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rp-dow,.rp-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px 0}
+.rp-dow span{font-size:.68rem;text-align:center;color:var(--muted);font-weight:700;text-transform:uppercase}
+.rpd{height:40px;border:0;background:none;border-radius:8px;font-variant-numeric:tabular-nums;font-weight:600;cursor:pointer;color:var(--ink);padding:0;min-width:0}
+.rpd.blank{visibility:hidden}
+.rpd:hover{box-shadow:inset 0 0 0 1px var(--muted)}
+.rpd.past{color:var(--muted)}
+.rpd.now span{border-bottom:2px solid var(--ember);padding-bottom:1px}
+.rpd.inr{background:color-mix(in srgb,var(--accent) 22%,var(--surface));border-radius:0}
+.rpd.rs,.rpd.re{background:var(--accent);color:var(--on-accent)}
+.rpd.rs{border-radius:8px 0 0 8px}
+.rpd.re{border-radius:0 8px 8px 0}
+.rpd.rs.re{border-radius:8px}
+.rp-sum{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--line)}
+.rp-sum .lbl{display:block;font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.rp-arrow{color:var(--muted)}
+.rp-sum .pill{margin-left:auto}
+.rp-type summary{cursor:pointer;color:var(--muted);font-size:.85rem;font-weight:600}
+.rp-type .grid2{margin-top:8px}
+/* contacts */
+.contact-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.contact .call{flex:1 1 auto;justify-content:center;text-decoration:none}
+.contact .call .bn-ico svg{width:18px;height:18px}
+.card .line .num{color:var(--ink);font-weight:600;overflow-wrap:anywhere;user-select:text}
+/* family initials in phone month cells */
+.mcd{display:grid;place-content:center;line-height:1.1}
+.mcd-ini{font-size:.55rem;font-weight:800;letter-spacing:.04em}
+/* loading placeholders */
+.skel{display:grid;gap:22px}
+.sk{display:block;background:var(--sunk);border-radius:6px;animation:skp 1.4s ease-in-out infinite}
+.skel .tile{cursor:default;gap:10px}
+.skel-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.skel-grid .sk{aspect-ratio:1.5;border-radius:8px}
+@keyframes skp{50%{opacity:.45}}
+@media (prefers-reduced-motion: reduce){ .sk{animation:none} }
 /* header account button */
 .top{flex-wrap:nowrap}
 .brand h1{white-space:nowrap}
 .avatar-btn{display:inline-flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px 3px 3px;cursor:pointer;color:var(--ink);font-weight:600;font-size:.88rem;min-width:0}
 .avatar-btn:hover{border-color:var(--muted)}
-.avatar{width:30px;height:30px;border-radius:50%;flex:none;display:inline-grid;place-items:center;color:#FFFFFF;font-size:.78rem;font-weight:700;object-fit:cover}
+.avatar{width:30px;height:30px;border-radius:50%;flex:none;display:inline-grid;place-items:center;color:var(--on-fam);font-size:.78rem;font-weight:700;object-fit:cover}
 .avatar-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22ch}
 .account .lang{justify-self:start}
 .acct-id{display:flex;gap:12px;align-items:center;min-width:0}
@@ -282,7 +353,7 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
 .link:hover{text-decoration:underline}
 .link.muted{color:var(--muted)}
 .link.armed{color:var(--danger)}
-.note .meta .acts{margin-left:auto;display:inline-flex;gap:14px}
+.notes .note .meta .acts{margin-left:auto;display:inline-flex;gap:14px}
 /* admin menu and lists */
 .admin-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .an{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;color:var(--ink);font-weight:600;text-align:left;min-width:0}
@@ -351,10 +422,10 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
     <div class="top">
       <div class="brand">
         <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
-          <rect x="2" y="2" width="36" height="36" rx="9" fill="var(--accent)"/>
-          <path d="M9 23h17c0-4 3-6 6-6v-3H15c-2 0-4 1.5-6 4z" fill="var(--on-accent)"/>
-          <path d="M15 23v5h-3v3h16v-3h-3v-5z" fill="var(--on-accent)"/>
-          <circle cx="31" cy="10" r="2" fill="var(--ember)"/>
+          <rect x="2" y="2" width="36" height="36" rx="9" fill="var(--iron)"/>
+          <path d="M9 23h17c0-4 3-6 6-6v-3H15c-2 0-4 1.5-6 4z" fill="#FFFFFF"/>
+          <path d="M15 23v5h-3v3h16v-3h-3v-5z" fill="#FFFFFF"/>
+          <circle cx="31" cy="10" r="2.2" fill="var(--accent)"/>
         </svg>
         <div><small id="brand-small">Maison de famille</small><h1>Forge Jean-Petit</h1></div>
       </div>
@@ -373,7 +444,7 @@ dialog::backdrop{background:rgba(10,14,13,.45)}
 </header>
 
 <main class="wrap" id="main">
-  <div class="panel"><h2>Forge Jean-Petit…</h2></div>
+  <div class="skel" aria-busy="true"><div class="panel"><span class="sk" style="display:block;width:160px;height:22px"></span></div></div>
 </main>
 
 <nav class="bottom-nav" id="bottom-nav" aria-label="Navigation" hidden></nav>
@@ -389,7 +460,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=7232076e";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=2acd8270";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -440,6 +511,7 @@ const itemText = it => (DEFAULT_CHECKLIST[it.id] && DEFAULT_CHECKLIST[it.id].en=
 const contactField = (c, f) => { const d=DEFAULT_CONTACT[c.id]; return (d && d[f] && d[f].en===c[f]) ? d[f][LANG] : (c[f]||""); };
 
 const S = {
+  raw:{bookings:[],notes:[],supplies:[],tips:[],members:[],settings:null,info:null}, authReady:false, loaded:false,
   authUser:null, email:null, member:null, memberLoaded:false, isMain:false,
   settings:null, bookings:[], members:[],
   tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[],
@@ -500,13 +572,18 @@ function famName(id){
   const m = /^Family (\d)$/.exec(f.name);
   return m ? t("defaultFamily",{n:m[1]}) : f.name;
 }
+function famInitials(id){
+  const f=families().find(x=>x.id===id); if (!f) return "";
+  const m=/^Family (\d)$/.exec(f.name); if (m) return "F"+m[1];
+  return f.name.split(/[\s&,+\/-]+/).filter(w=>w && !/^(et|en|and|und)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join("");
+}
 const isAdmin = () => S.isMain || !!S.member?.admin;
 const myFamily = () => S.member?.family || null;
 const uid = () => S.authUser?.uid;
 const allBookings = () => [...S.bookings].sort((a,b)=>a.start<b.start?-1:a.start>b.start?1:0);
 const canEdit = b => b.uid===uid();
 const canDelete = b => b.uid===uid() || isAdmin();
-const saveSettings = patch => setDoc(doc(db,"config","settings"), {...(S.settings||DEFAULT_SETTINGS), ...patch}).catch(fail);
+const saveSettings = patch => setDoc(doc(db,"config","settings"), {...(S.raw.settings||DEFAULT_SETTINGS), ...patch}).catch(fail);
 const memberName = email => (S.members.find(m=>m.id===email)||{}).name || "";
 
 /* ---------- calendar export ---------- */
@@ -576,6 +653,88 @@ function notifyBlock(b, kind){
     h("span",{class:"hint",text:t("waHint2")}));
 }
 
+/* ---------- deleting with undo ---------- */
+// A deletion waits 5 seconds before it is sent, so "Annuler" can bring it back.
+const pendingDel = new Map();
+function syncView(){
+  const R=S.raw, keep=(arr,col)=>(arr||[]).filter(x=>!pendingDel.has(col+"/"+x.id));
+  S.bookings=keep(R.bookings,"bookings"); S.notes=keep(R.notes,"notes"); S.supplies=keep(R.supplies,"supplies");
+  S.tips=keep(R.tips,"tips"); S.members=keep(R.members,"members");
+  S.settings = R.settings ? {...R.settings, checklist:keep(R.settings.checklist,"checklist"), contacts:keep(R.settings.contacts,"contacts")} : null;
+  S.info = R.info ? {...R.info, sections:keep(R.info.sections,"info")} : null;
+}
+function softDelete(keys, message, commit){
+  const entry={ keys:[].concat(keys), commit, done:false, timer:null };
+  entry.timer=setTimeout(()=>finishDelete(entry), 5000);
+  for (const k of entry.keys) pendingDel.set(k, entry);
+  syncView(); render();
+  const undo=()=>{ if (entry.done) return false; entry.done=true; clearTimeout(entry.timer);
+    for (const k of entry.keys) if (pendingDel.get(k)===entry) pendingDel.delete(k); syncView(); render(); return true; };
+  toastUndo(message, undo);
+  return undo;
+}
+function finishDelete(entry){
+  if (entry.done) return; entry.done=true; clearTimeout(entry.timer);
+  Promise.resolve().then(entry.commit).catch(e=>{ try{ fail(e); }catch(_){} })
+    .finally(()=>{ for (const k of entry.keys) if (pendingDel.get(k)===entry) pendingDel.delete(k); syncView(); render(); });
+}
+function flushDeletes(){ for (const e of new Set(pendingDel.values())) finishDelete(e); }
+addEventListener("pagehide", flushDeletes);
+document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="hidden") flushDeletes(); });
+function toastUndo(msg, onUndo){
+  const el=$("#toast");
+  el.replaceChildren(h("span",{text:msg}), h("button",{type:"button",class:"toast-undo",text:t("undo"),onclick:()=>{ onUndo(); el.hidden=true; }}));
+  el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true, 5000);
+}
+
+/* ---------- date range picker for bookings ---------- */
+function rangePicker(st, onChange){
+  const box=h("div",{class:"rp"});
+  const draw=()=>{
+    const [Y,M]=st.month.split("-").map(Number);
+    const first=dn(st.month), days=new Date(Date.UTC(Y,M,0)).getUTCDate(), lead=(new Date(first*864e5).getUTCDay()+6)%7, T=dn(todayStr());
+    const others=allBookings().filter(o=>o.id!==st.excludeId).map(o=>({...o,s:dn(o.start),e:dn(o.end)})).filter(o=>o.s<=first+days&&o.e>=first);
+    const s=st.start?dn(st.start):null, e=st.end?dn(st.end):null;
+    const title=new Date(first*864e5).toLocaleDateString(locale(),{timeZone:"UTC",month:"long",year:"numeric"});
+    const move=d=>{ const dt=new Date(Date.UTC(Y,M-1+d,1)); st.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; draw(); };
+    const cells=[]; for (let i=0;i<lead;i++) cells.push(h("span",{class:"rpd blank","aria-hidden":"true"}));
+    for (let d=first; d<first+days; d++){
+      const here=others.filter(o=>o.s<=d&&o.e>=d), fams=[...new Set(here.map(o=>o.family))];
+      const tint=c=>`color-mix(in srgb, ${famColor(c)} 32%, var(--surface))`;
+      const style = !fams.length ? null : fams.length===1 ? `background:${tint(fams[0])}` : `background:linear-gradient(135deg, ${tint(fams[0])} 50%, ${tint(fams[1])} 50%)`;
+      const inRange = s!=null && e!=null && d>s && d<e;
+      const cls=["rpd"]; if (here.length) cls.push("taken"); if (inRange) cls.push("inr"); if (d===s) cls.push("rs"); if (d===e || (e==null && d===s)) cls.push("re"); if (d<T) cls.push("past"); if (d===T) cls.push("now");
+      const label=fmt(ds(d),{weekday:"long",day:"numeric",month:"long"})+(here.length?" · "+t("takenBy",{f:[...new Set(here.map(o=>famName(o.family)))].join(", ")}):"");
+      cells.push(h("button",{type:"button",class:cls.join(" "),style:(d===s||d===e||inRange)?null:style,"aria-label":label,title:label,"aria-pressed":d===s||d===e,
+        onclick:()=>{ if (st.phase!=="end" || s==null || d<s){ st.start=ds(d); st.end=null; st.phase="end"; } else { st.end=ds(d); st.phase="start"; } onChange(); draw(); }},
+        h("span",{text:String(d-first+1)})));
+    }
+    const n = (s!=null&&e!=null) ? e-s : null;
+    box.replaceChildren(
+      h("div",{class:"rp-head"},
+        h("button",{type:"button",class:"btn icon-btn","aria-label":t("prevMonth"),text:"‹",onclick:()=>move(-1)}),
+        h("strong",{text:title.charAt(0).toUpperCase()+title.slice(1)}),
+        h("button",{type:"button",class:"btn icon-btn","aria-label":t("nextMonth"),text:"›",onclick:()=>move(1)})),
+      h("div",{class:"rp-dow","aria-hidden":"true"}, t("dow").map(x=>h("span",{text:x.slice(0,2)}))),
+      h("div",{class:"rp-grid"}, cells),
+      h("div",{class:"rp-sum"},
+        h("div",null, h("span",{class:"lbl",text:t("arrival")}), h("strong",{text:st.start?fmt(st.start,{weekday:"short",day:"numeric",month:"short"}):"—"})),
+        h("span",{class:"rp-arrow","aria-hidden":"true",text:"→"}),
+        h("div",null, h("span",{class:"lbl",text:t("departure")}), h("strong",{text:st.end?fmt(st.end,{weekday:"short",day:"numeric",month:"short",year:"numeric"}):(st.start?t("pickDeparture"):"—")})),
+        n!=null ? h("span",{class:"pill",text:nightsTxt(n)}) : null));
+  };
+  box.redraw=draw; draw(); return box;
+}
+
+/* ---------- loading placeholders ---------- */
+function renderSkeleton(){
+  const line=(w,hh=12)=>h("span",{class:"sk",style:`width:${w};height:${hh}px`});
+  return h("div",{class:"skel","aria-busy":"true","aria-label":t("loading")},
+    h("div",{class:"today-sum"}, [0,1,2,3].map(()=>h("div",{class:"tile"}, line("45%",9), line("75%",14), line("55%",10)))),
+    h("div",{class:"panel"}, h("div",{style:"display:flex;justify-content:space-between;gap:12px;margin-bottom:16px"}, line("140px",22), line("180px",30)),
+      h("div",{class:"skel-grid"}, Array.from({length:35},()=>h("span",{class:"sk"})))));
+}
+
 /* ---------- navigation, header and layout ---------- */
 const TAB_LABELS = {calendar:"tabCalendar", carnet:"tabCarnet", info:"tabInfo", checklist:"tabChecklist", contacts:"tabContacts", tips:"tabTips", settings:"tabAdmin"};
 const PRIMARY_TABS = ["calendar","carnet","info"], MORE_TABS = ["checklist","tips","contacts","settings"];
@@ -590,6 +749,9 @@ const ICONS = {
   contacts: svg('<path d="M6.5 3.5h3l1.5 4.5-2 1.5a11 11 0 0 0 5.5 5.5l1.5-2 4.5 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z"/>'),
   people: svg('<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M15.5 5.6a3 3 0 0 1 0 5.8M17.5 14.3c1.7.6 2.8 2.2 3 4.7"/>'),
   home: svg('<path d="M4 11l8-6.5 8 6.5M6.5 9.5V19.5h11V9.5M10 19.5v-5h4v5"/>'),
+  arrive: svg('<path d="M14 4.5h4.5A1.5 1.5 0 0 1 20 6v12a1.5 1.5 0 0 1-1.5 1.5H14M10 8l4 4-4 4M14 12H4"/>'),
+  suitcase: svg('<rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5v-2A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5v2M3.5 12.5h17"/>'),
+  wrench: svg('<path d="M15 4.5a4.5 4.5 0 0 0-4.3 5.8l-6.2 6.2a2.1 2.1 0 0 0 3 3l6.2-6.2A4.5 4.5 0 0 0 19.5 9l-2.7 2.7-2.3-.6-.6-2.3L16.6 6A4.5 4.5 0 0 0 15 4.5z"/>'),
   settings: svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
 };
 const phoneMQ = matchMedia("(max-width: 720px)");
@@ -618,16 +780,22 @@ function openAccountMenu(){
 }
 function renderHeader(){
   $("#brand-small").textContent = t("brandSmall");
-  for (const b of document.querySelectorAll("#tabs button")){ b.textContent=t(TAB_LABELS[b.dataset.tab]); b.setAttribute("aria-selected", b.dataset.tab===S.tab); }
+  const carnetN = S.notes.filter(n=>n.kind==="issue"&&!n.resolved).length + S.supplies.filter(x=>!x.done).length;
+  for (const b of document.querySelectorAll("#tabs button")){
+    b.textContent=t(TAB_LABELS[b.dataset.tab]); b.setAttribute("aria-selected", b.dataset.tab===S.tab);
+    if (b.dataset.tab==="carnet" && carnetN) b.append(h("span",{class:"badge",text:String(carnetN)}));
+  }
   const w=$("#who"); w.replaceChildren();
   if (!S.authUser){ w.append(langSwitch(false)); return; }
   w.append(h("button",{class:"avatar-btn",type:"button","aria-label":t("myAccount"),"aria-haspopup":"dialog",onclick:openAccountMenu}, avatarEl(),
     h("span",{class:"avatar-name",text:myName()})));
 }
+const carnetCount = () => S.notes.filter(n=>n.kind==="issue"&&!n.resolved).length + S.supplies.filter(x=>!x.done).length;
 function renderBottomNav(inside){
   const nav=$("#bottom-nav"); nav.hidden=!inside; if (!inside) return;
   const btn=(k,active,onclick)=>h("button",{type:"button",class:"bn"+(active?" on":""),"aria-current":active?"page":null,onclick},
-    h("span",{class:"bn-ico",html:ICONS[k]}), h("span",{class:"bn-lbl",text:t(k==="more"?"tabMore":k==="info"?"tabInfoShort":TAB_LABELS[k])}));
+    h("span",{class:"bn-ico",html:ICONS[k]}, (k==="carnet" && carnetCount()) ? h("span",{class:"badge",text:String(carnetCount())}) : null),
+    h("span",{class:"bn-lbl",text:t(k==="more"?"tabMore":k==="info"?"tabInfoShort":TAB_LABELS[k])}));
   nav.replaceChildren(...PRIMARY_TABS.map(k=>btn(k, S.tab===k, ()=>go(k))), btn("more", MORE_TABS.includes(S.tab), openMore));
 }
 function openMore(){
@@ -667,8 +835,9 @@ function renderMonthCompact(){
   for (let d=first; d<=last; d++){
     const here=bk.filter(b=>b.s<=d&&b.e>=d), fams=[...new Set(here.map(b=>b.family))], dstr=ds(d);
     const label=fmt(dstr,{weekday:"long",day:"numeric",month:"long"})+(here.length?": "+[...new Set(here.map(b=>famName(b.family)))].join(", "):"");
-    cells.push(h("button",{class:"mcd"+(here.length?" booked":"")+(d===today?" today":""),style:dayFill(fams),"aria-label":label,text:String(d-first+1),
-      onclick:()=>{ if(here.length) openDetail(here[0]); else if(canBook) openForm(null,dstr); else toast(t("pickFamilyFirst")); }}));
+    cells.push(h("button",{class:"mcd"+(here.length?" booked":"")+(d===today?" today":""),style:dayFill(fams),"aria-label":label,
+      onclick:()=>{ if(here.length) openDetail(here[0]); else if(canBook) openForm(null,dstr); else toast(t("pickFamilyFirst")); }},
+      h("span",{text:String(d-first+1)}), fams.length ? h("span",{class:"mcd-ini","aria-hidden":"true",text:fams.map(famInitials).join(" ")}) : null));
   }
   return h("section",{class:"panel"}, head,
     h("div",{class:"mc-dow","aria-hidden":"true"}, t("dow").map(x=>h("span",{text:x}))),
@@ -685,17 +854,18 @@ function renderToday(){
   const rel=s=>{ const d=dn(s)-T; return d<=0?t("todayLow"):d===1?t("tomorrow"):t("inDays",{n:d}); };
   const famLine=list=>{ const ids=[...new Set(list.map(b=>b.family))];
     return h("span",{class:"val-fams"}, ids.map(id=>h("span",{class:"fam-inline"}, h("span",{class:"dot",style:`background:${famColor(id)}`}), famName(id)))); };
-  const tile=(cls,label,val,sub,onclick)=>h("button",{type:"button",class:"tile"+(cls?" "+cls:""),onclick},
-    h("span",{class:"lbl",text:label}), h("span",{class:"val"},val), sub?h("span",{class:"sub",text:sub}):null);
+  const tile=(cls,ico,label,val,sub,onclick)=>h("button",{type:"button",class:"tile"+(cls?" "+cls:""),onclick},
+    h("span",{class:"tile-top"}, h("span",{class:"tile-ico",html:ICONS[ico]}), h("span",{class:"lbl",text:label})),
+    h("span",{class:"val"},val), sub?h("span",{class:"sub",text:sub}):null);
   const lastEnd = now.length ? now.reduce((a,b)=>b.end>a?b.end:a, now[0].end) : null;
   return h("section",{class:"today-sum","aria-label":t("todayLow")},
-    tile(now.length?"live":"", t("atHouseNow"), now.length?famLine(now):t("nobody"),
+    tile(now.length?"live":"", "home", t("atHouseNow"), now.length?famLine(now):t("nobody"),
       now.length?t("untilDate",{date:fmt(lastEnd,{weekday:"short",day:"numeric",month:"short"})}):null, ()=>now.length?openDetail(now[0]):null),
-    tile("", t("nextArrival"), next?famLine([next]):t("nonePlanned"),
+    tile("", "arrive", t("nextArrival"), next?famLine([next]):t("nonePlanned"),
       next?fmt(next.start,{weekday:"short",day:"numeric",month:"short"})+" · "+rel(next.start):null, ()=>next?openDetail(next):null),
-    tile("", t("yourNextStay"), mine?fmtRange(mine):t("noStayYet"),
+    tile("", "suitcase", t("yourNextStay"), mine?fmtRange(mine):t("noStayYet"),
       mine?(mine.start<=td?t("atHouse"):rel(mine.start)):(canBook?t("bookNow")+" →":null), ()=>mine?openDetail(mine):(canBook?openForm(null,td):null)),
-    tile(issues?"attn":"", t("tabCarnet"), (issues||buy)?[t("toFixN",{n:issues}), " · ", t("toBuyN",{n:buy})].join(""):t("allGood"), null, ()=>go("carnet")));
+    tile(issues?"attn":"", "wrench", t("tabCarnet"), (issues||buy)?[t("toFixN",{n:issues}), " · ", t("toBuyN",{n:buy})].join(""):t("allGood"), null, ()=>go("carnet")));
 }
 
 /* ---------- screens ---------- */
@@ -719,9 +889,11 @@ function render(){
 function draw(){
   const inside = S.authUser && (S.member || S.isMain);
   if (S.needEmailConfirm) { main.append(renderConfirmEmail()); return; }
+  if (!S.authReady) { main.append(renderSkeleton()); return; }
   if (!S.authUser) { main.append(renderSignIn()); return; }
-  if (!S.memberLoaded) { main.append(h("div",{class:"panel"},h("h2",{text:t("checkingInvite")}))); return; }
+  if (!S.memberLoaded) { main.append(renderSkeleton()); return; }
   if (!inside) { main.append(renderNotInvited()); return; }
+  if (!S.loaded) { main.append(renderSkeleton()); return; }
   if (S.isMain && !S.member) main.append(renderMainOnboarding());
   if (S.tab==="calendar"){
     const ins=renderInstall(); if (ins) main.append(ins);
@@ -899,11 +1071,15 @@ function renderContacts(){
   const cs=S.settings?.contacts||[];
   const panel=h("section",{class:"panel"}, h("h2",{text:t("contactsTitle")}), h("p",{class:"sub",text:t("contactsSub")}));
   if (!cs.length){ panel.append(h("div",{class:"empty",style:"margin-top:14px",text:isAdmin()?t("noContactsAdmin"):t("noContacts")})); return panel; }
-  panel.append(h("div",{class:"cards"}, cs.map(c=>h("div",{class:"card"},
-    c.role?h("div",{class:"role",text:contactField(c,"role")}):null, h("h3",{text:contactField(c,"name")}),
-    c.phone?h("div",{class:"line"}, h("a",{href:"tel:"+c.phone.replace(/[^\d+]/g,""),text:c.phone}), h("button",{class:"copy",text:t("copy"),onclick:e=>copyText(c.phone,e.target)})):null,
-    c.email?h("div",{class:"line"}, h("a",{href:"mailto:"+c.email,text:c.email}), h("button",{class:"copy",text:t("copy"),onclick:e=>copyText(c.email,e.target)})):null,
-    c.note?h("div",{class:"note",text:contactField(c,"note")}):null))));
+  panel.append(h("div",{class:"cards"}, cs.map(c=>h("div",{class:"card contact"},
+    c.role?h("div",{class:"role",text:contactField(c,"role")}):null,
+    h("h3",{text:contactField(c,"name")}),
+    c.phone?h("div",{class:"line"}, h("span",{class:"num",text:c.phone}), h("button",{class:"copy",text:t("copy"),onclick:e=>copyText(c.phone,e.target)})):null,
+    c.email?h("div",{class:"line"}, h("span",{class:"num",text:c.email}), h("button",{class:"copy",text:t("copy"),onclick:e=>copyText(c.email,e.target)})):null,
+    c.note?h("div",{class:"note",text:contactField(c,"note")}):null,
+    (c.phone||c.email) ? h("div",{class:"contact-acts"},
+      c.phone?h("a",{class:"btn primary call",href:"tel:"+c.phone.replace(/[^\d+]/g,"")}, h("span",{class:"bn-ico",html:ICONS.contacts}), t("call")):null,
+      c.email?h("a",{class:"btn call",href:"mailto:"+c.email}, t("emailBtn")):null) : null))));
   return panel;
 }
 
@@ -923,9 +1099,7 @@ function renderTips(){
   if (!shown.length){ panel.append(h("div",{class:"empty",style:"margin-top:14px",text:all.length?t("noTipsCat"):t("noTips")})); return panel; }
   panel.append(h("div",{class:"cards"}, shown.map(x=>{
     const mine = x.uid===uid(), canDel = mine || isAdmin();
-    const del = h("button",{class:"btn ghost",text:t("deleteTip")});
-    del.addEventListener("click",()=>{ if(!del.classList.contains("armed")){ del.classList.add("armed","danger"); del.textContent=t("tapAgain"); return; }
-      quiet(deleteDoc(doc(db,"tips",x.id)).then(()=>toast(t("tipDeleted")),fail)); });
+    const del = h("button",{class:"btn ghost",type:"button",text:t("deleteTip"),onclick:()=>softDelete("tips/"+x.id, t("tipDeleted"), ()=>deleteDoc(doc(db,"tips",x.id)))});
     const web = safeUrl(x.url);
     return h("div",{class:"card tip"},
       h("div",{class:"role",text:t("cat_"+x.category)}),
@@ -1045,7 +1219,7 @@ function noteCard(n){
       h("span",{class:"acts"},
         issue ? h("button",{class:"link",type:"button",text:n.resolved?t("reopen"):t("markResolved"),
           onclick:()=>quiet(updateDoc(doc(db,"notes",n.id),{resolved:!n.resolved,resolvedBy:S.email,resolvedAt:new Date().toISOString()}).catch(fail))}) : null,
-        (mine||isAdmin()) ? armed(t("deleteTip"), ()=>deleteDoc(doc(db,"notes",n.id)).then(()=>toast(t("removed")),fail), "link muted") : null)),
+        (mine||isAdmin()) ? h("button",{type:"button",class:"link muted",text:t("deleteTip"),onclick:()=>softDelete("notes/"+n.id, t("removed"), ()=>deleteDoc(doc(db,"notes",n.id)))}) : null)),
     h("div",{class:"txt",text:n.text}));
 }
 function renderCarnet(){
@@ -1081,13 +1255,13 @@ function renderCarnet(){
     sup.length ? h("div",{class:"supplies"}, sup.map(s=>h("label",{class:s.done?"done":""},
       h("input",{type:"checkbox",id:"sup-"+s.id,checked:!!s.done,onchange:e=>quiet(updateDoc(doc(db,"supplies",s.id),{done:e.target.checked,doneBy:e.target.checked?S.email:""}).catch(fail))}),
       h("span",{class:"t",text:s.text}), h("small",{text:s.name||""})))) : h("div",{class:"empty",style:"margin-top:14px",text:t("noSupplies")}),
-    bought.length ? h("div",{style:"margin-top:12px"}, armed(t("clearBought",{n:bought.length}), ()=>Promise.all(bought.map(s=>deleteDoc(doc(db,"supplies",s.id)))).then(()=>toast(t("removed")),fail), "btn")) : null));
+    bought.length ? h("div",{style:"margin-top:12px"}, h("button",{type:"button",class:"btn",text:t("clearBought",{n:bought.length}),onclick:()=>softDelete(bought.map(s=>"supplies/"+s.id), t("removed"), ()=>Promise.all(bought.map(s=>deleteDoc(doc(db,"supplies",s.id)))))})) : null));
   return wrap;
 }
 
 /* ---------- infos pratiques ---------- */
 const INFO_SUGGEST=["wifi","keys","heating","water","bins","alarm","arrival","departure","electricity","garden"];
-const saveInfo = mutate => { const arr=JSON.parse(JSON.stringify(S.info?.sections||[])); mutate(arr); return setDoc(doc(db,"config","info"),{sections:arr}).catch(fail); };
+const saveInfo = mutate => { const arr=JSON.parse(JSON.stringify(S.raw.info?.sections||[])); mutate(arr); return setDoc(doc(db,"config","info"),{sections:arr}).catch(fail); };
 function renderInfo(){
   const secs=S.info?.sections||[];
   const panel=h("section",{class:"panel"},
@@ -1111,7 +1285,7 @@ function renderInfo(){
 function openInfoForm(s, titleDefault){
   const title=h("input",{id:"info-title",maxlength:"80",value:s?.title||titleDefault||""});
   const text=h("textarea",{id:"info-text",maxlength:"3000",style:"min-height:170px",placeholder:t("infoTextPh")}); text.value=s?.text||"";
-  const del = s ? armed(t("remove"), ()=>saveInfo(arr=>{ const j=arr.findIndex(x=>x.id===s.id); if(j>=0) arr.splice(j,1); }).then(()=>{ dlg.close(); toast(t("removed")); }), "btn danger") : null;
+  const del = s ? h("button",{type:"button",class:"btn danger",text:t("remove"),onclick:()=>{ dlg.close(); softDelete("info/"+s.id, t("removed"), ()=>saveInfo(arr=>{ const j=arr.findIndex(x=>x.id===s.id); if(j>=0) arr.splice(j,1); })); }}) : null;
   showDlg(h("form",{class:"dlg",onsubmit:async e=>{
     e.preventDefault(); const v=title.value.trim(); if(!v) return toast(t("infoNeedTitle"));
     try { await saveInfo(arr=>{ const item={id:s?.id||newId(), title:v, text:text.value.trim()}; const j=arr.findIndex(x=>x.id===item.id); if(j>=0) arr[j]=item; else arr.push(item); });
@@ -1258,7 +1432,7 @@ function openPersonForm(m){
     h("p",{class:"hint",text: isMainRow ? t("mainAdminHint") : locked ? t("lockedHint") : S.isMain ? t("adminHint") : t("coAdminHint")}),
     err,
     h("div",{class:"dlg-actions"},
-      canRemove ? armed(t("removeAccess"), ()=>deleteDoc(doc(db,"members",m.id)).then(()=>{ dlg.close(); toast(t("removed")); },fail), "btn danger") : null,
+      canRemove ? h("button",{type:"button",class:"btn danger",text:t("removeAccess"),onclick:()=>{ dlg.close(); softDelete("members/"+m.id, t("removed"), ()=>deleteDoc(doc(db,"members",m.id))); }}) : null,
       h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}), save)));
   setTimeout(()=>(isNew?email:name).focus(),50);
 }
@@ -1291,7 +1465,7 @@ function adminChecklist(){
       h("span",{class:"txt",text:itemText(it)}),
       h("span",{class:"acts"},
         h("button",{class:"link muted",type:"button","aria-label":t("moveUp"),disabled:i===0,text:"↑",onclick:()=>{const a=[...chk]; [a[i-1],a[i]]=[a[i],a[i-1]]; quiet(saveSettings({checklist:a}));}}),
-        armed(t("remove"), ()=>saveSettings({checklist:chk.filter(x=>x.id!==it.id)}), "link muted"))))));
+        h("button",{type:"button",class:"link muted",text:t("remove"),onclick:()=>softDelete("checklist/"+it.id, t("removed"), ()=>saveSettings({checklist:(S.raw.settings?.checklist||[]).filter(x=>x.id!==it.id)}))}))))));
 }
 
 /* Contacts: list with edit in a window. */
@@ -1320,7 +1494,7 @@ function openContactForm(c){
       h("label",{class:"field"},t("phone"),f.phone), h("label",{class:"field"},t("email"),f.email)),
     h("label",{class:"field"},t("note"),f.note),
     h("div",{class:"dlg-actions"},
-      c ? armed(t("remove"), ()=>saveSettings({contacts:cs.filter(x=>x.id!==c.id)}).then(()=>{ dlg.close(); toast(t("removed")); }), "btn danger") : null,
+      c ? h("button",{type:"button",class:"btn danger",text:t("remove"),onclick:()=>{ dlg.close(); softDelete("contacts/"+c.id, t("removed"), ()=>saveSettings({contacts:(S.raw.settings?.contacts||[]).filter(x=>x.id!==c.id)})); }}) : null,
       h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}),
       h("button",{class:"btn primary",type:"submit",text:c?t("saveChanges"):t("addContact")}))));
 }
@@ -1340,40 +1514,55 @@ function openDetail(b, justDone){
   const items=S.settings?.checklist||[];
   const done=items.filter(i=>b.checklist?.[i.id]).length;
   const long={weekday:"long",day:"numeric",month:"long",year:"numeric"};
-  const del=h("button",{class:"btn danger",text:canEdit(b)?t("deleteBooking"):t("deleteAdmin")});
-  del.addEventListener("click",()=>{
-    if(!del.classList.contains("armed")){ del.classList.add("armed"); del.textContent=t("tapAgain"); return; }
-    quiet(deleteDoc(doc(db,"bookings",b.id)).then(()=>openCancelled(b),fail));
-  });
-  showDlg(h("div",{class:"dlg"},
-    h("div",{class:"dlg-head"}, h("div",null, h("span",{class:"chip"},h("span",{class:"dot",style:`background:${famColor(b.family)}`}),famName(b.family)), h("h2",{style:"margin-top:8px",text:fmtRange(b)})), closeBtn()),
-    justDone ? h("div",{class:"done-banner",text:justDone==="edit"?t("changesSaved"):t("youBooked")}) : null,
-    h("dl",{class:"kv"},
-      h("dt",{text:t("bookedBy")}), h("dd",{text:(b.name||b.email||t("aMember"))+(canEdit(b)?" "+t("you"):"")}),
-      h("dt",{text:t("arrival")}), h("dd",{text:fmt(b.start,long)}),
-      h("dt",{text:t("departure")}), h("dd",{text:fmt(b.end,long)}),
-      h("dt",{text:t("nightsLabel")}), h("dd",{class:"tnum",text:String(nights(b))}),
-      b.guests?[h("dt",{text:t("peopleLabel")}),h("dd",{class:"tnum",text:String(b.guests)})]:null,
-      b.note?[h("dt",{text:t("noteLabel")}),h("dd",{text:b.note})]:null,
-      items.length?[h("dt",{text:t("checklistLabel")}),h("dd",{class:"tnum",text:t("doneOf",{d:done,n:items.length})})]:null),
-    (justDone||canEdit(b)) ? notifyBlock(b, justDone||"new") : null,
-    exportBlock(b),
-    h("div",{class:"dlg-actions"},
-      canDelete(b)?del:h("span",{class:"hint",text:t("onlyBooker")}),
-      canEdit(b)?h("button",{class:"btn primary",text:t("edit"),onclick:()=>openForm(b)}):null)));
+  const a=(href,label)=>h("a",{class:"btn",href,target:"_blank",rel:"noopener",text:label});
+  const agenda=h("details",{class:"bk-more"},
+    h("summary",{class:"btn"}, h("span",{class:"bn-ico",html:ICONS.calendar}), t("addToCal")),
+    h("div",{class:"export-row"},
+      h("button",{class:"btn",type:"button",text:t("appleIcs"),onclick:()=>downloadIcs([b], `forge-jean-petit-${b.start}.ics`)}),
+      a(googleUrl(b),"Google Calendar"), a(outlookUrl(b,"outlook.live.com"),"Outlook.com"), a(outlookUrl(b,"outlook.office.com"),"Outlook 365")));
+  const share=(justDone||canEdit(b)) ? h("a",{class:"btn wa",href:"https://wa.me/?text="+encodeURIComponent(whatsappText(b,justDone||"new")),target:"_blank",rel:"noopener"},
+    h("span",{style:"display:inline-flex",html:WA_ICON}), t("shareWa")) : null;
+  const remove=()=>{
+    dlg.close();
+    const undo=softDelete("bookings/"+b.id, t("bookingDeleted"), ()=>deleteDoc(doc(db,"bookings",b.id)));
+    openCancelled(b, undo);
+  };
+  showDlg(h("div",{class:"dlg bk"},
+    h("div",{class:"bk-band",style:`background:${famColor(b.family)}`},
+      h("div",{class:"bk-band-txt"},
+        h("span",{class:"bk-fam",text:famName(b.family)}),
+        h("h2",{text:fmtRange(b)}),
+        h("span",{class:"bk-n",text:nightsTxt(nights(b))+(b.guests?" · "+t("peopleN",{n:b.guests}):"")})),
+      h("button",{type:"button",class:"bk-close","aria-label":t("close"),text:"✕",onclick:()=>dlg.close()})),
+    h("div",{class:"bk-body"},
+      justDone ? h("div",{class:"done-banner",text:justDone==="edit"?t("changesSaved"):t("youBooked")}) : null,
+      h("dl",{class:"kv"},
+        h("dt",{text:t("bookedBy")}), h("dd",{text:(b.name||b.email||t("aMember"))+(canEdit(b)?" "+t("you"):"")}),
+        h("dt",{text:t("arrival")}), h("dd",{text:fmt(b.start,long)}),
+        h("dt",{text:t("departure")}), h("dd",{text:fmt(b.end,long)}),
+        b.note?[h("dt",{text:t("noteLabel")}),h("dd",{text:b.note})]:null,
+        items.length?[h("dt",{text:t("checklistLabel")}),h("dd",{class:"tnum",text:t("doneOf",{d:done,n:items.length})})]:null),
+      h("div",{class:"bk-share"}, share, agenda),
+      share ? h("p",{class:"hint",text:t("waHint2")}) : null),
+    h("div",{class:"bk-foot"},
+      canDelete(b) ? h("button",{type:"button",class:"link danger",text:canEdit(b)?t("deleteBooking"):t("deleteAdmin"),onclick:remove}) : h("span",{class:"hint",text:t("onlyBooker")}),
+      canEdit(b) ? h("button",{type:"button",class:"btn primary",text:t("edit"),onclick:()=>openForm(b)}) : null)));
 }
-function openCancelled(b){
+function openCancelled(b, undo){
   showDlg(h("div",{class:"dlg"},
     h("div",{class:"dlg-head"}, h("h2",{text:t("bookingDeleted")}), closeBtn()),
     h("p",{class:"sub",text:t("nowFree",{family:famName(b.family),range:fmtRange(b)})}),
-    notifyBlock(b,"cancel")));
+    notifyBlock(b,"cancel"),
+    undo ? h("div",{class:"dlg-actions"}, h("button",{type:"button",class:"btn",text:t("undoDelete"),onclick:()=>{ if (undo()) toast(t("restored")); dlg.close(); }})) : null));
 }
 
 function openForm(b, startDefault){
   const isNew=!b;
   if (isNew && !myFamily() && !S.isMain) return toast(t("pickFamilyFirst"));
-  const start=h("input",{type:"date",id:"bk-start",value:b?b.start:startDefault,required:true});
-  const end=h("input",{type:"date",id:"bk-end",value:b?b.end:ds(dn(startDefault)+2),required:true});
+  const st = { start: b?b.start:startDefault, end: b?b.end:null, phase: b?"start":"end",
+               month: (b?b.start:startDefault).slice(0,8)+"01", excludeId: b?.id };
+  const start=h("input",{type:"date",id:"bk-start",value:st.start||""});
+  const end=h("input",{type:"date",id:"bk-end",value:st.end||""});
   const guests=h("input",{type:"number",id:"bk-guests",min:"1",max:"50",value:b?.guests||"",placeholder:t("optional")});
   const note=h("textarea",{id:"bk-note",maxlength:"500",placeholder:t("notePh")}); note.value=b?.note||"";
   const famSel=isAdmin()?h("select",{id:"bk-fam"}, families().map(f=>h("option",{value:f.id,selected:(b?b.family:(myFamily()||families()[0].id))===f.id,text:famName(f.id)}))):null;
@@ -1381,23 +1570,25 @@ function openForm(b, startDefault){
   let share=false;
   const check=()=>{
     warnBox.replaceChildren(); err.textContent="";
-    if(!start.value||!end.value) return;
-    if(end.value<start.value){ err.textContent=t("depAfter"); return; }
-    const s=dn(start.value), e=Math.max(dn(end.value),s+1);
+    if(!st.start||!st.end) return;
+    if(st.end<st.start){ err.textContent=t("depAfter"); return; }
+    const s=dn(st.start), e=Math.max(dn(st.end),s+1);
     const clash=allBookings().filter(o=>o.id!==b?.id && dn(o.start)<e && Math.max(dn(o.end),dn(o.start)+1)>s);
     if(clash.length) warnBox.append(h("div",{class:"warn"}, h("strong",{text:t("overlap")}), clash.map(o=>`${famName(o.family)} (${fmtRange(o)})`).join(", "),
       h("label",null,h("input",{type:"checkbox",id:"bk-share",checked:share,onchange:x=>share=x.target.checked}),t("shareHouse"))));
   };
-  start.addEventListener("change",()=>{ if(end.value<start.value) end.value=ds(dn(start.value)+1); check(); });
-  end.addEventListener("change",check);
+  const picker=rangePicker(st, ()=>{ start.value=st.start||""; end.value=st.end||""; check(); });
+  start.addEventListener("change",()=>{ if(!start.value) return; st.start=start.value; if(st.end && st.end<st.start){ st.end=null; end.value=""; } st.phase=st.end?"start":"end"; st.month=st.start.slice(0,8)+"01"; picker.redraw(); check(); });
+  end.addEventListener("change",()=>{ st.end=end.value||null; st.phase="start"; picker.redraw(); check(); });
   const save=h("button",{class:"btn primary",type:"submit",text:isNew?t("bookDates"):t("saveChanges")});
   const form=h("form",{class:"dlg",onsubmit:async e=>{
     e.preventDefault(); check();
+    if(!st.start||!st.end){ err.textContent=t("pickBothDates"); return; }
     if(err.textContent) return;
     if(warnBox.childNodes.length && !share){ err.textContent=t("confirmShare"); return; }
     const id=b?.id||newId();
     const data={ uid:uid(), email:S.email, name:S.authUser.displayName||memberName(S.email)||S.email,
-      family: famSel?famSel.value:(b?.family||myFamily()), start:start.value, end:end.value, note:note.value.trim(),
+      family: famSel?famSel.value:(b?.family||myFamily()), start:st.start, end:st.end, note:note.value.trim(),
       checklist:b?.checklist||{}, createdAt:b?.createdAt||new Date().toISOString(), updatedAt:new Date().toISOString() };
     if(guests.value) data.guests=Math.round(Number(guests.value));
     if(!data.family){ err.textContent=t("chooseAFamily"); return; }
@@ -1410,12 +1601,16 @@ function openForm(b, startDefault){
     }catch(e2){ save.disabled=false; try{fail(e2);}catch(_){} }
   }},
     h("div",{class:"dlg-head"}, h("h2",{text:isNew?t("newBookingTitle"):t("editBooking")}), closeBtn()),
-    h("div",{class:"grid2"}, h("label",{class:"field"},t("arrival"),start), h("label",{class:"field"},t("departure"),end)),
+    h("p",{class:"hint",style:"margin:-6px 0 0",text:t("pickHint")}),
+    picker,
+    h("details",{class:"rp-type"}, h("summary",{text:t("orTypeDates")}),
+      h("div",{class:"grid2"}, h("label",{class:"field"},t("arrival"),start), h("label",{class:"field"},t("departure"),end))),
+    warnBox,
     h("div",{class:"grid2"},
       famSel?h("label",{class:"field"},t("family"),famSel):h("div",{class:"field"},t("family"),h("span",{class:"chip",style:"justify-self:start"},h("span",{class:"dot",style:`background:${famColor(myFamily())}`}),famName(myFamily()))),
       h("label",{class:"field"},t("peopleStaying"),guests)),
     h("label",{class:"field"},t("noteForOthers"),note),
-    warnBox, err,
+    err,
     h("div",{class:"dlg-actions"}, h("button",{type:"button",class:"btn",text:t("cancel"),onclick:()=>dlg.close()}), save));
   showDlg(form); check();
 }
@@ -1433,16 +1628,16 @@ function startData(){
   if (S.unsubs.length>1) return;
   const onErr = e => { console.error(e); if(e.code==="permission-denied") toast(t("accessChanged")); };
   S.unsubs.push(onSnapshot(doc(db,"config","settings"), async snap=>{
-    if (snap.exists()) S.settings=snap.data();
+    if (snap.exists()) { S.raw.settings=snap.data(); syncView(); }
     else if (isAdmin()) { try{ await setDoc(doc(db,"config","settings"), DEFAULT_SETTINGS); }catch(e){ console.error(e); } }
     render();
   }, onErr));
-  S.unsubs.push(onSnapshot(collection(db,"bookings"), snap=>{ S.bookings=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
-  S.unsubs.push(onSnapshot(collection(db,"members"), snap=>{ S.members=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
-  S.unsubs.push(onSnapshot(collection(db,"tips"), snap=>{ S.tips=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
-  S.unsubs.push(onSnapshot(collection(db,"notes"), snap=>{ S.notes=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
-  S.unsubs.push(onSnapshot(collection(db,"supplies"), snap=>{ S.supplies=snap.docs.map(d=>({id:d.id,...d.data()})); render(); }, onErr));
-  S.unsubs.push(onSnapshot(doc(db,"config","info"), snap=>{ S.info=snap.exists()?snap.data():null; render(); }, onErr));
+  S.unsubs.push(onSnapshot(collection(db,"bookings"), snap=>{ S.raw.bookings=snap.docs.map(d=>({id:d.id,...d.data()})); S.loaded=true; syncView(); render(); }, onErr));
+  S.unsubs.push(onSnapshot(collection(db,"members"), snap=>{ S.raw.members=snap.docs.map(d=>({id:d.id,...d.data()})); syncView(); render(); }, onErr));
+  S.unsubs.push(onSnapshot(collection(db,"tips"), snap=>{ S.raw.tips=snap.docs.map(d=>({id:d.id,...d.data()})); syncView(); render(); }, onErr));
+  S.unsubs.push(onSnapshot(collection(db,"notes"), snap=>{ S.raw.notes=snap.docs.map(d=>({id:d.id,...d.data()})); syncView(); render(); }, onErr));
+  S.unsubs.push(onSnapshot(collection(db,"supplies"), snap=>{ S.raw.supplies=snap.docs.map(d=>({id:d.id,...d.data()})); syncView(); render(); }, onErr));
+  S.unsubs.push(onSnapshot(doc(db,"config","info"), snap=>{ S.raw.info=snap.exists()?snap.data():null; syncView(); render(); }, onErr));
 }
 
 S.month=todayStr().slice(0,8)+"01";
@@ -1457,7 +1652,8 @@ if (isSignInWithEmailLink(auth, location.href)) {
 
 onAuthStateChanged(auth, user=>{
   stopAll();
-  S.authUser=user; S.member=null; S.memberLoaded=false; S.settings=null; S.bookings=[]; S.members=[]; S.tips=[]; S.notes=[]; S.supplies=[]; S.info=null;
+  flushDeletes(); S.authReady=true; S.loaded=false;
+  S.authUser=user; S.member=null; S.memberLoaded=false; S.raw={bookings:[],notes:[],supplies:[],tips:[],members:[],settings:null,info:null}; syncView();
   if (!user){ S.email=null; S.isMain=false; render(); return; }
   S.email=(user.email||"").toLowerCase();
   S.isMain = S.email===MAIN_ADMIN;
