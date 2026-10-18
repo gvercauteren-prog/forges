@@ -605,7 +605,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=094a1b39";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=b9745dc3";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -1580,12 +1580,16 @@ function downloadBackup(){
   quiet(saveSettings({lastBackupAt:new Date().toISOString()}).then(()=>toast(t("backupDone"))));
 }
 function backupBar(){
-  const last=S.raw.settings?.lastBackupAt||"", days=last?Math.floor((Date.now()-Date.parse(last))/DAY):null;
+  const man=S.raw.settings?.lastBackupAt||"", auto=S.raw.settings?.lastAutoBackupAt||"";
+  const last = man>auto ? man : auto, days=last?Math.floor((Date.now()-Date.parse(last))/DAY):null;
+  const autoDays = auto ? Math.floor((Date.now()-Date.parse(auto))/DAY) : null;
   const when = last==="" ? t("neverBackup") : t("lastBackup",{when: days<=0?t("todayLow"):days===1?t("yesterday"):t("daysAgo",{n:days})});
-  const stale = last==="" || days>30;
+  // once the weekly copy has run, warn only if it stops running
+  const stale = auto ? autoDays>10 : (last==="" || days>30);
+  const hint = auto ? (stale?t("autoBackupOld"):t("autoBackupHint")) : (stale?t("backupOld"):t("backupHint"));
   return h("div",{class:"backup-bar"+(stale?" stale":"")},
     h("span",{class:"bb-ico","aria-hidden":"true",html:ICONS.shield}),
-    h("span",{class:"bb-txt"}, h("strong",{text:when}), h("span",{class:"hint",text: stale?t("backupOld"):t("backupHint")})),
+    h("span",{class:"bb-txt"}, h("strong",{text:when}), h("span",{class:"hint",text:hint})),
     h("span",{class:"bb-acts"},
       S.isMain ? h("button",{type:"button",class:"link",text:t("restoreLink"),onclick:openImport}) : null,
       h("button",{type:"button",class:"btn"+(stale?" primary":""),text:t("backupBtn"),onclick:downloadBackup})));

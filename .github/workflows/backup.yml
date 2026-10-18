@@ -1,0 +1,46 @@
+# Every Sunday night, copies all Forge Jean-Petit data from Firestore into the
+# PRIVATE repo gvercauteren-prog/forges-backups (one dated file per week plus
+# derniere-sauvegarde.json). Nothing private is written to this public repo.
+# Can also be run by hand from the Actions tab ("Run workflow").
+name: Weekly backup
+
+on:
+  schedule:
+    - cron: "17 2 * * 1"   # Monday 02:17 UTC = Sunday night/Monday early morning in Belgium
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: gvercauteren-prog/forges-backups
+          token: ${{ secrets.BACKUP_REPO_TOKEN }}
+          path: backups-repo
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Read Firestore and write the backup
+        run: TOKEN="$(gcloud auth print-access-token)" MARK=1 node scripts/backup.mjs backups-repo
+      - name: Save to the private repo
+        working-directory: backups-repo
+        run: |
+          git config user.name "forge-backup-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && { echo "Nothing changed"; exit 0; }
+          git commit -m "Sauvegarde $(date -u +%F)"
+          git push

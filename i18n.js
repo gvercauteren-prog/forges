@@ -8,7 +8,7 @@ export const STR = {
   en: {
 
     backupBtn: "Back up (file)", backupDone: "Backup downloaded", lastBackup: "Last backup: {when}",
-    neverBackup: "No backup yet", backupOld: "Make a backup: nothing is saved automatically.",
+    neverBackup: "No backup yet", backupOld: "Make a backup: nothing is saved automatically.", autoBackupHint: "Automatic copy every week to the private backup repository on GitHub.", autoBackupOld: "The weekly automatic copy has not run for over 10 days — check GitHub Actions.",
     backupHint: "Keep the file somewhere safe: it contains the emails and every booking.", restoreLink: "Restore or import…",
     importChecklist: "Exit checklist ({n} items)", importContacts: "Contacts ({n})", importInfo: "House info ({n} sections)",
     importOther: "Other data", importReplace: "replaces what's there today",
@@ -200,7 +200,7 @@ export const STR = {
   fr: {
 
     backupBtn: "Sauvegarder (fichier)", backupDone: "Sauvegarde téléchargée", lastBackup: "Dernière sauvegarde : {when}",
-    neverBackup: "Aucune sauvegarde pour l'instant", backupOld: "Pensez à faire une sauvegarde : rien n'est sauvegardé automatiquement.",
+    neverBackup: "Aucune sauvegarde pour l'instant", backupOld: "Pensez à faire une sauvegarde : rien n'est sauvegardé automatiquement.", autoBackupHint: "Copie automatique chaque semaine dans le dépôt privé de sauvegarde sur GitHub.", autoBackupOld: "La copie automatique hebdomadaire n'a pas tourné depuis plus de 10 jours — vérifiez GitHub Actions.",
     backupHint: "Gardez le fichier en lieu sûr : il contient les e-mails et toutes les réservations.", restoreLink: "Restaurer ou importer…",
     importChecklist: "Checklist de départ ({n} éléments)", importContacts: "Contacts ({n})", importInfo: "Infos pratiques ({n} rubriques)",
     importOther: "Autres données", importReplace: "remplacera ce qui existe aujourd'hui",
@@ -392,7 +392,7 @@ export const STR = {
   nl: {
 
     backupBtn: "Back-up maken (bestand)", backupDone: "Back-up gedownload", lastBackup: "Laatste back-up: {when}",
-    neverBackup: "Nog geen back-up", backupOld: "Maak een back-up: er wordt niets automatisch bewaard.",
+    neverBackup: "Nog geen back-up", backupOld: "Maak een back-up: er wordt niets automatisch bewaard.", autoBackupHint: "Elke week een automatische kopie in de privé-back-uprepository op GitHub.", autoBackupOld: "De wekelijkse automatische kopie liep al meer dan 10 dagen niet — controleer GitHub Actions.",
     backupHint: "Bewaar het bestand veilig: het bevat de e-mailadressen en alle boekingen.", restoreLink: "Herstellen of importeren…",
     importChecklist: "Vertrekchecklist ({n} items)", importContacts: "Contacten ({n})", importInfo: "Praktische info ({n} rubrieken)",
     importOther: "Andere gegevens", importReplace: "vervangt wat er nu staat",
