@@ -1118,7 +1118,7 @@ function openAccountMenu(){
     h("div",{class:"dlg-actions"}, h("button",{class:"btn",type:"button",text:t("signOut"),onclick:doSignOut}))));
 }
 function renderHeader(){
-  $("#brand-small").textContent = t("brandSmall")+" · "+t("season"+SEASON[0].toUpperCase()+SEASON.slice(1));
+  $("#brand-small").textContent = t("brandSmall");
   const carnetN = S.notes.filter(n=>n.kind==="issue"&&!n.resolved).length + S.supplies.filter(x=>!x.done).length;
   for (const b of document.querySelectorAll("#tabs button")){
     b.textContent=t(TAB_LABELS[b.dataset.tab]); b.setAttribute("aria-selected", b.dataset.tab===S.tab);
@@ -1805,7 +1805,7 @@ function stayWeather(b){
     fetch(url).then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       const dd=j.daily; WX[key]={state:"ok", days:dd.time.map((d,i)=>({d, code:dd.weather_code[i], max:dd.temperature_2m_max[i], min:dd.temperature_2m_min[i], rain:dd.precipitation_probability_max?.[i]}))};
       render();
-    }).catch(()=>{ WX[key]={state:"err"}; });
+    }).catch(()=>{ WX[key]={state:"err"}; setTimeout(()=>{ if (WX[key]?.state==="err"){ delete WX[key]; render(); } }, 60000); });
     return null;
   }
   if (WX[key].state!=="ok") return null;
