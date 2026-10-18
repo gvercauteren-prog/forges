@@ -845,7 +845,7 @@ function eventText(b){
       b.name?t("bookedByX",{name:b.name}):"", b.guests?t("peopleN",{n:b.guests})+".":"", b.note||"", `${t("calendarLink")}: ${APP_LINK}`].filter(Boolean).join("\n")
   };
 }
-const icsEscape = s => String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n");
+const icsEscape = s => String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r\n|\r|\n/g,"\\n");
 function icsFold(line){
   const enc=new TextEncoder(), out=[]; let cur="";
   for (const ch of line){ if (enc.encode(cur+ch).length>74){ out.push(cur); cur=" "+ch; } else cur+=ch; }
@@ -856,7 +856,7 @@ function buildIcs(list){
   const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Forge Jean-Petit//Bookings//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:Forge Jean-Petit"];
   for (const b of list){
     const e = eventText(b);
-    lines.push("BEGIN:VEVENT", `UID:${b.id}@forge-jean-petit`, `DTSTAMP:${stamp}`,
+    lines.push("BEGIN:VEVENT", `UID:${String(b.id).replace(/[^\w-]/g,"")}@forge-jean-petit`, `DTSTAMP:${stamp}`,
       `DTSTART;VALUE=DATE:${compact(b.start)}`, `DTEND;VALUE=DATE:${compact(ds(dn(b.end)+1))}`,
       `SUMMARY:${icsEscape(e.title)}`, `DESCRIPTION:${icsEscape(e.details)}`, "LOCATION:Forge Jean-Petit", "TRANSP:TRANSPARENT", "END:VEVENT");
   }

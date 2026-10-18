@@ -95,6 +95,54 @@ await t("main writes house info", assertSucceeds(setDoc(doc(main,"config","info"
 await t("anna reads house info", assertSucceeds(getDoc(doc(anna,"config","info"))));
 await t("anna cannot edit house info", assertFails(setDoc(doc(anna,"config","info"),{sections:[]})));
 await t("not invited: cannot read house info", assertFails(getDoc(doc(eve,"config","info"))));
+
+// ---------- attack scenarios (pentest) ----------
+const unverified = (uid, email) => env.authenticatedContext(uid, { email, email_verified: false }).firestore();
+const fakeMain = unverified("uFake", "gvercauteren@gmail.com");
+const annaUnv  = unverified("uAnna2", "anna@gmail.com");
+await t("ATTACK unverified main-admin email cannot read", assertFails(getDocs(collection(fakeMain,"bookings"))));
+await t("ATTACK unverified main-admin email cannot write settings", assertFails(setDoc(doc(fakeMain,"config","settings"),{families:[]})));
+await t("ATTACK unverified main-admin email cannot add members", assertFails(setDoc(doc(fakeMain,"members","evil@gmail.com"),{family:"f1",admin:true})));
+await t("ATTACK unverified invited email cannot read", assertFails(getDocs(collection(annaUnv,"bookings"))));
+await t("ATTACK no-email account cannot read", assertFails(getDocs(collection(env.authenticatedContext("uNoMail",{}).firestore(),"bookings"))));
+
+await t("setup: main books m2", assertSucceeds(setDoc(doc(main,"bookings","m2"), booking("uMain","gvercauteren@gmail.com","f1"))));
+await t("setup: anna books a2", assertSucceeds(setDoc(doc(anna,"bookings","a2"), booking("uAnna","anna@gmail.com","f2"))));
+await t("setup: bob (admin) books for anna's family", assertSucceeds(setDoc(doc(bob,"bookings","f2b"), booking("uBob","bob@gmail.com","f2"))));
+await t("ATTACK anna takes over main's booking", assertFails(updateDoc(doc(anna,"bookings","m2"),{uid:"uAnna",email:"anna@gmail.com"})));
+await t("ATTACK anna overwrites main's booking with setDoc", assertFails(setDoc(doc(anna,"bookings","m2"), booking("uAnna","anna@gmail.com","f2"))));
+await t("ATTACK anna moves her booking to another family", assertFails(updateDoc(doc(anna,"bookings","a2"),{family:"f5"})));
+await t("ATTACK anna rewrites owner of her booking", assertFails(updateDoc(doc(anna,"bookings","a2"),{uid:"uBob"})));
+await t("ATTACK extra field on booking", assertFails(updateDoc(doc(anna,"bookings","a2"),{admin:true})));
+await t("ATTACK oversized booking note", assertFails(updateDoc(doc(anna,"bookings","a2"),{note:"x".repeat(501)})));
+await t("ATTACK oversized booking name", assertFails(updateDoc(doc(anna,"bookings","a2"),{name:"x".repeat(101)})));
+await t("ATTACK malformed booking dates", assertFails(setDoc(doc(anna,"bookings","a3"), booking("uAnna","anna@gmail.com","f2",{start:"aaaaaaaaaa",end:"zzzzzzzzzz"}))));
+await t("ATTACK booking far in the future", assertFails(setDoc(doc(anna,"bookings","a4"), booking("uAnna","anna@gmail.com","f2",{start:"2026-01-01",end:"2999-12-31"}))));
+await t("ATTACK guests as text", assertFails(updateDoc(doc(anna,"bookings","a2"),{guests:"many"})));
+await t("family ticks checklist on family booking", assertSucceeds(updateDoc(doc(anna,"bookings","f2b"),{checklist:{c01:true},updatedAt:"t2"})));
+await t("ATTACK family changes dates via checklist path", assertFails(updateDoc(doc(anna,"bookings","f2b"),{checklist:{c01:true},start:"2026-11-02"})));
+await t("ATTACK other family ticks checklist", assertFails(updateDoc(doc(anna,"bookings","m2"),{checklist:{c01:true}})));
+await t("ATTACK anna deletes another family's booking", assertFails(deleteDoc(doc(anna,"bookings","f2b"))));
+
+await t("ATTACK anna changes her own family", assertFails(updateDoc(doc(anna,"members","anna@gmail.com"),{family:"f1"})));
+await t("ATTACK anna deletes a member", assertFails(deleteDoc(doc(anna,"members","bob@gmail.com"))));
+await t("ATTACK not invited lists members", assertFails(getDocs(collection(eve,"members"))));
+await t("ATTACK not invited reads someone's invite", assertFails(getDoc(doc(eve,"members","anna@gmail.com"))));
+await t("ATTACK co-admin demotes main admin", assertFails(updateDoc(doc(bob,"members","gvercauteren@gmail.com"),{admin:false})));
+await t("ATTACK co-admin deletes main admin", assertFails(deleteDoc(doc(bob,"members","gvercauteren@gmail.com"))));
+await t("ATTACK co-admin adds member without admin flag", assertFails(setDoc(doc(bob,"members","sneaky@gmail.com"),{family:"f1"})));
+await t("ATTACK anna hides the backup reminder", assertFails(updateDoc(doc(anna,"config","settings"),{lastBackupAt:"2099-01-01"})));
+await t("ATTACK anna writes a new config doc", assertFails(setDoc(doc(anna,"config","evil"),{x:1})));
+await t("ATTACK not invited reads settings", assertFails(getDoc(doc(eve,"config","settings"))));
+
+await t("setup: main posts a note", assertSucceeds(setDoc(doc(main,"notes","mn"),{uid:"uMain",email:"gvercauteren@gmail.com",name:"G",text:"Robinet",kind:"issue",resolved:false,createdAt:"t"})));
+await t("ATTACK anna rewrites main's note while resolving", assertFails(updateDoc(doc(anna,"notes","mn"),{resolved:true,text:"hacked"})));
+await t("ATTACK anna deletes main's note", assertFails(deleteDoc(doc(anna,"notes","mn"))));
+await t("ATTACK note posted as someone else", assertFails(setDoc(doc(anna,"notes","n9"),{uid:"uMain",email:"gvercauteren@gmail.com",name:"G",text:"x",kind:"note",resolved:false,createdAt:"t"})));
+await t("ATTACK oversized note name", assertFails(setDoc(doc(anna,"notes","n10"),{uid:"uAnna",email:"anna@gmail.com",name:"x".repeat(101),text:"x",kind:"note",resolved:false,createdAt:"t"})));
+await t("ATTACK anna steals main's tip", assertFails(updateDoc(doc(anna,"tips","m1"),{uid:"uAnna",email:"anna@gmail.com"})));
+await t("ATTACK tip with javascript link stored as non-string", assertFails(setDoc(doc(anna,"tips","t9"), tip("uAnna","anna@gmail.com",{url:{x:1}}))));
+
 await t("main removes bob's admin", assertSucceeds(updateDoc(doc(main,"members","bob@gmail.com"),{admin:false})));
 
 console.log(`\n${pass} passed, ${failc} failed`);

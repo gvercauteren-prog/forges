@@ -27,15 +27,22 @@ service cloud.firestore {
       return get(memberDoc()).data.family;
     }
 
+    function shortText(d, k, n) {
+      return !(k in d) || (d[k] is string && d[k].size() <= n);
+    }
+    function isDate(v) {
+      return v is string && v.matches('^20[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');
+    }
+
     function validBooking(d) {
       return d.keys().hasOnly(['uid', 'email', 'name', 'family', 'start', 'end', 'note', 'guests', 'checklist', 'createdAt', 'updatedAt'])
         && d.uid is string && d.email is string && d.family is string
-        && d.start is string && d.start.size() == 10
-        && d.end is string && d.end.size() == 10
-        && d.end >= d.start
+        && isDate(d.start) && isDate(d.end)
+        && d.end >= d.start && d.end <= '2100-12-31'
+        && shortText(d, 'name', 100) && shortText(d, 'createdAt', 40) && shortText(d, 'updatedAt', 40)
         && d.note is string && d.note.size() <= 500
         && (!('guests' in d) || (d.guests is int && d.guests >= 1 && d.guests <= 50))
-        && (!('checklist' in d) || d.checklist is map);
+        && (!('checklist' in d) || (d.checklist is map && d.checklist.size() <= 200));
     }
 
     // People allowed in. Document id = their Gmail address in lower case.
@@ -77,7 +84,8 @@ service cloud.firestore {
         && d.category in ['eat', 'shop', 'walk', 'sport', 'visit', 'kids', 'practical']
         && d.address is string && d.address.size() <= 300
         && d.url is string && d.url.size() <= 500
-        && d.note is string && d.note.size() <= 1000;
+        && d.note is string && d.note.size() <= 1000
+        && shortText(d, 'name', 100);
     }
     match /tips/{id} {
       allow read: if isMember();
@@ -100,7 +108,8 @@ service cloud.firestore {
         && d.uid is string && d.email is string
         && d.text is string && d.text.size() >= 1 && d.text.size() <= 1000
         && d.kind in ['note', 'issue']
-        && d.resolved is bool;
+        && d.resolved is bool
+        && shortText(d, 'name', 100) && shortText(d, 'resolvedBy', 200);
     }
     match /notes/{id} {
       allow read: if isMember();
@@ -122,7 +131,8 @@ service cloud.firestore {
       return d.keys().hasOnly(['uid', 'email', 'name', 'text', 'done', 'doneBy', 'createdAt'])
         && d.uid is string && d.email is string
         && d.text is string && d.text.size() >= 1 && d.text.size() <= 200
-        && d.done is bool;
+        && d.done is bool
+        && shortText(d, 'name', 100) && shortText(d, 'doneBy', 200);
     }
     match /supplies/{id} {
       allow read: if isMember();
