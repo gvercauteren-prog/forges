@@ -620,6 +620,25 @@ dialog[open]::backdrop{animation:fade-in .2s ease}
   .tile:active,.btn:active{transform:none}
 }
 
+
+/* month/year arrows: only the calendar slides, the rest of the page stays put */
+:root[data-vt="mfwd"] .mc-days,:root[data-vt="mback"] .mc-days,
+:root[data-vt="mfwd"] .weeks,:root[data-vt="mback"] .weeks,
+:root[data-vt="mfwd"] .year-grid,:root[data-vt="mback"] .year-grid,
+:root[data-vt="zoom"] .cal-layout > :first-child{view-transition-name:cal}
+:root[data-vt="mfwd"] .cal-head h2,:root[data-vt="mback"] .cal-head h2{view-transition-name:calt}
+:root[data-vt^="m"]::view-transition-group(page),:root[data-vt="zoom"]::view-transition-group(page),
+:root[data-vt^="m"]::view-transition-new(page),:root[data-vt="zoom"]::view-transition-new(page){animation:none}
+:root[data-vt^="m"]::view-transition-old(page),:root[data-vt="zoom"]::view-transition-old(page){animation:none;opacity:0}
+::view-transition-group(cal){overflow:hidden}
+::view-transition-old(cal),::view-transition-new(cal),::view-transition-old(calt),::view-transition-new(calt){animation-duration:.22s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-fill-mode:both}
+:root[data-vt="mfwd"]::view-transition-old(cal){animation-name:vt-out-l}
+:root[data-vt="mfwd"]::view-transition-new(cal){animation-name:vt-in-r}
+:root[data-vt="mback"]::view-transition-old(cal){animation-name:vt-out-r}
+:root[data-vt="mback"]::view-transition-new(cal){animation-name:vt-in-l}
+:root[data-vt="zoom"]::view-transition-old(cal){animation-name:vt-zoom-out}
+:root[data-vt="zoom"]::view-transition-new(cal){animation-name:vt-zoom-in}
+
 /* seasons */
 :root{--season:#C8743A}
 :root[data-season="winter"]{--season:#6E9CC4}
@@ -1185,12 +1204,12 @@ function renderMonthCompact(){
   const canBook=!!myFamily()||S.isMain;
   const bk=allBookings().map(b=>({...b,s:dn(b.start),e:dn(b.end)})).filter(b=>b.s<=last&&b.e>=first);
   const title=new Date(first*864e5).toLocaleDateString(locale(),{timeZone:"UTC",month:"long",year:"numeric"});
-  const shift=d=>vt(d>0?"fwd":"back",()=>{ const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); });
+  const shift=d=>vt(d>0?"mfwd":"mback",()=>{ const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); });
   const head=h("div",{class:"cal-head"},
     h("h2",{text:title.charAt(0).toUpperCase()+title.slice(1)}),
     h("div",{class:"cal-nav"}, calSwitch(),
       h("button",{class:"btn icon-btn","aria-label":t("prevMonth"),text:"‹",onclick:()=>shift(-1)}),
-      h("button",{class:"btn",text:t("today"),onclick:()=>{ const m=todayStr().slice(0,8)+"01"; if (m===S.month) return; vt(m>S.month?"fwd":"back",()=>{ S.month=m; render(); }); }}),
+      h("button",{class:"btn",text:t("today"),onclick:()=>{ const m=todayStr().slice(0,8)+"01"; if (m===S.month) return; vt(m>S.month?"mfwd":"mback",()=>{ S.month=m; render(); }); }}),
       h("button",{class:"btn icon-btn","aria-label":t("nextMonth"),text:"›",onclick:()=>shift(1)})));
   const cells=[]; const lead=(new Date(first*864e5).getUTCDay()+6)%7;
   for (let i=0;i<lead;i++) cells.push(h("span",{class:"mcd blank","aria-hidden":"true"}));
@@ -1355,13 +1374,13 @@ function renderCalendar(){
   const today = dn(todayStr());
   const bookings = allBookings().map(b=>({...b, s:dn(b.start), e:dn(b.end)}));
   const title = new Date(first*864e5).toLocaleDateString(locale(),{timeZone:"UTC",month:"long",year:"numeric"});
-  const shift = d => vt(d>0?"fwd":"back",()=>{ const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); });
+  const shift = d => vt(d>0?"mfwd":"mback",()=>{ const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); });
   const canBook = !!myFamily() || S.isMain;
   const head = h("div",{class:"cal-head"},
     h("h2",{text:title.charAt(0).toUpperCase()+title.slice(1)}),
     h("div",{class:"cal-nav"}, calSwitch(),
       h("button",{class:"btn icon-btn","aria-label":t("prevMonth"),text:"‹",onclick:()=>shift(-1)}),
-      h("button",{class:"btn",text:t("today"),onclick:()=>{ const m=todayStr().slice(0,8)+"01"; if (m===S.month) return; vt(m>S.month?"fwd":"back",()=>{ S.month=m; render(); }); }}),
+      h("button",{class:"btn",text:t("today"),onclick:()=>{ const m=todayStr().slice(0,8)+"01"; if (m===S.month) return; vt(m>S.month?"mfwd":"mback",()=>{ S.month=m; render(); }); }}),
       h("button",{class:"btn icon-btn","aria-label":t("nextMonth"),text:"›",onclick:()=>shift(1)}),
       canBook ? h("button",{class:"btn primary hide-phone",text:t("newBooking"),onclick:()=>openForm(null, todayStr())}) : null));
   const dow = h("div",{class:"dow"}, t("dow").map(d=>h("span",{text:d})));
@@ -1555,9 +1574,9 @@ function renderYear(){
   const yb=allBookings().map(b=>({...b,s:dn(b.start),e:dn(b.end)})).filter(b=>b.s<=ye&&b.e>=ys);
   const head=h("div",{class:"cal-head"}, h("h2",{text:String(Y)}),
     h("div",{class:"cal-nav"}, calSwitch(),
-      h("button",{class:"btn icon-btn","aria-label":t("prevYear"),text:"‹",onclick:()=>vt("back",()=>{S.year--;render();})}),
-      h("button",{class:"btn",text:t("today"),onclick:()=>{ const y=new Date().getFullYear(); if (y!==S.year) vt(y>S.year?"fwd":"back",()=>{S.year=y;render();}); }}),
-      h("button",{class:"btn icon-btn","aria-label":t("nextYear"),text:"›",onclick:()=>vt("fwd",()=>{S.year++;render();})}),
+      h("button",{class:"btn icon-btn","aria-label":t("prevYear"),text:"‹",onclick:()=>vt("mback",()=>{S.year--;render();})}),
+      h("button",{class:"btn",text:t("today"),onclick:()=>{ const y=new Date().getFullYear(); if (y!==S.year) vt(y>S.year?"mfwd":"mback",()=>{S.year=y;render();}); }}),
+      h("button",{class:"btn icon-btn","aria-label":t("nextYear"),text:"›",onclick:()=>vt("mfwd",()=>{S.year++;render();})}),
       canBook?h("button",{class:"btn primary hide-phone",text:t("newBooking"),onclick:()=>openForm(null,todayStr())}):null));
   const grid=h("div",{class:"year-grid"}), tapMonth=isPhone();
   for (let m=1;m<=12;m++){
