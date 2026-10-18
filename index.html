@@ -1443,7 +1443,11 @@ function renderList(){
 function renderChecklist(){
   const items=S.settings?.checklist||[], td=todayStr();
   const mine=allBookings().filter(isMyFamily);
-  if (!mine.find(b=>b.id===S.checkBooking)){ const started=mine.filter(b=>b.start<=td); S.checkBooking=(started[started.length-1]||mine[0]||{}).id||null; }
+  // default: the stay going on now, otherwise the next one, otherwise the most recent one
+  if (!mine.find(b=>b.id===S.checkBooking)){
+    const pick = mine.find(b=>b.start<=td && b.end>=td) || mine.find(b=>b.start>td) || mine[mine.length-1];
+    S.checkBooking = pick?.id || null;
+  }
   const bk=mine.find(b=>b.id===S.checkBooking);
   const done=bk?items.filter(i=>bk.checklist?.[i.id]).length:0;
   const panel=h("section",{class:"panel"}, h("h2",{text:t("tabChecklist")}), h("p",{class:"sub",text:t("checklistSub")}));
