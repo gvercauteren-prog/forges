@@ -21,11 +21,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: gvercauteren-prog/forges-backups
-          token: ${{ secrets.BACKUP_REPO_TOKEN }}
-          path: backups-repo
+      - name: Get the private backup repo (works even if it is still empty)
+        env:
+          TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
+        run: |
+          URL="https://x-access-token:${TOKEN}@github.com/gvercauteren-prog/forges-backups.git"
+          if git ls-remote --exit-code --heads "$URL" main >/dev/null 2>&1; then
+            git clone --depth 1 "$URL" backups-repo
+          else
+            git init -b main backups-repo && git -C backups-repo remote add origin "$URL"
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -43,4 +48,4 @@ jobs:
           git add -A
           git diff --cached --quiet && { echo "Nothing changed"; exit 0; }
           git commit -m "Sauvegarde $(date -u +%F)"
-          git push
+          git push origin main
