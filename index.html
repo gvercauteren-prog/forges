@@ -621,23 +621,26 @@ dialog[open]::backdrop{animation:fade-in .2s ease}
 }
 
 
-/* month/year arrows: only the calendar slides, the rest of the page stays put */
-:root[data-vt="mfwd"] .mc-days,:root[data-vt="mback"] .mc-days,
-:root[data-vt="mfwd"] .weeks,:root[data-vt="mback"] .weeks,
-:root[data-vt="mfwd"] .year-grid,:root[data-vt="mback"] .year-grid,
-:root[data-vt="zoom"] .cal-layout > :first-child{view-transition-name:cal}
-:root[data-vt="mfwd"] .cal-head h2,:root[data-vt="mback"] .cal-head h2{view-transition-name:calt}
-:root[data-vt^="m"]::view-transition-group(page),:root[data-vt="zoom"]::view-transition-group(page),
-:root[data-vt^="m"]::view-transition-new(page),:root[data-vt="zoom"]::view-transition-new(page){animation:none}
-:root[data-vt^="m"]::view-transition-old(page),:root[data-vt="zoom"]::view-transition-old(page){animation:none;opacity:0}
-::view-transition-group(cal){overflow:hidden}
-::view-transition-old(cal),::view-transition-new(cal),::view-transition-old(calt),::view-transition-new(calt){animation-duration:.22s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-fill-mode:both}
-:root[data-vt="mfwd"]::view-transition-old(cal){animation-name:vt-out-l}
-:root[data-vt="mfwd"]::view-transition-new(cal){animation-name:vt-in-r}
-:root[data-vt="mback"]::view-transition-old(cal){animation-name:vt-out-r}
-:root[data-vt="mback"]::view-transition-new(cal){animation-name:vt-in-l}
-:root[data-vt="zoom"]::view-transition-old(cal){animation-name:vt-zoom-out}
-:root[data-vt="zoom"]::view-transition-new(cal){animation-name:vt-zoom-in}
+/* month/year arrows: only the calendar grid slides in (plain animation, no page snapshot) */
+@keyframes cal-in-r{from{opacity:0;transform:translateX(26px)}}
+@keyframes cal-in-l{from{opacity:0;transform:translateX(-26px)}}
+@keyframes cal-zoom{from{opacity:0;transform:scale(.97)}}
+@keyframes cal-fade{from{opacity:0}}
+.anim-mfwd{animation:cal-in-r .22s cubic-bezier(.2,.8,.2,1)}
+.anim-mback{animation:cal-in-l .22s cubic-bezier(.2,.8,.2,1)}
+.anim-zoom{animation:cal-zoom .22s cubic-bezier(.2,.8,.2,1)}
+.anim-fade{animation:cal-fade .22s ease}
+.mc-days,.weeks,.year-grid{overflow:clip}
+/* fixed bars never take part in page animations */
+header{view-transition-name:hdr}
+#bottom-nav{view-transition-name:bnav}
+#fab{view-transition-name:fab}
+::view-transition-group(hdr),::view-transition-group(bnav),::view-transition-group(fab),
+::view-transition-old(hdr),::view-transition-new(hdr),::view-transition-old(bnav),::view-transition-new(bnav),
+::view-transition-old(fab),::view-transition-new(fab),
+::view-transition-old(root),::view-transition-new(root){animation:none}
+::view-transition-old(hdr),::view-transition-old(bnav),::view-transition-old(fab){display:none}
+@media (prefers-reduced-motion: reduce){ .anim-mfwd,.anim-mback,.anim-zoom,.anim-fade{animation:none} }
 
 /* seasons */
 :root{--season:#C8743A}
@@ -1090,6 +1093,13 @@ phoneMQ.addEventListener?.("change", () => render());
 // Smooth page changes where the browser supports it (and the person hasn't asked for less motion).
 const calmMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 function vt(kind, fn){
+  if (kind==="mfwd" || kind==="mback" || kind==="zoom"){
+    fn(); if (calmMotion()) return;
+    const el = kind==="zoom" ? main.querySelector(".cal-layout > :first-child") : main.querySelector(".mc-days, .weeks, .year-grid");
+    el?.classList.add("anim-"+kind);
+    if (kind!=="zoom") main.querySelector(".cal-head h2")?.classList.add("anim-fade");
+    return;
+  }
   if (!document.startViewTransition || calmMotion() || document.hidden){ fn(); return; }
   const r=document.documentElement; r.dataset.vt=kind;
   const tr=document.startViewTransition(fn);
