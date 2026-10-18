@@ -559,6 +559,76 @@ nav.tabs .badge{margin-left:6px}
   .cal-head h2{font-size:1.2rem;min-width:0}
   .panel{padding:14px}
 }
+
+/* what's new */
+.news{display:flex;align-items:center;gap:6px;margin:0 0 4px;padding:6px 6px 6px 8px;border-radius:14px;background:var(--surface);border:1px solid color-mix(in srgb,var(--ember) 35%,var(--line));box-shadow:0 1px 0 color-mix(in srgb,var(--ember) 12%,transparent)}
+.nw-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:none;border:0;padding:4px;text-align:left;color:inherit;cursor:pointer;font:inherit}
+.nw-ico{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;flex:none;background:color-mix(in srgb,var(--ember) 16%,var(--surface));color:var(--ember)}
+.nw-ico svg{width:18px;height:18px}
+.nw-txt{display:grid;gap:4px;min-width:0}
+.nw-chips{display:flex;flex-wrap:wrap;gap:4px 6px}
+.nw-chip{font-size:.76rem;font-weight:600;color:var(--ink);white-space:nowrap;background:var(--sunk);border-radius:999px;padding:2px 9px}
+.nw-sec{display:grid;gap:2px;margin-bottom:14px}
+.nw-sec .lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:4px}
+.nw-row{display:flex;align-items:flex-start;gap:10px;width:100%;padding:9px 6px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;color:inherit;font:inherit;cursor:pointer;border-radius:0}
+.nw-row:hover{background:var(--sunk)}
+div.nw-row{cursor:default}
+.nw-row .dot{margin-top:6px;flex:none;width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.nw-rt{display:grid;gap:1px;min-width:0}
+.nw-rt strong{font-weight:600;overflow-wrap:anywhere}
+.nw-row.gone strong{text-decoration:line-through;color:var(--muted)}
+.pill.new{background:var(--ember);color:#fff;margin-left:6px}
+.new-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ember);margin-left:6px;vertical-align:middle;box-shadow:0 0 0 2px var(--bg)}
+.bn .new-dot{position:absolute;top:-2px;right:-6px;margin:0}
+.badge.fresh{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ember)}
+
+/* smooth page changes */
+#main{view-transition-name:page}
+::view-transition-old(page),::view-transition-new(page){animation-duration:.24s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-fill-mode:both}
+:root[data-vt="fwd"]::view-transition-old(page){animation-name:vt-out-l}
+:root[data-vt="fwd"]::view-transition-new(page){animation-name:vt-in-r}
+:root[data-vt="back"]::view-transition-old(page){animation-name:vt-out-r}
+:root[data-vt="back"]::view-transition-new(page){animation-name:vt-in-l}
+:root[data-vt="zoom"]::view-transition-old(page){animation-name:vt-zoom-out}
+:root[data-vt="zoom"]::view-transition-new(page){animation-name:vt-zoom-in}
+@keyframes vt-out-l{to{opacity:0;transform:translateX(-32px)}}
+@keyframes vt-in-r{from{opacity:0;transform:translateX(32px)}}
+@keyframes vt-out-r{to{opacity:0;transform:translateX(32px)}}
+@keyframes vt-in-l{from{opacity:0;transform:translateX(-32px)}}
+@keyframes vt-zoom-out{to{opacity:0;transform:scale(.97)}}
+@keyframes vt-zoom-in{from{opacity:0;transform:scale(1.03)}}
+@keyframes dlg-in{from{opacity:0;transform:translateY(8px) scale(.98)}}
+@keyframes fade-in{from{opacity:0}}
+dialog[open]{animation:dlg-in .2s cubic-bezier(.2,.8,.2,1)}
+dialog[open]::backdrop{animation:fade-in .2s ease}
+@media (max-width:720px){ dialog[open]{animation:sheet-up .26s cubic-bezier(.2,.8,.2,1)} }
+.tile,.btn,.nw-row,.more-item,.bn{transition:transform .12s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease}
+.tile:active,.btn:active{transform:scale(.98)}
+@media (prefers-reduced-motion: reduce){
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
+  dialog[open],dialog[open]::backdrop{animation:none}
+  .tile:active,.btn:active{transform:none}
+}
+
+/* seasons */
+:root{--season:#C8743A}
+:root[data-season="winter"]{--season:#6E9CC4}
+:root[data-season="spring"]{--season:#6FAE62}
+:root[data-season="summer"]{--season:#E2A93B}
+:root[data-season="autumn"]{--season:#C8743A}
+body{background:linear-gradient(180deg,color-mix(in srgb,var(--season) 9%,var(--bg)) 0,var(--bg) 340px) no-repeat,var(--bg)}
+header{position:relative;overflow:hidden;background:linear-gradient(100deg,var(--surface) 45%,color-mix(in srgb,var(--season) 12%,var(--surface)))}
+header::before{content:"";position:absolute;inset:0 0 auto auto;width:min(420px,70%);height:76px;background:var(--season);opacity:.28;pointer-events:none;
+  -webkit-mask:var(--motif) right center/auto 100% no-repeat;mask:var(--motif) right center/auto 100% no-repeat}
+header > .wrap{position:relative;z-index:1}
+:root[data-season="winter"]{--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 76'%3E%3Cg fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cg transform='translate(250 26)'%3E%3Cpath d='M0-14V14M-12-7 12 7M-12 7 12-7M-4-11 0-7 4-11M-4 11 0 7 4 11'/%3E%3C/g%3E%3Cg transform='translate(300 54) scale(.7)'%3E%3Cpath d='M0-14V14M-12-7 12 7M-12 7 12-7'/%3E%3C/g%3E%3Cg transform='translate(190 52) scale(.55)'%3E%3Cpath d='M0-14V14M-12-7 12 7M-12 7 12-7'/%3E%3C/g%3E%3Cg transform='translate(140 20) scale(.4)'%3E%3Cpath d='M0-14V14M-12-7 12 7M-12 7 12-7'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+:root[data-season="spring"]{--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 76'%3E%3Cg fill='%23000'%3E%3Cg transform='translate(262 30)'%3E%3Ccircle cy='-8' r='6'/%3E%3Ccircle cx='7.6' cy='-2.5' r='6'/%3E%3Ccircle cx='4.7' cy='6.5' r='6'/%3E%3Ccircle cx='-4.7' cy='6.5' r='6'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='6'/%3E%3C/g%3E%3Cg transform='translate(305 58) scale(.55)'%3E%3Ccircle cy='-8' r='6'/%3E%3Ccircle cx='7.6' cy='-2.5' r='6'/%3E%3Ccircle cx='4.7' cy='6.5' r='6'/%3E%3Ccircle cx='-4.7' cy='6.5' r='6'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='6'/%3E%3C/g%3E%3Cg transform='translate(200 54) scale(.45)'%3E%3Ccircle cy='-8' r='6'/%3E%3Ccircle cx='7.6' cy='-2.5' r='6'/%3E%3Ccircle cx='4.7' cy='6.5' r='6'/%3E%3Ccircle cx='-4.7' cy='6.5' r='6'/%3E%3Ccircle cx='-7.6' cy='-2.5' r='6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+:root[data-season="summer"]{--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 76'%3E%3Cg transform='translate(282 18)'%3E%3Ccircle r='14' fill='%23000'/%3E%3Cg stroke='%23000' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M0-22V-30M0 22V30M22 0H30M-22 0H-30M15.6-15.6 21-21M-15.6 15.6-21 21M15.6 15.6 21 21M-15.6-15.6-21-21'/%3E%3C/g%3E%3C/g%3E%3Cpath d='M150 70q20-10 40 0t40 0 40 0' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")}
+:root[data-season="autumn"]{--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 76'%3E%3Cg fill='%23000'%3E%3Cpath transform='translate(262 30) rotate(-25)' d='M0-18C10-10 12 4 0 18-12 4-10-10 0-18z'/%3E%3Cpath transform='translate(305 56) rotate(35) scale(.6)' d='M0-18C10-10 12 4 0 18-12 4-10-10 0-18z'/%3E%3Cpath transform='translate(205 52) rotate(70) scale(.5)' d='M0-18C10-10 12 4 0 18-12 4-10-10 0-18z'/%3E%3Cpath transform='translate(160 22) rotate(-60) scale(.4)' d='M0-18C10-10 12 4 0 18-12 4-10-10 0-18z'/%3E%3C/g%3E%3C/svg%3E")}
+.snow{position:absolute;inset:0;pointer-events:none;z-index:0}
+.snow i{position:absolute;top:-8px;width:calc(6px*var(--s));height:calc(6px*var(--s));border-radius:50%;background:color-mix(in srgb,var(--season) 55%,#fff);opacity:.7;animation:snowfall linear infinite}
+@keyframes snowfall{to{transform:translate(18px,150px)}}
+@media (prefers-reduced-motion: reduce){ .snow{display:none} }
 </style>
 </head>
 <body>
@@ -605,7 +675,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=b9745dc3";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=c07af924";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -661,7 +731,7 @@ const S = {
   settings:null, bookings:[], members:[],
   tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[],
   signInError:"", linkSentTo:"", needEmailConfirm:false, bulk:null, tips:[], tipCat:"all",
-  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear(), adminTab:"people", adminImport:false, peopleQuery:"", statsYear:new Date().getFullYear(), statsAll:false
+  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear(), adminTab:"people", adminImport:false, peopleQuery:"", statsYear:new Date().getFullYear(), statsAll:false, hl:{carnet:null,tips:null}, news:null
 };
 const $ = s => document.querySelector(s);
 const main = $("#main");
@@ -800,6 +870,78 @@ function notifyBlock(b, kind){
     h("span",{class:"hint",text:t("waHint2")}));
 }
 
+
+/* ---------- what's new since your last visit (remembered on this device) ---------- */
+const NEWS_KEY = () => "fjp-seen:"+(S.email||"");
+function newsLoad(){ try{ return JSON.parse(store.get(NEWS_KEY())||"null"); }catch(_){ return null; } }
+function newsSave(x){ store.set(NEWS_KEY(), JSON.stringify(x)); }
+const newsSnap = () => Object.fromEntries((S.raw.bookings||[]).map(b=>[b.id,[b.family||"", b.start, b.end]]));
+function newsInit(){   // first visit on this device: start from now, nothing counts as new
+  if (newsLoad()) return;
+  const now=new Date().toISOString(); newsSave({b:newsSnap(), bookingsAt:now, carnetAt:now, tipsAt:now});
+}
+function newsAck(parts){
+  const x=newsLoad(); if (!x) return; const now=new Date().toISOString();
+  if (parts.includes("bookings")){ x.b=newsSnap(); x.bookingsAt=now; }
+  if (parts.includes("carnet")) x.carnetAt=now;
+  if (parts.includes("tips")) x.tipsAt=now;
+  newsSave(x);
+}
+function newsForget(ids){
+  const x=newsLoad(); if (!x || !ids.length) return ()=>{};
+  const saved={}; for (const id of ids) if (id in x.b){ saved[id]=x.b[id]; delete x.b[id]; }
+  newsSave(x);
+  return ()=>{ const y=newsLoad(); if (y){ Object.assign(y.b,saved); newsSave(y); } };
+}
+function computeNews(){
+  const x=newsLoad(); if (!x) return null;
+  const me=uid(), td=todayStr(), since=(x.bookingsAt||"").slice(0,10), other=o=>o.uid!==me;
+  const live=new Set((S.raw.bookings||[]).map(b=>b.id)), added=[], moved=[], cancelled=[];
+  for (const b of S.bookings){
+    if (!other(b) || b.end<since) continue;          // your own, or old stays added afterwards (imports)
+    const o=x.b[b.id];
+    if (!o) added.push(b); else if (o[1]!==b.start || o[2]!==b.end) moved.push({b, old:{start:o[1],end:o[2]}});
+  }
+  for (const [id,o] of Object.entries(x.b)) if (!live.has(id) && o[2]>=td) cancelled.push({id, family:o[0], start:o[1], end:o[2]});
+  const notes=S.notes.filter(n=>other(n) && (n.createdAt||"")>x.carnetAt);
+  const buys=S.supplies.filter(o=>other(o) && !o.done && (o.createdAt||"")>x.carnetAt);
+  const tips=S.tips.filter(o=>other(o) && (o.createdAt||"")>x.tipsAt);
+  const stays=added.length+moved.length+cancelled.length, carnet=notes.length+buys.length;
+  return {added, moved, cancelled, notes, buys, tips, stays, carnet, n:stays+carnet+tips.length};
+}
+const tn = (k,n) => t(n===1?k+"1":k+"N",{n});
+const isFresh = (o,k) => !!S.hl[k] && o.uid!==uid() && (o.createdAt||"")>S.hl[k];
+function newsAll(){ newsAck(["bookings","carnet","tips"]); S.hl={carnet:null,tips:null}; render(); }
+function renderNews(){
+  const N=S.news; if (!N || !N.n) return null;
+  const chips=[["nwBook",N.added.length],["nwMove",N.moved.length],["nwCancel",N.cancelled.length],["nwNote",N.notes.length],["nwBuy",N.buys.length],["nwTip",N.tips.length]]
+    .filter(([,n])=>n).map(([k,n])=>h("span",{class:"nw-chip",text:tn(k,n)}));
+  return h("section",{class:"news"},
+    h("button",{type:"button",class:"nw-main",onclick:openNews},
+      h("span",{class:"nw-ico","aria-hidden":"true",html:ICONS.bell}),
+      h("span",{class:"nw-txt"}, h("strong",{text:t("news")}), h("span",{class:"nw-chips"},chips))),
+    h("button",{type:"button",class:"btn ghost icon-btn","aria-label":t("newsDone"),title:t("newsDone"),text:"✕",onclick:newsAll}));
+}
+function openNews(){
+  const N=S.news; if (!N) return;
+  const row=(fam,title,sub,onclick,cls)=>h(onclick?"button":"div",{type:onclick?"button":null,class:"nw-row"+(cls?" "+cls:""),onclick},
+    h("span",{class:"dot",style:fam?`background:${famColor(fam)}`:null}),
+    h("span",{class:"nw-rt"}, h("strong",{text:title}), sub?h("span",{class:"hint",text:sub}):null));
+  const sec=(label,rows)=>rows.length?h("div",{class:"nw-sec"}, h("div",{class:"lbl",text:label}), rows):null;
+  const toTab=k=>()=>go(k);
+  showDlg(h("div",{class:"dlg"},
+    h("div",{class:"dlg-head"}, h("h2",{text:t("news")}), closeBtn()),
+    sec(t("nwStays"),[
+      ...N.added.map(b=>row(b.family, famName(b.family)+" · "+fmtRange(b), t("nwBooked",{name:memberName(b.email)||b.name||t("aMember")}), ()=>openDetail(b))),
+      ...N.moved.map(({b,old})=>row(b.family, famName(b.family)+" · "+fmtRange(b), t("nwMoved",{old:fmtRange(old)}), ()=>openDetail(b))),
+      ...N.cancelled.map(c=>row(c.family, famName(c.family)+" · "+fmtRange(c), t("nwCancelled"), null, "gone"))]),
+    sec(t("tabCarnet"),[
+      ...N.notes.map(n=>row("", n.text.length>90?n.text.slice(0,90)+"…":n.text, (n.name||t("aMember"))+" · "+t(n.kind==="issue"?"kindIssue":"kindNote"), toTab("carnet"))),
+      ...N.buys.map(o=>row("", t("nwToBuy",{text:o.text}), o.name||"", toTab("carnet")))]),
+    sec(t("tipsTitle"), N.tips.map(o=>row("", o.title, t("cat_"+o.category), toTab("tips")))),
+    h("div",{class:"dlg-actions"}, h("button",{class:"btn primary",type:"button",text:t("newsDone"),onclick:()=>{ dlg.close(); newsAll(); }}))));
+}
+
 /* ---------- deleting with undo ---------- */
 // A deletion waits 5 seconds before it is sent, so "Annuler" can bring it back.
 const pendingDel = new Map();
@@ -814,8 +956,10 @@ function softDelete(keys, message, commit){
   const entry={ keys:[].concat(keys), commit, done:false, timer:null };
   entry.timer=setTimeout(()=>finishDelete(entry), 5000);
   for (const k of entry.keys) pendingDel.set(k, entry);
+  // your own deletions are not "news" for you
+  const restoreSeen = newsForget(entry.keys.filter(k=>k.startsWith("bookings/")).map(k=>k.slice(9)));
   syncView(); render();
-  const undo=()=>{ if (entry.done) return false; entry.done=true; clearTimeout(entry.timer);
+  const undo=()=>{ if (entry.done) return false; entry.done=true; clearTimeout(entry.timer); restoreSeen();
     for (const k of entry.keys) if (pendingDel.get(k)===entry) pendingDel.delete(k); syncView(); render(); return true; };
   toastUndo(message, undo);
   return undo;
@@ -907,13 +1051,36 @@ const ICONS = {
   cat_visit: svg('<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>'),
   cat_kids: svg('<path d="M12 3a5.5 5.5 0 0 0-5.5 5.5C6.5 12 9.5 15 12 15s5.5-3 5.5-6.5A5.5 5.5 0 0 0 12 3zM12 15l-1 2h2zM12 17c0 2-1.5 2.5-1.5 4"/>'),
   cat_practical: svg('<path d="M15 4.5a4.5 4.5 0 0 0-4.3 5.8l-6.2 6.2a2.1 2.1 0 0 0 3 3l6.2-6.2A4.5 4.5 0 0 0 19.5 9l-2.7 2.7-2.3-.6-.6-2.3L16.6 6A4.5 4.5 0 0 0 15 4.5z"/>'),
+  bell: svg('<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'),
   shield: svg('<path d="M12 3.5 5 6v5.5c0 4.3 3 7.8 7 9 4-1.2 7-4.7 7-9V6z"/><path d="M9 12l2 2 4-4"/>'),
   settings: svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
 };
 const phoneMQ = matchMedia("(max-width: 720px)");
 const isPhone = () => phoneMQ.matches;
 phoneMQ.addEventListener?.("change", () => render());
-function go(tab){ S.tab=tab; store.set("fjp-tab",tab); if (dlg.open) dlg.close(); render(); scrollTo({top:0}); }
+// Smooth page changes where the browser supports it (and the person hasn't asked for less motion).
+const calmMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+function vt(kind, fn){
+  if (!document.startViewTransition || calmMotion() || document.hidden){ fn(); return; }
+  const r=document.documentElement; r.dataset.vt=kind;
+  const tr=document.startViewTransition(fn);
+  tr.finished.finally(()=>{ if (r.dataset.vt===kind) delete r.dataset.vt; });
+}
+// The season sets a soft tint and a small motif in the header (snow falls in December and January).
+const SEASON = (()=>{ const m=new Date().getMonth()+1; return m===12||m<=2?"winter":m<=5?"spring":m<=8?"summer":"autumn"; })();
+document.documentElement.dataset.season = SEASON;
+if ([12,1].includes(new Date().getMonth()+1)){
+  const fl=h("div",{class:"snow","aria-hidden":"true"});
+  for (let i=0;i<14;i++) fl.append(h("i",{style:`left:${(i*7.3+3)%100}%;animation-delay:${-(i*1.7)%11}s;animation-duration:${9+(i%5)*1.6}s;--s:${.5+(i%3)*.25}`}));
+  document.querySelector("header").append(fl);
+}
+const TAB_ORDER = () => [...PRIMARY_TABS, ...MORE_TABS];
+function go(tab){
+  if (tab===S.tab){ if (dlg.open) dlg.close(); scrollTo({top:0,behavior:calmMotion()?"auto":"smooth"}); return; }
+  const dir = TAB_ORDER().indexOf(tab) >= TAB_ORDER().indexOf(S.tab) ? "fwd" : "back";
+  if (dlg.open) dlg.close();
+  vt(dir, ()=>{ S.tab=tab; store.set("fjp-tab",tab); render(); scrollTo({top:0}); });
+}
 
 const themePref = () => { const v=store.get("fjp-theme"); return v==="light"||v==="dark" ? v : "auto"; };
 function setTheme(m){
@@ -943,22 +1110,26 @@ function openAccountMenu(){
     h("div",{class:"dlg-actions"}, h("button",{class:"btn",type:"button",text:t("signOut"),onclick:doSignOut}))));
 }
 function renderHeader(){
-  $("#brand-small").textContent = t("brandSmall");
+  $("#brand-small").textContent = t("brandSmall")+" · "+t("season"+SEASON[0].toUpperCase()+SEASON.slice(1));
   const carnetN = S.notes.filter(n=>n.kind==="issue"&&!n.resolved).length + S.supplies.filter(x=>!x.done).length;
   for (const b of document.querySelectorAll("#tabs button")){
     b.textContent=t(TAB_LABELS[b.dataset.tab]); b.setAttribute("aria-selected", b.dataset.tab===S.tab);
-    if (b.dataset.tab==="carnet" && carnetN) b.append(h("span",{class:"badge",text:String(carnetN)}));
+    if (b.dataset.tab==="carnet" && carnetN) b.append(h("span",{class:"badge"+(S.news?.carnet?" fresh":""),text:String(carnetN)}));
+    else if (newDot(b.dataset.tab)) b.append(h("span",{class:"new-dot","aria-label":t("newPill")}));
   }
   const w=$("#who"); w.replaceChildren();
   if (!S.authUser){ w.append(langSwitch(false)); return; }
   w.append(h("button",{class:"avatar-btn",type:"button","aria-label":t("myAccount"),"aria-haspopup":"dialog",onclick:openAccountMenu}, avatarEl(),
     h("span",{class:"avatar-name",text:myName()})));
 }
+const newDot = k => { const N=S.news; if (!N || S.tab===k) return false;
+  return k==="calendar" ? N.stays>0 : k==="carnet" ? N.carnet>0 : (k==="tips"||k==="more") ? N.tips>0 : false; };
 const carnetCount = () => S.notes.filter(n=>n.kind==="issue"&&!n.resolved).length + S.supplies.filter(x=>!x.done).length;
 function renderBottomNav(inside){
   const nav=$("#bottom-nav"); nav.hidden=!inside; if (!inside) return;
   const btn=(k,active,onclick)=>h("button",{type:"button",class:"bn"+(active?" on":""),"aria-current":active?"page":null,onclick},
-    h("span",{class:"bn-ico",html:ICONS[k]}, (k==="carnet" && carnetCount()) ? h("span",{class:"badge",text:String(carnetCount())}) : null),
+    h("span",{class:"bn-ico",html:ICONS[k]}, (k==="carnet" && carnetCount()) ? h("span",{class:"badge"+(S.news?.carnet?" fresh":""),text:String(carnetCount())})
+      : newDot(k) ? h("span",{class:"new-dot","aria-label":t("newPill")}) : null),
     h("span",{class:"bn-lbl",text:t(k==="more"?"tabMore":k==="info"?"tabInfoShort":TAB_LABELS[k])}));
   nav.replaceChildren(...PRIMARY_TABS.map(k=>btn(k, S.tab===k, ()=>go(k))), btn("more", MORE_TABS.includes(S.tab), openMore));
 }
@@ -1001,12 +1172,12 @@ function renderMonthCompact(){
   const canBook=!!myFamily()||S.isMain;
   const bk=allBookings().map(b=>({...b,s:dn(b.start),e:dn(b.end)})).filter(b=>b.s<=last&&b.e>=first);
   const title=new Date(first*864e5).toLocaleDateString(locale(),{timeZone:"UTC",month:"long",year:"numeric"});
-  const shift=d=>{ const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); };
+  const shift=d=>vt(d>0?"fwd":"back",()=>{ const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); });
   const head=h("div",{class:"cal-head"},
     h("h2",{text:title.charAt(0).toUpperCase()+title.slice(1)}),
     h("div",{class:"cal-nav"}, calSwitch(),
       h("button",{class:"btn icon-btn","aria-label":t("prevMonth"),text:"‹",onclick:()=>shift(-1)}),
-      h("button",{class:"btn",text:t("today"),onclick:()=>{S.month=todayStr().slice(0,8)+"01"; render();}}),
+      h("button",{class:"btn",text:t("today"),onclick:()=>{ const m=todayStr().slice(0,8)+"01"; if (m===S.month) return; vt(m>S.month?"fwd":"back",()=>{ S.month=m; render(); }); }}),
       h("button",{class:"btn icon-btn","aria-label":t("nextMonth"),text:"›",onclick:()=>shift(1)})));
   const cells=[]; const lead=(new Date(first*864e5).getUTCDay()+6)%7;
   for (let i=0;i<lead;i++) cells.push(h("span",{class:"mcd blank","aria-hidden":"true"}));
@@ -1050,6 +1221,12 @@ function renderToday(){
 function render(){
   const inside = S.authUser && (S.member || S.isMain);
   if (S.tab==="settings" && S.memberLoaded && !isAdmin()) S.tab="calendar";
+  if (inside && S.loaded && S.email){
+    newsInit();
+    // opening Carnet or Bons plans counts as seeing them; new items keep a "Nouveau" tag for this visit
+    for (const k of ["carnet","tips"]) if (S.tab===k){ if (S.hl[k]==null) S.hl[k]=newsLoad()?.[k+"At"]||"~"; newsAck([k]); }
+    S.news=computeNews();
+  } else S.news=null;
   renderHeader();
   $("#tabs").hidden = !inside;
   $("#tab-settings").hidden = !isAdmin();
@@ -1075,6 +1252,7 @@ function draw(){
   if (S.isMain && !S.member) main.append(renderMainOnboarding());
   if (S.tab==="calendar"){
     const ins=renderInstall(); if (ins) main.append(ins);
+    const nw=renderNews(); if (nw) main.append(nw);
     main.append(renderToday(), h("div",{class:"cal-layout"},
       S.calView==="year" ? renderYear() : (isPhone() ? renderMonthCompact() : renderCalendar()),
       renderList()));
@@ -1164,13 +1342,13 @@ function renderCalendar(){
   const today = dn(todayStr());
   const bookings = allBookings().map(b=>({...b, s:dn(b.start), e:dn(b.end)}));
   const title = new Date(first*864e5).toLocaleDateString(locale(),{timeZone:"UTC",month:"long",year:"numeric"});
-  const shift = d => { const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); };
+  const shift = d => vt(d>0?"fwd":"back",()=>{ const dt=new Date(Date.UTC(Y,M-1+d,1)); S.month=dt.getUTCFullYear()+"-"+pad(dt.getUTCMonth()+1)+"-01"; render(); });
   const canBook = !!myFamily() || S.isMain;
   const head = h("div",{class:"cal-head"},
     h("h2",{text:title.charAt(0).toUpperCase()+title.slice(1)}),
     h("div",{class:"cal-nav"}, calSwitch(),
       h("button",{class:"btn icon-btn","aria-label":t("prevMonth"),text:"‹",onclick:()=>shift(-1)}),
-      h("button",{class:"btn",text:t("today"),onclick:()=>{S.month=todayStr().slice(0,8)+"01"; render();}}),
+      h("button",{class:"btn",text:t("today"),onclick:()=>{ const m=todayStr().slice(0,8)+"01"; if (m===S.month) return; vt(m>S.month?"fwd":"back",()=>{ S.month=m; render(); }); }}),
       h("button",{class:"btn icon-btn","aria-label":t("nextMonth"),text:"›",onclick:()=>shift(1)}),
       canBook ? h("button",{class:"btn primary hide-phone",text:t("newBooking"),onclick:()=>openForm(null, todayStr())}) : null));
   const dow = h("div",{class:"dow"}, t("dow").map(d=>h("span",{text:d})));
@@ -1285,7 +1463,8 @@ function renderTips(){
     const del = h("button",{class:"btn ghost",type:"button",text:t("deleteTip"),onclick:()=>softDelete("tips/"+x.id, t("tipDeleted"), ()=>deleteDoc(doc(db,"tips",x.id)))});
     const web = safeUrl(x.url);
     return h("div",{class:"card tip"},
-      h("span",{class:"cat-chip"}, h("span",{class:"bn-ico",html:ICONS["cat_"+x.category]||""}), t("cat_"+x.category)),
+      h("span",{class:"cat-chip"}, h("span",{class:"bn-ico",html:ICONS["cat_"+x.category]||""}), t("cat_"+x.category),
+        isFresh(x,"tips")?h("span",{class:"pill new",text:t("newPill")}):null),
       h("h3",{text:x.title}),
       x.address ? h("div",{class:"addr"}, h("span",{class:"pin","aria-hidden":"true",html:ICONS.tips}), h("span",{text:x.address})) : null,
       x.note ? h("div",{class:"note",text:x.note}) : null,
@@ -1355,7 +1534,7 @@ function armed(label, action, cls="btn ghost"){
 /* ---------- year view ---------- */
 function calSwitch(){
   return h("div",{class:"seg"}, ["month","year"].map(v=>h("button",{"aria-pressed":S.calView===v,text:t(v==="month"?"viewMonth":"viewYear"),
-    onclick:()=>{ S.calView=v; if(v==="year") S.year=Number(S.month.slice(0,4)); store.set("fjp-calview",v); render(); }})));
+    onclick:()=>{ if (S.calView===v) return; vt("zoom",()=>{ S.calView=v; if(v==="year") S.year=Number(S.month.slice(0,4)); store.set("fjp-calview",v); render(); }); }})));
 }
 function renderYear(){
   const Y=S.year, today=dn(todayStr()), canBook=!!myFamily()||S.isMain;
@@ -1363,9 +1542,9 @@ function renderYear(){
   const yb=allBookings().map(b=>({...b,s:dn(b.start),e:dn(b.end)})).filter(b=>b.s<=ye&&b.e>=ys);
   const head=h("div",{class:"cal-head"}, h("h2",{text:String(Y)}),
     h("div",{class:"cal-nav"}, calSwitch(),
-      h("button",{class:"btn icon-btn","aria-label":t("prevYear"),text:"‹",onclick:()=>{S.year--;render();}}),
-      h("button",{class:"btn",text:t("today"),onclick:()=>{S.year=new Date().getFullYear();render();}}),
-      h("button",{class:"btn icon-btn","aria-label":t("nextYear"),text:"›",onclick:()=>{S.year++;render();}}),
+      h("button",{class:"btn icon-btn","aria-label":t("prevYear"),text:"‹",onclick:()=>vt("back",()=>{S.year--;render();})}),
+      h("button",{class:"btn",text:t("today"),onclick:()=>{ const y=new Date().getFullYear(); if (y!==S.year) vt(y>S.year?"fwd":"back",()=>{S.year=y;render();}); }}),
+      h("button",{class:"btn icon-btn","aria-label":t("nextYear"),text:"›",onclick:()=>vt("fwd",()=>{S.year++;render();})}),
       canBook?h("button",{class:"btn primary hide-phone",text:t("newBooking"),onclick:()=>openForm(null,todayStr())}):null));
   const grid=h("div",{class:"year-grid"}), tapMonth=isPhone();
   for (let m=1;m<=12;m++){
@@ -1383,7 +1562,7 @@ function renderYear(){
             onclick:()=>{ if(here.length) openDetail(here[0]); else if(canBook) openForm(null,dstr); else toast(t("pickFamilyFirst")); }}));
     }
     const Name=name.charAt(0).toUpperCase()+name.slice(1);
-    const openMonth=()=>{ S.calView="month"; S.month=`${Y}-${pad(m)}-01`; store.set("fjp-calview","month"); render(); };
+    const openMonth=()=>vt("zoom",()=>{ S.calView="month"; S.month=`${Y}-${pad(m)}-01`; store.set("fjp-calview","month"); render(); });
     const dowRow=h("div",{class:"ym-dow","aria-hidden":"true"}, t("dow").map(x=>h("span",{text:x.slice(0,1)})));
     grid.append(tapMonth
       ? h("button",{type:"button",class:"ym ym-tap","aria-label":`${Name} ${Y}`,onclick:openMonth}, h("h3",{text:Name}), dowRow, h("div",{class:"ym-days"}, cells))
@@ -1401,6 +1580,7 @@ function noteCard(n){
   return h("div",{class:"note"+(issue?" issue":"")+(n.resolved?" resolved":"")},
     h("div",{class:"meta"},
       h("span",{class:"pill"+(issue?" issue":""),text:t(issue?"kindIssue":"kindNote")}),
+      isFresh(n,"carnet")?h("span",{class:"pill new",text:t("newPill")}):null,
       n.resolved?h("span",{class:"pill ok",text:t("resolved")}):null,
       h("span",{text:(n.name||t("aMember"))+" · "+fmtWhen(n.createdAt)}),
       h("span",{class:"acts"},
