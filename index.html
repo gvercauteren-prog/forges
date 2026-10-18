@@ -343,7 +343,7 @@ nav.tabs .badge{margin-left:6px}
 .vb-lbl{height:22px;line-height:22px;font-size:.7rem;color:var(--muted);text-transform:capitalize;white-space:nowrap}
 .vb-col:hover .vb-bar,.vb-col:focus-visible .vb-bar{filter:brightness(1.12)}
 .hbars{display:grid;gap:12px}
-.hb-row{display:grid;grid-template-columns:minmax(0,210px) minmax(0,1fr) 9.5ch;align-items:center;gap:12px;outline:none}
+.hb-row{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr) 11ch;align-items:center;gap:12px;outline:none}
 .hb-name{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.9rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hb-track{height:14px;background:var(--sunk);border-radius:0 4px 4px 0;overflow:hidden}
 .hb-bar{display:block;height:100%;border-radius:0 4px 4px 0}
@@ -421,6 +421,19 @@ nav.tabs .badge{margin-left:6px}
 .imp-main strong{font-size:.92rem}
 .imp-main .hint{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row-av.sm{width:28px;height:28px;font-size:.62rem}
+
+/* statistics: tappable parts */
+.tile.stat.tap{cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+.tile.stat.tap:hover{border-color:var(--muted)}
+.vb-col.tap{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;border-radius:6px}
+.vb-col.tap:hover .vb-bar,.vb-col.tap:focus-visible .vb-bar{filter:brightness(1.15)}
+.vb-col.dim .vb-bar{opacity:.4}
+.vbars.small{height:150px}
+.hb-row.tap{width:100%;background:none;border:0;padding:4px 0;font:inherit;color:inherit;text-align:left;cursor:pointer;border-radius:6px}
+.hb-row.tap:hover .hb-bar,.hb-row.tap:focus-visible .hb-bar{filter:brightness(1.12)}
+.hb-delta{display:block;font-size:.72rem;color:var(--muted);text-align:right}
+.stats-2col{display:grid;gap:22px}
+@media (min-width:1000px){ .stats-2col{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start} }
 /* header account button */
 .top{flex-wrap:nowrap}
 .brand h1{white-space:nowrap}
@@ -572,7 +585,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=46b2f1a0";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=08de82e3";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -628,7 +641,7 @@ const S = {
   settings:null, bookings:[], members:[],
   tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[],
   signInError:"", linkSentTo:"", needEmailConfirm:false, bulk:null, tips:[], tipCat:"all",
-  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear(), adminTab:"people", adminImport:false, peopleQuery:"", statsYear:new Date().getFullYear()
+  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear(), adminTab:"people", adminImport:false, peopleQuery:"", statsYear:new Date().getFullYear(), statsAll:false
 };
 const $ = s => document.querySelector(s);
 const main = $("#main");
@@ -942,6 +955,8 @@ function emptyState(ico, text, btn){
 }
 function relDay(s){
   const d=dn(s)-dn(todayStr());
+  if (d>60) return t("inMonths",{n:Math.round(d/30.4)});
+  if (d<-30) return t("finished");
   return d===0?t("todayLow"):d===1?t("tomorrow"):d>1?t("inDays",{n:d}):d===-1?t("yesterday"):t("daysAgo",{n:-d});
 }
 
@@ -1597,76 +1612,139 @@ function openImport(){
 }
 
 /* ---------- admin: statistics ---------- */
-function computeStats(Y){
-  const ys=dn(`${Y}-01-01`), ye=dn(`${Y}-12-31`), total=ye-ys+1, T=dn(todayStr());
-  const bk=allBookings().map(b=>({...b,s:dn(b.start),e:dn(b.end)})).filter(b=>b.s<=ye && b.e>ys);
-  const night=new Map();                      // night (day number) -> set of families
-  const famNights={}; let stays=0, stayNights=0, guestSum=0, guestN=0, chkSum=0, chkN=0;
-  const items=(S.settings?.checklist||[]).length;
+const DAY = 864e5;
+const wdOf = d => (new Date(d*DAY).getUTCDay()+6)%7;            // 0 = Monday … 6 = Sunday
+const yearRange = Y => [dn(`${Y}-01-01`), dn(`${Y}-12-31`)];
+function statsSpan(){
+  const all=allBookings(), now=new Date().getFullYear();
+  const y0=all.length ? Math.min(now, ...all.map(b=>Number(b.start.slice(0,4)))) : now;
+  const y1=Math.max(now, ...all.map(b=>Number(b.end.slice(0,4))));
+  return {y0, y1};
+}
+// Everything below counts nights: the night of day d belongs to a stay when start <= d < end.
+function computeRange(from, to){
+  const total=to-from+1, T=dn(todayStr()), items=(S.settings?.checklist||[]).length;
+  const bk=allBookings().map(b=>({...b,s:dn(b.start),e:dn(b.end)})).filter(b=>Math.min(b.e,to+1)>Math.max(b.s,from));
+  const night=new Map(), famNights={}, famStays={};
+  let stayNights=0, guestSum=0, guestN=0, chkSum=0, chkN=0;
   for (const b of bk){
-    let n=0;
-    for (let d=Math.max(b.s,ys); d<Math.min(b.e,ye+1); d++){ n++; if(!night.has(d)) night.set(d,new Set()); night.get(d).add(b.family); }
-    if (!n) continue;
-    stays++; stayNights+=nights(b); famNights[b.family]=(famNights[b.family]||0)+n;
+    for (let d=Math.max(b.s,from); d<Math.min(b.e,to+1); d++){ if(!night.has(d)) night.set(d,new Set()); night.get(d).add(b.family); }
+    stayNights+=nights(b); famNights[b.family]=(famNights[b.family]||0)+(Math.min(b.e,to+1)-Math.max(b.s,from));
+    (famStays[b.family] ||= []).push(b);
     if (b.guests){ guestSum+=b.guests; guestN++; }
     if (items && b.e<T){ chkSum+=Object.keys(b.checklist||{}).length/items; chkN++; }
   }
-  const months=Array.from({length:12},(_,i)=>{ const f=dn(`${Y}-${pad(i+1)}-01`), len=new Date(Date.UTC(Y,i+1,0)).getUTCDate();
-    let occ=0; for (let d=f; d<f+len; d++) if (night.has(d)) occ++; return {i, occ, len, rate:occ/len}; });
-  let wk=0, wkOcc=0;                           // Friday and Saturday nights
-  for (let d=ys; d<=ye; d++){ const wd=new Date(d*864e5).getUTCDay(); if (wd===5||wd===6){ wk++; if (night.has(d)) wkOcc++; } }
-  let shared=0; for (const s of night.values()) if (s.size>1) shared++;
+  const months=Array.from({length:12},(_,i)=>({i,occ:0,len:0})), wd=Array.from({length:7},(_,i)=>({i,occ:0,len:0}));
+  let wk=0, wkOcc=0, shared=0;
+  for (let d=from; d<=to; d++){
+    const m=new Date(d*DAY).getUTCMonth(), w=wdOf(d), occ=night.has(d);
+    months[m].len++; wd[w].len++; if (occ){ months[m].occ++; wd[w].occ++; }
+    if (w===4||w===5){ wk++; if (occ) wkOcc++; }
+    if (occ && night.get(d).size>1) shared++;
+  }
+  for (const x of [...months,...wd]) x.rate = x.len ? x.occ/x.len : 0;
+  const hits=(b,test)=>{ for (let d=Math.max(b.s,from); d<Math.min(b.e,to+1); d++) if (test(d)) return true; return false; };
   const allB=allBookings().map(b=>({s:dn(b.start),e:dn(b.end)}));
   let n90=0; for (let d=T; d<T+90; d++) if (allB.some(b=>b.s<=d&&d<b.e)) n90++;
-  const occupied=night.size;
-  return { Y, total, occupied, rate:occupied/total, stays, avg: stays?stayNights/stays:0, months, famNights,
-           weekendRate: wk?wkOcc/wk:0, shared, next90:n90/90, avgGuests: guestN?guestSum/guestN:null, chk: chkN?chkSum/chkN:null };
+  return { from, to, total, occupied:night.size, rate:night.size/total, stays:bk.length, avg:bk.length?stayNights/bk.length:0,
+    months, wd, famNights, famStays, list:bk, weekendRate:wk?wkOcc/wk:0, shared, next90:n90/90,
+    avgGuests:guestN?guestSum/guestN:null, chk:chkN?chkSum/chkN:null,
+    weekendStays:bk.filter(b=>hits(b,d=>wdOf(d)===4||wdOf(d)===5)),
+    sharedStays:bk.filter(b=>hits(b,d=>night.get(d)?.size>1)),
+    monthStays:i=>bk.filter(b=>hits(b,d=>new Date(d*DAY).getUTCMonth()===i)) };
 }
+function computeStats(Y){ const [a,b]=yearRange(Y); return computeRange(a,b); }
 const pct = x => Math.round(x*100)+" %";
+function openStayList(title, list){
+  const sorted=[...list].sort((a,b)=>a.start<b.start?-1:a.start>b.start?1:0);
+  const n=sorted.reduce((a,b)=>a+nights(b),0);
+  showDlg(h("div",{class:"dlg"},
+    h("div",{class:"dlg-head"}, h("div",{style:"min-width:0"}, h("h2",{text:title}), h("p",{class:"sub",text:t("staysNights",{s:sorted.length,n:nightsTxt(n)})})), closeBtn()),
+    sorted.length ? h("div",{class:"list"}, sorted.map(bookingRow)) : emptyState("calendar", t("noStaysHere"))));
+}
+function vChart(cols, opts={}){
+  const max=Math.max(...cols.map(c=>c.rate));
+  const top=[0.1,0.2,0.25,0.5,1].find(v=>v>=max-1e-9) || 1;   // axis fits the data, always starting at 0
+  return h("div",{class:"vbars"+(opts.small?" small":""),role:"group","aria-label":opts.label},
+    h("div",{class:"vb-grid","aria-hidden":"true"}, h("span",{"data-v":pct(top)}), h("span",{"data-v":pct(top/2)}), h("span",{"data-v":"0"})),
+    h("div",{class:"vb-cols",style:`grid-template-columns:repeat(${cols.length},minmax(0,1fr))`}, cols.map(c=>{
+      const tag = c.onclick ? "button" : "div";
+      return h(tag,{class:"vb-col"+(c.onclick?" tap":"")+(c.dim?" dim":""),type:c.onclick?"button":null,tabindex:c.onclick?null:"0",onclick:c.onclick||null,
+          "aria-label":`${c.label}: ${pct(c.rate)}`,"data-tip":c.tip},
+        h("div",{class:"vb-plot"},
+          (c.rate===max && c.rate>0) || c.mark ? h("span",{class:"vb-val",text:pct(c.rate)}) : null,
+          h("span",{class:"vb-bar",style:`height:${c.occ?Math.max(c.rate/top*100,2):0}%`})),
+        h("span",{class:"vb-lbl"}, h("span",{class:"full",text:c.label}), h("span",{class:"short","aria-hidden":"true",text:c.short||c.label})));
+    })));
+}
 function adminStats(){
-  const Y=S.statsYear, st=computeStats(Y);
-  const kpi=(label,val,sub)=>h("div",{class:"tile stat"}, h("span",{class:"lbl",text:label}), h("span",{class:"big tnum",text:val}), sub?h("span",{class:"sub",text:sub}):null);
-  const monthName=i=>new Date(Date.UTC(Y,i,1)).toLocaleDateString(locale(),{timeZone:"UTC",month:"short"}).replace(".","");
-  const busiest=[...st.months].sort((a,b)=>b.occ-a.occ)[0];
-  const maxM=Math.max(...st.months.map(m=>m.rate));
-  const fam=families().map(f=>({id:f.id, n:st.famNights[f.id]||0})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n);
-  const famTotal=fam.reduce((a,x)=>a+x.n,0), famMax=Math.max(1,...fam.map(x=>x.n));
+  const {y0,y1}=statsSpan(), all=S.statsAll, Y=S.statsYear;
+  const [from,to]= all ? [dn(`${y0}-01-01`), dn(`${y1}-12-31`)] : yearRange(Y);
+  const st=computeRange(from,to), period = all ? t("allTime") : String(Y);
+  const kpi=(label,val,sub,onclick)=>h("button",{type:"button",class:"tile stat tap",onclick},
+    h("span",{class:"lbl",text:label}), h("span",{class:"big tnum",text:val}), sub?h("span",{class:"sub",text:sub}):null);
+  const monthName=i=>new Date(Date.UTC(2026,i,1)).toLocaleDateString(locale(),{timeZone:"UTC",month:"short"}).replace(".","");
+  const monthLong=i=>new Date(Date.UTC(2026,i,1)).toLocaleDateString(locale(),{timeZone:"UTC",month:"long"});
   const head=h("div",{class:"split"},
     h("div",null, h("h2",{text:t("admStats")}), h("p",{class:"sub",text:t("statsSub")})),
     h("div",{class:"cal-nav"},
-      h("button",{class:"btn icon-btn","aria-label":t("prevYear"),text:"‹",onclick:()=>{S.statsYear--;render();}}),
-      h("strong",{class:"tnum",style:"min-width:4ch;text-align:center",text:String(Y)}),
-      h("button",{class:"btn icon-btn","aria-label":t("nextYear"),text:"›",onclick:()=>{S.statsYear++;render();}})));
-  if (!st.stays) return h("section",{class:"panel"}, head, h("div",{class:"empty",style:"margin-top:14px",text:t("noStatsYear",{y:Y})}));
-  const monthsChart=h("div",{class:"vbars",role:"img","aria-label":t("byMonth")},
-    h("div",{class:"vb-grid","aria-hidden":"true"}, h("span",{"data-v":"100 %"}), h("span",{"data-v":"50 %"}), h("span",{"data-v":"0"})),
-    h("div",{class:"vb-cols"}, st.months.map(m=>h("div",{class:"vb-col",tabindex:"0","aria-label":`${monthName(m.i)}: ${pct(m.rate)}`,"data-tip":`${monthName(m.i)} · ${pct(m.rate)} · ${nightsTxt(m.occ)}`},
-      h("div",{class:"vb-plot"},
-        (m.rate===maxM && m.rate>0) ? h("span",{class:"vb-val",text:pct(m.rate)}) : null,
-        h("span",{class:"vb-bar",style:`height:${m.occ?Math.max(m.rate*100,2):0}%`})),
-      h("span",{class:"vb-lbl"}, h("span",{class:"full",text:monthName(m.i)}), h("span",{class:"short","aria-hidden":"true",text:monthName(m.i).charAt(0).toUpperCase()}))))));
-  const famChart=h("div",{class:"hbars"}, fam.map(x=>h("div",{class:"hb-row",tabindex:"0","data-tip":`${famName(x.id)} · ${nightsTxt(x.n)} · ${pct(x.n/famTotal)}`},
-    h("span",{class:"hb-name"}, h("span",{class:"dot",style:`background:${famColor(x.id)}`}), famName(x.id)),
-    h("span",{class:"hb-track"}, h("span",{class:"hb-bar",style:`width:${x.n/famMax*100}%;background:${famColor(x.id)}`})),
-    h("span",{class:"hb-val tnum",text:`${x.n} · ${pct(x.n/famTotal)}`}))));
+      h("div",{class:"seg",role:"group"},
+        h("button",{type:"button","aria-pressed":!all,text:t("statsYearMode"),onclick:()=>{S.statsAll=false;render();}}),
+        h("button",{type:"button","aria-pressed":all,text:t("allTime"),onclick:()=>{S.statsAll=true;render();}})),
+      all ? null : h("button",{class:"btn icon-btn","aria-label":t("prevYear"),text:"‹",onclick:()=>{S.statsYear--;render();}}),
+      all ? null : h("strong",{class:"tnum",style:"min-width:4ch;text-align:center",text:String(Y)}),
+      all ? null : h("button",{class:"btn icon-btn","aria-label":t("nextYear"),text:"›",onclick:()=>{S.statsYear++;render();}})));
+  if (!st.stays) return h("section",{class:"panel"}, head, emptyState("calendar", t("noStatsYear",{y:period})));
+  const busiest=[...st.months].sort((a,b)=>b.occ-a.occ)[0];
+  const facts=[ t("busiest",{m:monthLong(busiest.i)}),
+    (all || Y===new Date().getFullYear()) ? t("next90",{p:pct(st.next90)}) : null,
+    st.avgGuests!=null ? t("avgPeople",{n:st.avgGuests.toLocaleString(locale(),{maximumFractionDigits:1})}) : null,
+    st.chk!=null ? t("checklistRate",{p:pct(st.chk)}) : null ].filter(Boolean);
+  // year on year
+  const years=[]; for (let y=y0; y<=y1; y++){ const s=computeStats(y); years.push({y, rate:s.rate, occ:s.occupied, nights:s.occupied}); }
+  const yearChart = years.length>1 ? h("section",{class:"panel"},
+    h("h3",{class:"chart-title",text:t("byYear")}),
+    vChart(years.map(x=>({label:String(x.y), rate:x.rate, occ:x.occ, mark:true, dim:!all && x.y!==Y,
+      tip:`${x.y} · ${pct(x.rate)} · ${nightsTxt(x.nights)}`, onclick:()=>{ S.statsAll=false; S.statsYear=x.y; render(); }})), {label:t("byYear"), small:true}),
+    h("p",{class:"hint",style:"margin:10px 0 0",text:t("byYearHint")})) : null;
+  // months
+  const monthsChart=vChart(st.months.map(m=>({label:monthName(m.i), short:monthName(m.i).charAt(0).toUpperCase(), rate:m.rate, occ:m.occ,
+    tip:`${monthName(m.i)} · ${pct(m.rate)} · ${nightsTxt(m.occ)}`,
+    onclick:()=>openStayList(`${monthLong(m.i).charAt(0).toUpperCase()+monthLong(m.i).slice(1)} · ${period}`, st.monthStays(m.i))})), {label:t("byMonth")});
   const table=h("details",{class:"stats-table"}, h("summary",{text:t("showTable")}),
     h("div",{class:"scroll-x"}, h("table",{class:"bulk-table"},
       h("thead",null,h("tr",null,h("th",{text:t("monthCol")}),h("th",{text:t("nightsLabel")}),h("th",{text:t("occRate")}))),
       h("tbody",null, st.months.map(m=>h("tr",null,h("td",{text:monthName(m.i)}),h("td",{class:"tnum",text:`${m.occ} / ${m.len}`}),h("td",{class:"tnum",text:pct(m.rate)})))))));
-  const facts=[ t("busiest",{m:new Date(Date.UTC(Y,busiest.i,1)).toLocaleDateString(locale(),{timeZone:"UTC",month:"long"})}),
-    Y===new Date().getFullYear() ? t("next90",{p:pct(st.next90)}) : null,
-    st.avgGuests!=null ? t("avgPeople",{n:st.avgGuests.toLocaleString(locale(),{maximumFractionDigits:1})}) : null,
-    st.chk!=null ? t("checklistRate",{p:pct(st.chk)}) : null ].filter(Boolean);
+  // weekdays
+  const dows=t("dow");
+  const wdChart=vChart(st.wd.map(x=>({label:dows[x.i], short:dows[x.i].charAt(0), rate:x.rate, occ:x.occ, mark:true,
+    tip:`${dows[x.i]} · ${pct(x.rate)} · ${nightsTxt(x.occ)}`})), {label:t("byWeekday"), small:true});
+  // families
+  const fam=families().map(f=>({id:f.id, n:st.famNights[f.id]||0})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n);
+  const famTotal=fam.reduce((a,x)=>a+x.n,0), famMax=Math.max(1,...fam.map(x=>x.n));
+  const prev = (!all && Y>y0) ? computeStats(Y-1) : null;
+  const famChart=h("div",{class:"hbars"}, fam.map(x=>{
+    const d = prev ? x.n-(prev.famNights[x.id]||0) : null;
+    return h("button",{type:"button",class:"hb-row tap","data-tip":`${famName(x.id)} · ${nightsTxt(x.n)} · ${pct(x.n/famTotal)}`,
+        onclick:()=>openStayList(`${famName(x.id)} · ${period}`, st.famStays[x.id]||[])},
+      h("span",{class:"hb-name"}, h("span",{class:"dot",style:`background:${famColor(x.id)}`}), famName(x.id)),
+      h("span",{class:"hb-track"}, h("span",{class:"hb-bar",style:`width:${x.n/famMax*100}%;background:${famColor(x.id)}`})),
+      h("span",{class:"hb-val tnum"}, `${x.n} · ${pct(x.n/famTotal)}`,
+        d!=null ? h("span",{class:"hb-delta",text:t("vsYear",{d:(d>0?"+":d<0?"−":"±")+Math.abs(d),y:Y-1})}) : null));
+  }));
   return h("div",{class:"settings"},
     h("section",{class:"panel"}, head,
       h("div",{class:"stat-kpis"},
-        kpi(t("occRate"), pct(st.rate), t("ofNights",{a:st.occupied,n:st.total})),
-        kpi(t("staysCount"), String(st.stays), t("avgStay",{n:st.avg.toLocaleString(locale(),{maximumFractionDigits:1})})),
-        kpi(t("weekendsOcc"), pct(st.weekendRate), t("weekendsSub")),
-        kpi(t("sharedNights"), String(st.shared), t("sharedSub"))),
+        kpi(t("occRate"), pct(st.rate), t("ofNights",{a:st.occupied,n:st.total}), ()=>openStayList(`${t("stays")} · ${period}`, st.list)),
+        kpi(t("staysCount"), String(st.stays), t("avgStay",{n:st.avg.toLocaleString(locale(),{maximumFractionDigits:1})}), ()=>openStayList(`${t("stays")} · ${period}`, st.list)),
+        kpi(t("weekendsOcc"), pct(st.weekendRate), t("weekendsSub"), ()=>openStayList(`${t("weekendsOcc")} · ${period}`, st.weekendStays)),
+        kpi(t("sharedNights"), String(st.shared), t("sharedSub"), ()=>openStayList(`${t("sharedNights")} · ${period}`, st.sharedStays))),
       facts.length ? h("ul",{class:"facts"}, facts.map(f=>h("li",{text:f}))) : null),
-    h("section",{class:"panel"}, h("h3",{class:"chart-title",text:t("byMonth")}), monthsChart, table),
-    h("section",{class:"panel"}, h("h3",{class:"chart-title",text:t("byFamily")}), famChart));
+    yearChart,
+    h("section",{class:"panel"}, h("h3",{class:"chart-title",text:all?t("byMonthAll"):t("byMonth")}), monthsChart, table),
+    h("div",{class:"stats-2col"},
+      h("section",{class:"panel"}, h("h3",{class:"chart-title",text:t("byFamily")}), famChart),
+      h("section",{class:"panel"}, h("h3",{class:"chart-title",text:t("byWeekday")}), h("p",{class:"hint",style:"margin:-8px 0 12px",text:t("byWeekdaySub")}), wdChart)));
 }
 
 /* People: grouped by family; tap someone to change their family, name or admin role. */

@@ -6,6 +6,11 @@ export const LOCALES = { en: "en-GB", fr: "fr-BE", nl: "nl-BE" };
 
 export const STR = {
   en: {
+    inMonths: "in {n} months", finished: "Past",
+
+    statsYearMode: "Year", allTime: "All time", byYear: "Occupancy by year", byYearHint: "Tap a year to show it.",
+    byMonthAll: "Occupancy by month (all years)", byWeekday: "Days of the week", byWeekdaySub: "Share of nights occupied, by day.",
+    staysNights: "{s} stays · {n}", noStaysHere: "No stays.", vsYear: "{d} vs {y}",
 
     importStays: "Import stays (file)…", importTitle: "Import stays and tips",
     importSub: "Choose the import file. You'll see everything before anything is added; items already in the calendar are unticked.",
@@ -15,7 +20,7 @@ export const STR = {
     inProgress: "Now", yesterday: "yesterday", daysAgo: "{n} days ago", goAdmin: "Open admin",
 
     appearance: "Appearance", themeAuto: "Auto", themeLight: "Light", themeDark: "Dark",
-    admStats: "Statistics", statsSub: "How the house is used this year. Tap a bar for details.",
+    admStats: "Statistics", statsSub: "Tap a figure, a bar or a family to see the stays.",
     occRate: "Occupancy rate", ofNights: "{a} of {n} nights", staysCount: "Stays", avgStay: "{n} nights on average",
     weekendsOcc: "Weekends used", weekendsSub: "Friday and Saturday nights", sharedNights: "Shared nights", sharedSub: "two families at once",
     byMonth: "Occupancy by month", byFamily: "Nights per family", showTable: "Show the numbers", monthCol: "Month",
@@ -186,6 +191,11 @@ export const STR = {
   },
 
   fr: {
+    inMonths: "dans {n} mois", finished: "Terminé",
+
+    statsYearMode: "Année", allTime: "Depuis le début", byYear: "Occupation par année", byYearHint: "Touchez une année pour l'afficher.",
+    byMonthAll: "Occupation par mois (toutes les années)", byWeekday: "Jours de la semaine", byWeekdaySub: "Part des nuits occupées selon le jour.",
+    staysNights: "{s} séjours · {n}", noStaysHere: "Aucun séjour.", vsYear: "{d} vs {y}",
 
     importStays: "Importer des séjours (fichier)…", importTitle: "Importer des séjours et bons plans",
     importSub: "Choisissez le fichier d'import. Vous verrez tout avant que quoi que ce soit soit ajouté ; ce qui est déjà dans l'agenda est décoché.",
@@ -195,7 +205,7 @@ export const STR = {
     inProgress: "En cours", yesterday: "hier", daysAgo: "il y a {n} jours", goAdmin: "Ouvrir l'admin",
 
     appearance: "Apparence", themeAuto: "Auto", themeLight: "Clair", themeDark: "Sombre",
-    admStats: "Statistiques", statsSub: "Comment la maison est utilisée cette année. Touchez une barre pour le détail.",
+    admStats: "Statistiques", statsSub: "Touchez un chiffre, une barre ou une famille pour voir les séjours.",
     occRate: "Taux d'occupation", ofNights: "{a} nuits sur {n}", staysCount: "Séjours", avgStay: "{n} nuits en moyenne",
     weekendsOcc: "Week-ends occupés", weekendsSub: "nuits de vendredi et samedi", sharedNights: "Nuits partagées", sharedSub: "deux familles en même temps",
     byMonth: "Occupation par mois", byFamily: "Nuits par famille", showTable: "Voir les chiffres", monthCol: "Mois",
@@ -366,6 +376,11 @@ export const STR = {
   },
 
   nl: {
+    inMonths: "over {n} maanden", finished: "Afgelopen",
+
+    statsYearMode: "Jaar", allTime: "Sinds het begin", byYear: "Bezetting per jaar", byYearHint: "Tik op een jaar om het te tonen.",
+    byMonthAll: "Bezetting per maand (alle jaren)", byWeekday: "Dagen van de week", byWeekdaySub: "Aandeel bezette nachten per dag.",
+    staysNights: "{s} verblijven · {n}", noStaysHere: "Geen verblijven.", vsYear: "{d} t.o.v. {y}",
 
     importStays: "Verblijven importeren (bestand)…", importTitle: "Verblijven en tips importeren",
     importSub: "Kies het importbestand. Je ziet alles voordat er iets wordt toegevoegd; wat al in de kalender staat, is uitgevinkt.",
@@ -375,7 +390,7 @@ export const STR = {
     inProgress: "Nu bezig", yesterday: "gisteren", daysAgo: "{n} dagen geleden", goAdmin: "Beheer openen",
 
     appearance: "Weergave", themeAuto: "Auto", themeLight: "Licht", themeDark: "Donker",
-    admStats: "Statistieken", statsSub: "Hoe het huis dit jaar gebruikt wordt. Tik op een balk voor details.",
+    admStats: "Statistieken", statsSub: "Tik op een cijfer, een balk of een familie om de verblijven te zien.",
     occRate: "Bezettingsgraad", ofNights: "{a} van {n} nachten", staysCount: "Verblijven", avgStay: "gemiddeld {n} nachten",
     weekendsOcc: "Bezette weekends", weekendsSub: "vrijdag- en zaterdagnachten", sharedNights: "Gedeelde nachten", sharedSub: "twee families tegelijk",
     byMonth: "Bezetting per maand", byFamily: "Nachten per familie", showTable: "Cijfers tonen", monthCol: "Maand",
