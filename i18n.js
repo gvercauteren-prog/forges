@@ -7,6 +7,8 @@ export const LOCALES = { en: "en-GB", fr: "fr-BE", nl: "nl-BE" };
 export const STR = {
   en: {
 
+    inProgress: "Now", yesterday: "yesterday", daysAgo: "{n} days ago", goAdmin: "Open admin",
+
     appearance: "Appearance", themeAuto: "Auto", themeLight: "Light", themeDark: "Dark",
     admStats: "Statistics", statsSub: "How the house is used this year. Tap a bar for details.",
     occRate: "Occupancy rate", ofNights: "{a} of {n} nights", staysCount: "Stays", avgStay: "{n} nights on average",
@@ -180,6 +182,8 @@ export const STR = {
 
   fr: {
 
+    inProgress: "En cours", yesterday: "hier", daysAgo: "il y a {n} jours", goAdmin: "Ouvrir l'admin",
+
     appearance: "Apparence", themeAuto: "Auto", themeLight: "Clair", themeDark: "Sombre",
     admStats: "Statistiques", statsSub: "Comment la maison est utilisée cette année. Touchez une barre pour le détail.",
     occRate: "Taux d'occupation", ofNights: "{a} nuits sur {n}", staysCount: "Séjours", avgStay: "{n} nuits en moyenne",
@@ -352,6 +356,8 @@ export const STR = {
   },
 
   nl: {
+
+    inProgress: "Nu bezig", yesterday: "gisteren", daysAgo: "{n} dagen geleden", goAdmin: "Beheer openen",
 
     appearance: "Weergave", themeAuto: "Auto", themeLight: "Licht", themeDark: "Donker",
     admStats: "Statistieken", statsSub: "Hoe het huis dit jaar gebruikt wordt. Tik op een balk voor details.",
