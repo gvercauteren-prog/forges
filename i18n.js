@@ -7,6 +7,14 @@ export const LOCALES = { en: "en-GB", fr: "fr-BE", nl: "nl-BE" };
 export const STR = {
   en: {
 
+    appearance: "Appearance", themeAuto: "Auto", themeLight: "Light", themeDark: "Dark",
+    admStats: "Statistics", statsSub: "How the house is used this year. Tap a bar for details.",
+    occRate: "Occupancy rate", ofNights: "{a} of {n} nights", staysCount: "Stays", avgStay: "{n} nights on average",
+    weekendsOcc: "Weekends used", weekendsSub: "Friday and Saturday nights", sharedNights: "Shared nights", sharedSub: "two families at once",
+    byMonth: "Occupancy by month", byFamily: "Nights per family", showTable: "Show the numbers", monthCol: "Month",
+    busiest: "Busiest month: {m}", next90: "The next 90 days are {p} booked", avgPeople: "{n} people per stay on average",
+    checklistRate: "Exit checklists {p} complete on average", noStatsYear: "No stays in {y}.",
+
     undo: "Undo", undoDelete: "Undo delete", restored: "Booking restored",
     call: "Call", emailBtn: "Email", loading: "Loading…",
     pickHint: "Tap the arrival day, then the departure day.", pickDeparture: "Pick departure",
@@ -172,6 +180,14 @@ export const STR = {
 
   fr: {
 
+    appearance: "Apparence", themeAuto: "Auto", themeLight: "Clair", themeDark: "Sombre",
+    admStats: "Statistiques", statsSub: "Comment la maison est utilisée cette année. Touchez une barre pour le détail.",
+    occRate: "Taux d'occupation", ofNights: "{a} nuits sur {n}", staysCount: "Séjours", avgStay: "{n} nuits en moyenne",
+    weekendsOcc: "Week-ends occupés", weekendsSub: "nuits de vendredi et samedi", sharedNights: "Nuits partagées", sharedSub: "deux familles en même temps",
+    byMonth: "Occupation par mois", byFamily: "Nuits par famille", showTable: "Voir les chiffres", monthCol: "Mois",
+    busiest: "Mois le plus chargé : {m}", next90: "Les 90 prochains jours sont réservés à {p}", avgPeople: "{n} personnes en moyenne par séjour",
+    checklistRate: "Checklists de départ complétées à {p} en moyenne", noStatsYear: "Aucun séjour en {y}.",
+
     undo: "Annuler", undoDelete: "Annuler la suppression", restored: "Réservation rétablie",
     call: "Appeler", emailBtn: "E-mail", loading: "Chargement…",
     pickHint: "Touchez le jour d'arrivée, puis le jour de départ.", pickDeparture: "Choisissez le départ",
@@ -336,6 +352,14 @@ export const STR = {
   },
 
   nl: {
+
+    appearance: "Weergave", themeAuto: "Auto", themeLight: "Licht", themeDark: "Donker",
+    admStats: "Statistieken", statsSub: "Hoe het huis dit jaar gebruikt wordt. Tik op een balk voor details.",
+    occRate: "Bezettingsgraad", ofNights: "{a} van {n} nachten", staysCount: "Verblijven", avgStay: "gemiddeld {n} nachten",
+    weekendsOcc: "Bezette weekends", weekendsSub: "vrijdag- en zaterdagnachten", sharedNights: "Gedeelde nachten", sharedSub: "twee families tegelijk",
+    byMonth: "Bezetting per maand", byFamily: "Nachten per familie", showTable: "Cijfers tonen", monthCol: "Maand",
+    busiest: "Drukste maand: {m}", next90: "De komende 90 dagen zijn voor {p} geboekt", avgPeople: "gemiddeld {n} personen per verblijf",
+    checklistRate: "Vertrekchecklists gemiddeld voor {p} afgewerkt", noStatsYear: "Geen verblijven in {y}.",
 
     undo: "Ongedaan maken", undoDelete: "Verwijderen ongedaan maken", restored: "Boeking hersteld",
     call: "Bellen", emailBtn: "E-mail", loading: "Laden…",

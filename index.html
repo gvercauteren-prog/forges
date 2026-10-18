@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Forge Jean-Petit</title>
 <meta name="theme-color" content="#2C2A27">
+<script>try{var th=localStorage.getItem("fjp-theme");if(th==="light"||th==="dark")document.documentElement.setAttribute("data-theme",th)}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,19 +20,28 @@
   /* Forge: iron-grey surfaces, charcoal ink, one ember accent */
   --bg:#ECEAE7; --surface:#FFFFFF; --sunk:#E4E1DD; --ink:#1F1D1A; --muted:#66615A; --line:#D7D3CD;
   --iron:#2C2A27; --accent:#B4461A; --on-accent:#FFFFFF; --ember:#B4461A; --ok:#2E7A4B; --danger:#A3262E; --today:#FBEDE4;
-  --f1:#1F63A8; --f2:#B13A4B; --f3:#2D7D4E; --f4:#6A4FA6; --f5:#9A620C; --f6:#0B7A84; --f7:#59636E; --on-fam:#FFFFFF;
+  --f1:#256ABF; --f2:#1BAF7A; --f3:#EDA100; --f4:#E87BA4; --f5:#008300; --f6:#6250D6; --f7:#CF3B3B; --on-fam:#FFFFFF;
+  --on-f1:#FFFFFF; --on-f2:#1F1D1A; --on-f3:#1F1D1A; --on-f4:#1F1D1A; --on-f5:#FFFFFF; --on-f6:#FFFFFF; --on-f7:#FFFFFF;
   --wa:#1F7A4D;
   --font-display:"Young Serif", Georgia, "Times New Roman", serif;
   --font-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --r:10px;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root{
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141311; --surface:#1D1B19; --sunk:#292623; --ink:#ECE8E2; --muted:#A49E95; --line:#35312C;
   --iron:#3A3632; --accent:#F07A3F; --on-accent:#1C0F07; --ember:#F07A3F; --ok:#7CC796; --danger:#F08A8F; --today:#33231A;
-  --f1:#7DB2EA; --f2:#EE8C9A; --f3:#7FCB9C; --f4:#B8A3EA; --f5:#E3AE5A; --f6:#63CAD3; --f7:#B3BCC6; --on-fam:#141311;
+  --f1:#3987E5; --f2:#199E70; --f3:#C98500; --f4:#D55181; --f5:#008300; --f6:#9085E9; --f7:#E66767; --on-fam:#141311;
+  --on-f1:#141311; --on-f2:#141311; --on-f3:#141311; --on-f4:#141311; --on-f5:#FFFFFF; --on-f6:#141311; --on-f7:#141311;
   --wa:#2A8C5C;
   color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141311; --surface:#1D1B19; --sunk:#292623; --ink:#ECE8E2; --muted:#A49E95; --line:#35312C;
+  --iron:#3A3632; --accent:#F07A3F; --on-accent:#1C0F07; --ember:#F07A3F; --ok:#7CC796; --danger:#F08A8F; --today:#33231A;
+  --f1:#3987E5; --f2:#199E70; --f3:#C98500; --f4:#D55181; --f5:#008300; --f6:#9085E9; --f7:#E66767; --on-fam:#141311;
+  --on-f1:#141311; --on-f2:#141311; --on-f3:#141311; --on-f4:#141311; --on-f5:#FFFFFF; --on-f6:#141311; --on-f7:#141311;
+  --wa:#2A8C5C;
+  color-scheme:dark}
 
 *{box-sizing:border-box}
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -309,6 +319,55 @@ nav.tabs .badge{margin-left:6px}
 .skel-grid .sk{aspect-ratio:1.5;border-radius:8px}
 @keyframes skp{50%{opacity:.45}}
 @media (prefers-reduced-motion: reduce){ .sk{animation:none} }
+
+/* statistics */
+.admin-nav{grid-template-columns:repeat(5,minmax(0,1fr))}
+.stat-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:16px}
+.tile.stat{cursor:default}
+.tile .big{font-size:1.7rem;font-weight:700;line-height:1.1;letter-spacing:-.01em}
+.facts{margin:14px 0 0;padding:0 0 0 18px;display:grid;gap:4px;color:var(--muted);font-size:.9rem}
+.chart-title{font-family:var(--font-body);font-size:1rem;font-weight:700;margin:0 0 14px}
+.vbars{position:relative;height:210px;padding-left:40px}
+.vb-grid{position:absolute;left:0;right:0;top:0;bottom:22px;pointer-events:none}
+.vb-grid span{position:absolute;left:0;right:0;border-top:1px solid var(--line);font-size:.68rem;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1}
+.vb-grid span:nth-child(1){top:0}
+.vb-grid span:nth-child(2){top:50%}
+.vb-grid span:nth-child(3){top:100%}
+.vb-grid span::before{content:attr(data-v);position:absolute;left:0;top:-.5em;background:var(--surface);padding-right:4px}
+.vb-cols{position:relative;height:100%;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px}
+.vb-col{position:relative;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;outline:none}
+.vb-plot{position:relative;flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.vb-bar{width:min(100%,26px);background:var(--accent);border-radius:4px 4px 0 0}
+.vb-val{font-size:.72rem;font-weight:700;color:var(--ink);margin-bottom:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.vb-lbl .short{display:none}
+.vb-lbl{height:22px;line-height:22px;font-size:.7rem;color:var(--muted);text-transform:capitalize;white-space:nowrap}
+.vb-col:hover .vb-bar,.vb-col:focus-visible .vb-bar{filter:brightness(1.12)}
+.hbars{display:grid;gap:12px}
+.hb-row{display:grid;grid-template-columns:minmax(0,210px) minmax(0,1fr) 9.5ch;align-items:center;gap:12px;outline:none}
+.hb-name{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.9rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb-track{height:14px;background:var(--sunk);border-radius:0 4px 4px 0;overflow:hidden}
+.hb-bar{display:block;height:100%;border-radius:0 4px 4px 0}
+.hb-val{font-size:.84rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+[data-tip]{position:relative}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;z-index:5;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--bg);font-size:.75rem;font-weight:600;padding:5px 9px;border-radius:6px;white-space:nowrap;pointer-events:none}
+.vb-col[data-tip]:hover::after,.vb-col[data-tip]:focus-visible::after{bottom:auto;top:-4px}
+.hb-row[data-tip]:hover::after,.hb-row[data-tip]:focus-visible::after{left:auto;right:0;transform:none}
+.stats-table{margin-top:16px}
+.stats-table summary{cursor:pointer;color:var(--muted);font-size:.85rem;font-weight:600}
+@media (max-width:720px){
+  .admin-nav{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-nav .an:last-child:nth-child(odd){grid-column:1/-1}
+  .hb-row{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}
+  .hb-track{grid-column:1/-1;grid-row:2}
+  .vbars{height:180px;padding-left:34px}
+  .vb-cols{gap:3px}
+  .vb-lbl .full{display:none}
+  .vb-lbl .short{display:inline}
+  .hb-row{grid-template-columns:minmax(0,1fr) auto}
+  .stat-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tile .big{font-size:1.4rem}
+}
 /* header account button */
 .top{flex-wrap:nowrap}
 .brand h1{white-space:nowrap}
@@ -355,7 +414,7 @@ nav.tabs .badge{margin-left:6px}
 .link.armed{color:var(--danger)}
 .notes .note .meta .acts{margin-left:auto;display:inline-flex;gap:14px}
 /* admin menu and lists */
-.admin-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.admin-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .an{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;color:var(--ink);font-weight:600;text-align:left;min-width:0}
 .an:hover{border-color:var(--muted)}
 .an.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
@@ -460,7 +519,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=9e205a40";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=fe633ba5";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -516,7 +575,7 @@ const S = {
   settings:null, bookings:[], members:[],
   tab:"calendar", month:null, listMode:"upcoming", checkBooking:null, unsubs:[],
   signInError:"", linkSentTo:"", needEmailConfirm:false, bulk:null, tips:[], tipCat:"all",
-  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear(), adminTab:"people", adminImport:false, peopleQuery:""
+  notes:[], supplies:[], info:null, noteKind:"note", showResolved:false, calView:"month", year:new Date().getFullYear(), adminTab:"people", adminImport:false, peopleQuery:"", statsYear:new Date().getFullYear()
 };
 const $ = s => document.querySelector(s);
 const main = $("#main");
@@ -565,6 +624,7 @@ const quiet = p => p.catch(()=>{});
 /* ---------- data ---------- */
 const families = () => (S.settings?.families?.length) ? S.settings.families : DEFAULT_SETTINGS.families;
 const famIndex = id => Math.max(0, families().findIndex(f=>f.id===id));
+const famInk = id => `var(--on-f${(famIndex(id)%7)+1})`;
 const famColor = id => `var(--f${(famIndex(id)%7)+1})`;
 function famName(id){
   const f = families().find(f=>f.id===id);
@@ -753,6 +813,7 @@ const ICONS = {
   arrive: svg('<path d="M14 4.5h4.5A1.5 1.5 0 0 1 20 6v12a1.5 1.5 0 0 1-1.5 1.5H14M10 8l4 4-4 4M14 12H4"/>'),
   suitcase: svg('<rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5v-2A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5v2M3.5 12.5h17"/>'),
   wrench: svg('<path d="M15 4.5a4.5 4.5 0 0 0-4.3 5.8l-6.2 6.2a2.1 2.1 0 0 0 3 3l6.2-6.2A4.5 4.5 0 0 0 19.5 9l-2.7 2.7-2.3-.6-.6-2.3L16.6 6A4.5 4.5 0 0 0 15 4.5z"/>'),
+  chart: svg('<path d="M4 20V11M10 20V5M16 20v-8M21.5 20H2.5"/>'),
   settings: svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
 };
 const phoneMQ = matchMedia("(max-width: 720px)");
@@ -760,6 +821,11 @@ const isPhone = () => phoneMQ.matches;
 phoneMQ.addEventListener?.("change", () => render());
 function go(tab){ S.tab=tab; store.set("fjp-tab",tab); if (dlg.open) dlg.close(); render(); scrollTo({top:0}); }
 
+const themePref = () => { const v=store.get("fjp-theme"); return v==="light"||v==="dark" ? v : "auto"; };
+function setTheme(m){
+  store.set("fjp-theme", m);
+  if (m==="auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", m);
+}
 function langSwitch(inMenu){
   return h("div",{class:"lang",role:"group","aria-label":t("language")}, LANGS.map(l=>h("button",{type:"button","aria-pressed":l===LANG,text:l.toUpperCase(),
     onclick:()=>{ setLang(l); if (inMenu) openAccountMenu(); }})));
@@ -768,7 +834,7 @@ const initials = n => (n||"?").split(/[\s@._-]+/).filter(Boolean).slice(0,2).map
 function avatarEl(){
   return S.authUser?.photoURL
     ? h("img",{class:"avatar",src:S.authUser.photoURL,alt:"",referrerpolicy:"no-referrer"})
-    : h("span",{class:"avatar",style:`background:${myFamily()?famColor(myFamily()):"var(--accent)"}`,text:initials(myName())});
+    : h("span",{class:"avatar",style:myFamily()?`background:${famColor(myFamily())};color:${famInk(myFamily())}`:"background:var(--accent);color:var(--on-accent)",text:initials(myName())});
 }
 function openAccountMenu(){
   showDlg(h("div",{class:"dlg account"},
@@ -777,6 +843,9 @@ function openAccountMenu(){
       myFamily()?h("span",{class:"chip"}, h("span",{class:"dot",style:`background:${famColor(myFamily())}`}), famName(myFamily())):null,
       isAdmin()?h("span",{class:"badge-admin",text:S.isMain?t("mainAdmin"):t("admin")}):null) : null,
     h("div",{class:"field"}, t("language"), langSwitch(true)),
+    h("div",{class:"field"}, t("appearance"), h("div",{class:"lang",role:"group","aria-label":t("appearance")},
+      ["auto","light","dark"].map(m=>h("button",{type:"button","aria-pressed":themePref()===m,text:t(m==="auto"?"themeAuto":m==="light"?"themeLight":"themeDark"),
+        onclick:()=>{ setTheme(m); openAccountMenu(); }})))),
     h("div",{class:"dlg-actions"}, h("button",{class:"btn",type:"button",text:t("signOut"),onclick:doSignOut}))));
 }
 function renderHeader(){
@@ -816,7 +885,9 @@ function bookingRow(b){
     h("div",{class:"right"}, (b.start<=td && b.end>=td) ? h("strong",{style:"color:var(--ok)",text:t("atHouse")}) : nightsTxt(nights(b))));
 }
 function dayFill(fams){
-  return !fams.length ? null : fams.length===1 ? `background:${famColor(fams[0])}` : `background:linear-gradient(135deg, ${famColor(fams[0])} 50%, ${famColor(fams[1])} 50%)`;
+  if (!fams.length) return null;
+  const ink=`color:${famInk(fams[0])}`;
+  return fams.length===1 ? `background:${famColor(fams[0])};${ink}` : `background:linear-gradient(135deg, ${famColor(fams[0])} 50%, ${famColor(fams[1])} 50%);${ink}`;
 }
 function renderMonthCompact(){
   const [Y,M] = S.month.split("-").map(Number);
@@ -1016,7 +1087,7 @@ function renderCalendar(){
     }
     for (const {b,cs,ce,lane} of placed){
       const cls=["bar"]; if(b.s<ws) cls.push("cont-l"); if(b.e>we) cls.push("cont-r"); if(canEdit(b)) cls.push("mine");
-      week.append(h("button",{class:cls.join(" "),style:`grid-column:${cs-ws+1} / ${ce-ws+2};grid-row:${lane+2};background:${famColor(b.family)}`,
+      week.append(h("button",{class:cls.join(" "),style:`grid-column:${cs-ws+1} / ${ce-ws+2};grid-row:${lane+2};background:${famColor(b.family)};color:${famInk(b.family)}`,
         title:`${famName(b.family)}${b.name?" ("+b.name+")":""}: ${fmtRange(b)}`,
         onclick:e=>{e.stopPropagation(); openDetail(b);}, text:famName(b.family)+(b.note?" · "+b.note:"")}));
     }
@@ -1193,7 +1264,7 @@ function renderYear(){
     const cells=[]; for (let i=0;i<lead;i++) cells.push(h("span",{class:"yd blank","aria-hidden":"true"}));
     for (let d=mfirst; d<mfirst+days; d++){
       const here=yb.filter(b=>b.s<=d&&b.e>=d), fams=[...new Set(here.map(b=>b.family))], dstr=ds(d);
-      const style = !fams.length ? null : fams.length===1 ? `background:${famColor(fams[0])}` : `background:linear-gradient(135deg, ${famColor(fams[0])} 50%, ${famColor(fams[1])} 50%)`;
+      const style = dayFill(fams);
       const label = fmt(dstr,{weekday:"long",day:"numeric",month:"long"}) + (here.length ? ": "+[...new Set(here.map(b=>famName(b.family)))].join(", ") : "");
       cells.push(h("button",{class:"yd"+(here.length?" booked":"")+(d===today?" today":""),style,"aria-label":label,title:label,text:String(d-mfirst+1),
         onclick:()=>{ if(here.length) openDetail(here[0]); else if(canBook) openForm(null,dstr); else toast(t("pickFamilyFirst")); }}));
@@ -1356,13 +1427,15 @@ function renderBulk(){
 }
 function renderSettings(){
   const wrap=h("div",{class:"settings"});
-  const counts={people:S.members.length, families:families().length, checklist:(S.settings?.checklist||[]).length, contacts:(S.settings?.contacts||[]).length};
-  const parts=[["people","admPeople","people"],["families","admFamilies","home"],["checklist","admChecklist","checklist"],["contacts","admContacts","contacts"]];
+  const counts={people:S.members.length, families:families().length, checklist:(S.settings?.checklist||[]).length, contacts:(S.settings?.contacts||[]).length,
+    stats:pct(computeStats(new Date().getFullYear()).rate)};
+  const parts=[["people","admPeople","people"],["families","admFamilies","home"],["checklist","admChecklist","checklist"],["contacts","admContacts","contacts"],["stats","admStats","chart"]];
   wrap.append(h("nav",{class:"admin-nav","aria-label":t("tabAdmin")}, parts.map(([k,l,ico])=>h("button",{type:"button",class:"an"+(S.adminTab===k?" on":""),"aria-current":S.adminTab===k?"page":null,
     onclick:()=>{ S.adminTab=k; S.adminImport=false; render(); }},
     h("span",{class:"bn-ico",html:ICONS[ico]}), h("span",{class:"an-lbl",text:t(l)}), h("span",{class:"an-n",text:String(counts[k])})))));
   const tab=S.adminTab;
-  if (tab==="families") wrap.append(adminFamilies());
+  if (tab==="stats") wrap.append(adminStats());
+  else if (tab==="families") wrap.append(adminFamilies());
   else if (tab==="checklist") wrap.append(adminChecklist());
   else if (tab==="contacts") wrap.append(adminContacts());
   else if (S.adminImport) wrap.append(h("div",null,h("button",{class:"link",type:"button",text:t("back"),onclick:()=>{S.adminImport=false;render();}})), renderBulk());
@@ -1370,9 +1443,82 @@ function renderSettings(){
   return wrap;
 }
 
+/* ---------- admin: statistics ---------- */
+function computeStats(Y){
+  const ys=dn(`${Y}-01-01`), ye=dn(`${Y}-12-31`), total=ye-ys+1, T=dn(todayStr());
+  const bk=allBookings().map(b=>({...b,s:dn(b.start),e:dn(b.end)})).filter(b=>b.s<=ye && b.e>ys);
+  const night=new Map();                      // night (day number) -> set of families
+  const famNights={}; let stays=0, stayNights=0, guestSum=0, guestN=0, chkSum=0, chkN=0;
+  const items=(S.settings?.checklist||[]).length;
+  for (const b of bk){
+    let n=0;
+    for (let d=Math.max(b.s,ys); d<Math.min(b.e,ye+1); d++){ n++; if(!night.has(d)) night.set(d,new Set()); night.get(d).add(b.family); }
+    if (!n) continue;
+    stays++; stayNights+=nights(b); famNights[b.family]=(famNights[b.family]||0)+n;
+    if (b.guests){ guestSum+=b.guests; guestN++; }
+    if (items && b.e<T){ chkSum+=Object.keys(b.checklist||{}).length/items; chkN++; }
+  }
+  const months=Array.from({length:12},(_,i)=>{ const f=dn(`${Y}-${pad(i+1)}-01`), len=new Date(Date.UTC(Y,i+1,0)).getUTCDate();
+    let occ=0; for (let d=f; d<f+len; d++) if (night.has(d)) occ++; return {i, occ, len, rate:occ/len}; });
+  let wk=0, wkOcc=0;                           // Friday and Saturday nights
+  for (let d=ys; d<=ye; d++){ const wd=new Date(d*864e5).getUTCDay(); if (wd===5||wd===6){ wk++; if (night.has(d)) wkOcc++; } }
+  let shared=0; for (const s of night.values()) if (s.size>1) shared++;
+  const allB=allBookings().map(b=>({s:dn(b.start),e:dn(b.end)}));
+  let n90=0; for (let d=T; d<T+90; d++) if (allB.some(b=>b.s<=d&&d<b.e)) n90++;
+  const occupied=night.size;
+  return { Y, total, occupied, rate:occupied/total, stays, avg: stays?stayNights/stays:0, months, famNights,
+           weekendRate: wk?wkOcc/wk:0, shared, next90:n90/90, avgGuests: guestN?guestSum/guestN:null, chk: chkN?chkSum/chkN:null };
+}
+const pct = x => Math.round(x*100)+" %";
+function adminStats(){
+  const Y=S.statsYear, st=computeStats(Y);
+  const kpi=(label,val,sub)=>h("div",{class:"tile stat"}, h("span",{class:"lbl",text:label}), h("span",{class:"big tnum",text:val}), sub?h("span",{class:"sub",text:sub}):null);
+  const monthName=i=>new Date(Date.UTC(Y,i,1)).toLocaleDateString(locale(),{timeZone:"UTC",month:"short"}).replace(".","");
+  const busiest=[...st.months].sort((a,b)=>b.occ-a.occ)[0];
+  const maxM=Math.max(...st.months.map(m=>m.rate));
+  const fam=families().map(f=>({id:f.id, n:st.famNights[f.id]||0})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n);
+  const famTotal=fam.reduce((a,x)=>a+x.n,0), famMax=Math.max(1,...fam.map(x=>x.n));
+  const head=h("div",{class:"split"},
+    h("div",null, h("h2",{text:t("admStats")}), h("p",{class:"sub",text:t("statsSub")})),
+    h("div",{class:"cal-nav"},
+      h("button",{class:"btn icon-btn","aria-label":t("prevYear"),text:"‹",onclick:()=>{S.statsYear--;render();}}),
+      h("strong",{class:"tnum",style:"min-width:4ch;text-align:center",text:String(Y)}),
+      h("button",{class:"btn icon-btn","aria-label":t("nextYear"),text:"›",onclick:()=>{S.statsYear++;render();}})));
+  if (!st.stays) return h("section",{class:"panel"}, head, h("div",{class:"empty",style:"margin-top:14px",text:t("noStatsYear",{y:Y})}));
+  const monthsChart=h("div",{class:"vbars",role:"img","aria-label":t("byMonth")},
+    h("div",{class:"vb-grid","aria-hidden":"true"}, h("span",{"data-v":"100 %"}), h("span",{"data-v":"50 %"}), h("span",{"data-v":"0"})),
+    h("div",{class:"vb-cols"}, st.months.map(m=>h("div",{class:"vb-col",tabindex:"0","aria-label":`${monthName(m.i)}: ${pct(m.rate)}`,"data-tip":`${monthName(m.i)} · ${pct(m.rate)} · ${nightsTxt(m.occ)}`},
+      h("div",{class:"vb-plot"},
+        (m.rate===maxM && m.rate>0) ? h("span",{class:"vb-val",text:pct(m.rate)}) : null,
+        h("span",{class:"vb-bar",style:`height:${m.occ?Math.max(m.rate*100,2):0}%`})),
+      h("span",{class:"vb-lbl"}, h("span",{class:"full",text:monthName(m.i)}), h("span",{class:"short","aria-hidden":"true",text:monthName(m.i).charAt(0).toUpperCase()}))))));
+  const famChart=h("div",{class:"hbars"}, fam.map(x=>h("div",{class:"hb-row",tabindex:"0","data-tip":`${famName(x.id)} · ${nightsTxt(x.n)} · ${pct(x.n/famTotal)}`},
+    h("span",{class:"hb-name"}, h("span",{class:"dot",style:`background:${famColor(x.id)}`}), famName(x.id)),
+    h("span",{class:"hb-track"}, h("span",{class:"hb-bar",style:`width:${x.n/famMax*100}%;background:${famColor(x.id)}`})),
+    h("span",{class:"hb-val tnum",text:`${x.n} · ${pct(x.n/famTotal)}`}))));
+  const table=h("details",{class:"stats-table"}, h("summary",{text:t("showTable")}),
+    h("div",{class:"scroll-x"}, h("table",{class:"bulk-table"},
+      h("thead",null,h("tr",null,h("th",{text:t("monthCol")}),h("th",{text:t("nightsLabel")}),h("th",{text:t("occRate")}))),
+      h("tbody",null, st.months.map(m=>h("tr",null,h("td",{text:monthName(m.i)}),h("td",{class:"tnum",text:`${m.occ} / ${m.len}`}),h("td",{class:"tnum",text:pct(m.rate)})))))));
+  const facts=[ t("busiest",{m:new Date(Date.UTC(Y,busiest.i,1)).toLocaleDateString(locale(),{timeZone:"UTC",month:"long"})}),
+    Y===new Date().getFullYear() ? t("next90",{p:pct(st.next90)}) : null,
+    st.avgGuests!=null ? t("avgPeople",{n:st.avgGuests.toLocaleString(locale(),{maximumFractionDigits:1})}) : null,
+    st.chk!=null ? t("checklistRate",{p:pct(st.chk)}) : null ].filter(Boolean);
+  return h("div",{class:"settings"},
+    h("section",{class:"panel"}, head,
+      h("div",{class:"stat-kpis"},
+        kpi(t("occRate"), pct(st.rate), t("ofNights",{a:st.occupied,n:st.total})),
+        kpi(t("staysCount"), String(st.stays), t("avgStay",{n:st.avg.toLocaleString(locale(),{maximumFractionDigits:1})})),
+        kpi(t("weekendsOcc"), pct(st.weekendRate), t("weekendsSub")),
+        kpi(t("sharedNights"), String(st.shared), t("sharedSub"))),
+      facts.length ? h("ul",{class:"facts"}, facts.map(f=>h("li",{text:f}))) : null),
+    h("section",{class:"panel"}, h("h3",{class:"chart-title",text:t("byMonth")}), monthsChart, table),
+    h("section",{class:"panel"}, h("h3",{class:"chart-title",text:t("byFamily")}), famChart));
+}
+
 /* People: grouped by family; tap someone to change their family, name or admin role. */
 function personAvatar(m){
-  return h("span",{class:"avatar",style:`background:${m.family?famColor(m.family):"var(--muted)"}`,text:initials(m.name||m.id)});
+  return h("span",{class:"avatar",style:m.family?`background:${famColor(m.family)};color:${famInk(m.family)}`:"background:var(--muted);color:var(--surface)",text:initials(m.name||m.id)});
 }
 function adminPeople(){
   const q=(S.peopleQuery||"").trim().toLowerCase();
@@ -1529,7 +1675,7 @@ function openDetail(b, justDone){
     openCancelled(b, undo);
   };
   showDlg(h("div",{class:"dlg bk"},
-    h("div",{class:"bk-band",style:`background:${famColor(b.family)}`},
+    h("div",{class:"bk-band",style:`background:${famColor(b.family)};color:${famInk(b.family)}`},
       h("div",{class:"bk-band-txt"},
         h("span",{class:"bk-fam",text:famName(b.family)}),
         h("h2",{text:fmtRange(b)}),
