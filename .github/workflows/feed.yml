@@ -1,0 +1,50 @@
+# Every hour, publishes the private calendar feed (for the iPhone/Google calendar
+# subscription) to https://forge-jean-petit.web.app/c/<secret>/.
+# Only family names and dates are published, at an address only members can see in the app.
+name: Calendar feed
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/feed.mjs
+      - .github/workflows/feed.yml
+      - firebase.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: feed
+  cancel-in-progress: true
+
+jobs:
+  feed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Build the feed
+        id: build
+        run: TOKEN="$(gcloud auth print-access-token)" node scripts/feed.mjs feed-out
+      - name: Publish to Firebase Hosting
+        run: npx --yes firebase-tools@13.29.1 deploy --only hosting --project forge-jean-petit --non-interactive --message "feed $(date -u +%FT%H:%M)"
+      - name: Tell the app the address works
+        env:
+          KEY: ${{ steps.build.outputs.key }}
+        run: |
+          set -euo pipefail
+          curl -sSf -o /dev/null "https://forge-jean-petit.web.app/c/${KEY}/forge.ics"
+          curl -sSf -o /dev/null -X PATCH \
+            "https://firestore.googleapis.com/v1/projects/forge-jean-petit/databases/(default)/documents/config/settings?updateMask.fieldPaths=feedLiveKey" \
+            -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: application/json" \
+            -d "{\"fields\":{\"feedLiveKey\":{\"stringValue\":\"${KEY}\"}}}"
