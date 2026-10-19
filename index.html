@@ -762,6 +762,30 @@ header > .wrap{position:relative;z-index:1}
 .lang .lang-a + .lang-a{border-left:1px solid var(--line)}
 .lang .lang-a:hover{background:var(--sunk);color:var(--ink)}
 @media (pointer:coarse){ .lang .lang-a{position:relative} .lang .lang-a::after{content:"";position:absolute;inset:-7px -2px} }
+
+/* account menu */
+.account{gap:16px}
+.acct-id{gap:14px;align-items:flex-start}
+.acct-id .avatar{width:52px;height:52px;font-size:var(--fs-lg);flex:none}
+.acct-who{display:grid;gap:2px;min-width:0}
+.acct-who strong{font-size:var(--fs-lg);line-height:1.25}
+.acct-mail{overflow-wrap:anywhere}
+.acct-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:6px}
+.set-list{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+.set-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 12px;padding:12px 14px}
+.set-row + .set-row{border-top:1px solid var(--line)}
+.set-lbl{display:flex;align-items:center;gap:10px;font-weight:600}
+.set-ico{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--sunk);color:var(--muted);flex:none}
+.set-ico svg{width:17px;height:17px}
+.pseg{display:inline-flex;gap:2px;padding:3px;border-radius:11px;background:var(--sunk);margin-left:auto}
+.pseg > *{border:0;background:none;border-radius:8px;padding:6px 11px;font:inherit;font-size:var(--fs-sm);font-weight:600;color:var(--muted);cursor:pointer;text-decoration:none;white-space:nowrap;line-height:1.3}
+.pseg > [aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12),0 0 0 1px var(--line)}
+.pseg > a:hover,.pseg > button:not([aria-pressed="true"]):hover{color:var(--ink)}
+.pseg > a{color:var(--ink)}
+.signout{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px;background:none;font:inherit;font-weight:600;color:var(--danger);cursor:pointer}
+.signout .bn-ico svg{width:18px;height:18px}
+.signout:hover{background:color-mix(in srgb,var(--danger) 8%,transparent);border-color:color-mix(in srgb,var(--danger) 35%,var(--line))}
+@media (pointer:coarse){ .pseg > *{position:relative} .pseg > *::after{content:"";position:absolute;inset:-7px -1px} }
 </style>
 </head>
 <body>
@@ -808,7 +832,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=c7e3a973";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=334084f5";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -1164,6 +1188,9 @@ const TAB_LABELS = {calendar:"tabCalendar", carnet:"tabCarnet", info:"tabInfo", 
 const PRIMARY_TABS = ["calendar","carnet","info"], MORE_TABS = ["checklist","tips","contacts","settings"];
 const svg = d => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICONS = {
+  globe: svg('<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.3 3.6 5.1 3.6 8.5s-1.2 6.2-3.6 8.5c-2.4-2.3-3.6-5.1-3.6-8.5S9.6 5.8 12 3.5z"/>'),
+  contrast: svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor" stroke="none"/>'),
+  logout: svg('<path d="M14 4.5h3.5a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H14"/><path d="M10 8l-4 4 4 4M6 12h9"/>'),
   copy: svg('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/>'),
   dots: svg('<circle cx="5.5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.4" fill="currentColor" stroke="none"/>'),
   calendar: svg('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'),
@@ -1249,19 +1276,25 @@ function avatarEl(){
     : h("span",{class:"avatar",style:myFamily()?`background:${famColor(myFamily())};color:${famInk(myFamily())}`:"background:var(--accent);color:var(--on-accent)",text:initials(myName())});
 }
 function openAccountMenu(){
+  const row=(ico,label,control)=>h("div",{class:"set-row"},
+    h("span",{class:"set-lbl"}, h("span",{class:"set-ico","aria-hidden":"true",html:ICONS[ico]}), label), control);
+  const seg=(label,items)=>h("div",{class:"pseg",role:"group","aria-label":label}, items);
   showDlg(h("div",{class:"dlg account"},
-    h("div",{class:"dlg-head"}, h("div",{class:"acct-id"}, avatarEl(), h("div",{style:"min-width:0"}, h("strong",{text:myName()}), h("div",{class:"hint",style:"overflow-wrap:anywhere",text:S.email}))), closeBtn()),
-    (myFamily()||isAdmin()) ? h("div",{class:"export-row"},
-      myFamily()?h("span",{class:"chip"}, h("span",{class:"dot",style:`background:${famColor(myFamily())}`}), famName(myFamily())):null,
-      isAdmin()?h("span",{class:"badge-admin",text:S.isMain?t("mainAdmin"):t("admin")}):null) : null,
-    h("div",{class:"field"}, t("language"), langSwitch(true)),
-    h("div",{class:"field"}, t("appearance"), h("div",{class:"lang",role:"group","aria-label":t("appearance")},
-      ["auto","light","dark"].map(m=>h("button",{type:"button","aria-pressed":themePref()===m,text:t(m==="auto"?"themeAuto":m==="light"?"themeLight":"themeDark"),
-        onclick:()=>{ setTheme(m); openAccountMenu(); }})))),
-    feedKey() ? h("div",{class:"field"}, t("calendarSub"), h("div",{class:"lang"},
-      h("a",{class:"lang-a",...appleSubLink(),text:t("subApple")}),
-      h("a",{class:"lang-a",href:feedGoogle(),target:"_blank",rel:"noopener noreferrer",text:t("subGoogle")}))) : null,
-    h("div",{class:"dlg-actions"}, h("button",{class:"btn",type:"button",text:t("signOut"),onclick:doSignOut}))));
+    h("div",{class:"dlg-head"},
+      h("div",{class:"acct-id"}, avatarEl(),
+        h("div",{class:"acct-who"}, h("strong",{text:myName()}), h("span",{class:"hint acct-mail",text:S.email}),
+          (myFamily()||isAdmin()) ? h("span",{class:"acct-tags"},
+            myFamily()?h("span",{class:"chip"}, h("span",{class:"dot",style:`background:${famColor(myFamily())}`}), famName(myFamily())):null,
+            isAdmin()?h("span",{class:"badge-admin",text:S.isMain?t("mainAdmin"):t("admin")}):null) : null)),
+      closeBtn()),
+    h("div",{class:"set-list"},
+      row("globe", t("language"), seg(t("language"), LANGS.map(l=>h("button",{type:"button","aria-pressed":l===LANG,text:l.toUpperCase(),onclick:()=>{ setLang(l); openAccountMenu(); }})))),
+      row("contrast", t("appearance"), seg(t("appearance"), ["auto","light","dark"].map(m=>h("button",{type:"button","aria-pressed":themePref()===m,
+        text:t(m==="auto"?"themeAuto":m==="light"?"themeLight":"themeDark"),onclick:()=>{ setTheme(m); openAccountMenu(); }})))),
+      feedKey() ? row("calendar", t("menuCal"), seg(t("calendarSub"), [
+        h("a",{...appleSubLink(),text:"iPhone"}),
+        h("a",{href:feedGoogle(),target:"_blank",rel:"noopener noreferrer",text:"Google"})])) : null),
+    h("button",{class:"signout",type:"button",onclick:doSignOut}, h("span",{class:"bn-ico","aria-hidden":"true",html:ICONS.logout}), t("signOut"))));
 }
 function renderHeader(){
   $("#brand-small").textContent = t("brandSmall");
