@@ -755,6 +755,13 @@ header > .wrap{position:relative;z-index:1}
 .dlg-head h2.sheet-title{font-size:var(--fs-md);font-weight:600;line-height:1.35;color:var(--muted)}
 .panel .card.tip{position:relative}
 .panel .card.tip .acts{position:absolute;top:10px;right:-6px;margin:0}
+
+.sb-txt{flex:1;min-width:0}
+.sb-close{margin:-6px -6px 0 0;color:var(--muted);flex:none}
+.lang .lang-a{display:inline-flex;align-items:center;text-decoration:none;color:var(--muted);font-weight:700;font-size:var(--fs-xs);letter-spacing:.02em;padding:3px 10px}
+.lang .lang-a + .lang-a{border-left:1px solid var(--line)}
+.lang .lang-a:hover{background:var(--sunk);color:var(--ink)}
+@media (pointer:coarse){ .lang .lang-a{position:relative} .lang .lang-a::after{content:"";position:absolute;inset:-7px -2px} }
 </style>
 </head>
 <body>
@@ -801,7 +808,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=8e8ae83e";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=c7e3a973";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -1251,6 +1258,9 @@ function openAccountMenu(){
     h("div",{class:"field"}, t("appearance"), h("div",{class:"lang",role:"group","aria-label":t("appearance")},
       ["auto","light","dark"].map(m=>h("button",{type:"button","aria-pressed":themePref()===m,text:t(m==="auto"?"themeAuto":m==="light"?"themeLight":"themeDark"),
         onclick:()=>{ setTheme(m); openAccountMenu(); }})))),
+    feedKey() ? h("div",{class:"field"}, t("calendarSub"), h("div",{class:"lang"},
+      h("a",{class:"lang-a",href:feedWebcal(),text:t("subApple")}),
+      h("a",{class:"lang-a",href:feedGoogle(),target:"_blank",rel:"noopener noreferrer",text:t("subGoogle")}))) : null,
     h("div",{class:"dlg-actions"}, h("button",{class:"btn",type:"button",text:t("signOut"),onclick:doSignOut}))));
 }
 function renderHeader(){
@@ -1542,7 +1552,7 @@ function renderList(){
   return h("section",{class:"panel"},
     h("div",{class:"split"}, h("div",null,h("h2",{text:t("stays")}),h("p",{class:"sub",text:t("staysSub")})), seg),
     body,
-    subscribeBox() || (upcomingAll.length ? h("div",{style:"margin-top:14px"}, h("button",{class:"btn",text:t("downloadAll",{n:upcomingAll.length}),onclick:()=>downloadIcs(upcomingAll,"forge-jean-petit.ics")})) : null));
+    feedKey() ? subscribeBox() : (upcomingAll.length ? h("div",{style:"margin-top:14px"}, h("button",{class:"btn",text:t("downloadAll",{n:upcomingAll.length}),onclick:()=>downloadIcs(upcomingAll,"forge-jean-petit.ics")})) : null));
 }
 
 /* ---------- live calendar subscription (iPhone / Google), refreshed every hour by GitHub ---------- */
@@ -1550,17 +1560,21 @@ const FEED_HOST = "forge-jean-petit.web.app";
 // shown only once the hourly job has confirmed this address is published
 const feedKey = () => { const k=S.settings?.feedKey||""; return /^[A-Za-z0-9]{20,64}$/.test(k) && S.settings?.feedLiveKey===k ? k : ""; };
 const feedUrl = () => `https://${FEED_HOST}/c/${feedKey()}/forge.ics`;
+const feedWebcal = () => feedUrl().replace(/^https:/,"webcal:");
+const feedGoogle = () => "https://calendar.google.com/calendar/r?cid="+encodeURIComponent(feedWebcal());
 function subscribeBox(){
-  if (!feedKey()) return null;
-  const webcal = feedUrl().replace(/^https:/,"webcal:");
+  if (!feedKey() || store.get("fjp-sub-hide")==="1") return null;
+  const webcal = feedWebcal();
   const copy = h("button",{class:"btn ghost",type:"button",text:t("copyLink")});
   copy.onclick = ()=>navigator.clipboard?.writeText(feedUrl()).then(()=>{ copy.textContent=t("copied"); setTimeout(()=>copy.textContent=t("copyLink"),1400); },()=>toast(t("copyFail")));
   return h("div",{class:"sub-box"},
     h("div",{class:"sb-head"}, h("span",{class:"tile-ico","aria-hidden":"true",html:ICONS.calendar}),
-      h("span",{class:"sb-txt"}, h("strong",{text:t("subTitle")}), h("span",{class:"hint",text:t("subHint")}))),
+      h("span",{class:"sb-txt"}, h("strong",{text:t("subTitle")}), h("span",{class:"hint",text:t("subHint")})),
+      h("button",{type:"button",class:"btn ghost icon-btn sb-close","aria-label":t("subHide"),title:t("subHide"),text:"✕",
+        onclick:()=>{ store.set("fjp-sub-hide","1"); render(); toast(t("subHidden")); }})),
     h("div",{class:"sb-acts"},
       h("a",{class:"btn primary",href:webcal,text:t("subApple")}),
-      h("a",{class:"btn",href:"https://calendar.google.com/calendar/r?cid="+encodeURIComponent(webcal),target:"_blank",rel:"noopener noreferrer",text:t("subGoogle")}),
+      h("a",{class:"btn",href:feedGoogle(),target:"_blank",rel:"noopener noreferrer",text:t("subGoogle")}),
       copy),
     h("p",{class:"hint sb-tip",text:t("subWidget")}),
     isAdmin() ? h("button",{class:"link muted",type:"button",text:t("subReset"),onclick:openFeedReset}) : null);
