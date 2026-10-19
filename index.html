@@ -816,6 +816,7 @@ header > .wrap{position:relative;z-index:1}
   .bottom-nav:not([hidden]){background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none}
 }
 @media (prefers-reduced-motion:reduce){ .bn-lens{transition:none!important} }
+.bottom-nav,.fab{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 </style>
 </head>
 <body>
@@ -1343,12 +1344,26 @@ function renderHeader(){
 const newDot = k => { const N=S.news; if (!N || S.tab===k) return false;
   return k==="calendar" ? N.stays>0 : k==="carnet" ? N.carnet>0 : (k==="tips"||k==="more") ? N.tips>0 : false; };
 const carnetCount = () => S.notes.filter(n=>n.kind==="issue"&&!n.resolved).length + S.supplies.filter(x=>!x.done).length;
+// On phones, react when the finger lifts: after a scroll iOS swallows the first "click"
+// (it only stops the gliding), which made people tap twice.
+function oneTap(el, fn){
+  let x=0, y=0, t=0;
+  el.addEventListener("touchstart",e=>{ const p=e.touches[0]; x=p.clientX; y=p.clientY; t=Date.now(); },{passive:true});
+  el.addEventListener("touchend",e=>{
+    const p=e.changedTouches[0];
+    if (Math.hypot(p.clientX-x, p.clientY-y)>12 || Date.now()-t>700) return;
+    e.preventDefault();          // no delayed "ghost" click landing on what just opened
+    fn(e);
+  },{passive:false});
+  el.addEventListener("click",fn); // mouse and keyboard
+  return el;
+}
 function renderBottomNav(inside){
   const nav=$("#bottom-nav"); nav.hidden=!inside; if (!inside) return;
-  const btn=(k,active,onclick)=>h("button",{type:"button",class:"bn"+(active?" on":""),"aria-current":active?"page":null,onclick},
+  const btn=(k,active,onclick)=>oneTap(h("button",{type:"button",class:"bn"+(active?" on":""),"aria-current":active?"page":null},
     h("span",{class:"bn-ico",html:ICONS[k]}, (k==="carnet" && carnetCount()) ? h("span",{class:"badge"+(S.news?.carnet?" fresh":""),text:String(carnetCount())})
       : newDot(k) ? h("span",{class:"new-dot","aria-label":t("newPill")}) : null),
-    h("span",{class:"bn-lbl",text:t(k==="more"?"tabMore":k==="info"?"tabInfoShort":TAB_LABELS[k])}));
+    h("span",{class:"bn-lbl",text:t(k==="more"?"tabMore":k==="info"?"tabInfoShort":TAB_LABELS[k])})), onclick);
   const lens=h("span",{class:"bn-lens","aria-hidden":"true"});
   nav.replaceChildren(lens, ...PRIMARY_TABS.map(k=>btn(k, S.tab===k, ()=>go(k))), btn("more", MORE_TABS.includes(S.tab), openMore));
   // the glass lens starts where the previous tab was and glides to the new one
@@ -2616,7 +2631,7 @@ function openForm(b, startDefault){
 }
 
 /* ---------- tabs ---------- */
-$("#fab").addEventListener("click",()=>openForm(null, todayStr()));
+oneTap($("#fab"), ()=>openForm(null, todayStr()));
 $("#tabs").addEventListener("click",e=>{
   const b=e.target.closest("button[data-tab]"); if(!b) return;
   S.tab=b.dataset.tab; store.set("fjp-tab",S.tab); render();
