@@ -21,15 +21,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Don't leave this repo's GITHUB_TOKEN in git config: it would be sent
+          # instead of BACKUP_REPO_TOKEN when talking to the private backup repo.
+          persist-credentials: false
       - name: Get the private backup repo (works even if it is still empty)
         env:
           TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
         run: |
           URL="https://x-access-token:${TOKEN}@github.com/gvercauteren-prog/forges-backups.git"
-          if git ls-remote --exit-code --heads "$URL" main >/dev/null 2>&1; then
+          # Exit code 2 = repo reachable but has no main branch yet (first run).
+          # Any other failure (bad token, network) must stop the job, not start
+          # an empty history that can never be pushed.
+          set +e
+          git ls-remote --exit-code "$URL" refs/heads/main >/dev/null
+          rc=$?
+          set -e
+          if [ $rc -eq 0 ]; then
             git clone --depth 1 "$URL" backups-repo
-          else
+          elif [ $rc -eq 2 ]; then
             git init -b main backups-repo && git -C backups-repo remote add origin "$URL"
+          else
+            echo "::error::Cannot reach forges-backups (check BACKUP_REPO_TOKEN)"; exit 1
           fi
       - uses: actions/setup-node@v4
         with:
