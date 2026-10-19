@@ -786,6 +786,36 @@ header > .wrap{position:relative;z-index:1}
 .signout .bn-ico svg{width:18px;height:18px}
 .signout:hover{background:color-mix(in srgb,var(--danger) 8%,transparent);border-color:color-mix(in srgb,var(--danger) 35%,var(--line))}
 @media (pointer:coarse){ .pseg > *{position:relative} .pseg > *::after{content:"";position:absolute;inset:-7px -1px} }
+
+/* ---------- floating glass menu on phones (iPhone and Android) ---------- */
+.bn-lens{display:none}
+@media (max-width:720px){
+  :root{--glass-bg:color-mix(in srgb,var(--surface) 62%,transparent);--glass-edge:rgba(255,255,255,.65);--glass-shine:rgba(255,255,255,.75);--glass-shadow:0 10px 30px rgba(20,16,12,.16),0 2px 6px rgba(20,16,12,.08)}
+  :root[data-theme="dark"]{--glass-bg:color-mix(in srgb,var(--surface) 58%,transparent);--glass-edge:rgba(255,255,255,.14);--glass-shine:rgba(255,255,255,.16);--glass-shadow:0 10px 30px rgba(0,0,0,.5)}
+  body:has(.bottom-nav:not([hidden])){padding-bottom:calc(92px + env(safe-area-inset-bottom, 0px))}
+  .bottom-nav:not([hidden]){left:max(12px, env(safe-area-inset-left, 0px));right:max(12px, env(safe-area-inset-right, 0px));
+    bottom:calc(10px + env(safe-area-inset-bottom, 0px));padding:6px;border-radius:30px;border:1px solid var(--glass-edge);
+    background:var(--glass-bg);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);
+    box-shadow:var(--glass-shadow),inset 0 1px 0 var(--glass-shine)}
+  .bn{position:relative;z-index:1;border-radius:24px;padding:7px 2px 6px}
+  .bn.on{color:var(--accent)}
+  .bn-lens{display:block;position:absolute;z-index:0;top:6px;bottom:6px;left:0;border-radius:24px;
+    background:color-mix(in srgb,var(--accent) 13%,color-mix(in srgb,var(--surface) 70%,transparent));
+    box-shadow:inset 0 1px 0 var(--glass-shine),inset 0 0 0 1px color-mix(in srgb,var(--accent) 18%,transparent),0 2px 8px rgba(20,16,12,.08);
+    transition:transform .38s cubic-bezier(.3,1.35,.5,1),width .3s ease}
+  .fab:not([hidden]){bottom:calc(92px + env(safe-area-inset-bottom, 0px));box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 40%,transparent),inset 0 1px 0 rgba(255,255,255,.35)}
+}
+@media (max-width:720px) and (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--glass-bg:color-mix(in srgb,var(--surface) 58%,transparent);--glass-edge:rgba(255,255,255,.14);--glass-shine:rgba(255,255,255,.16);--glass-shadow:0 10px 30px rgba(0,0,0,.5)}
+}
+/* solid fallback: no blur support, or "Reduce Transparency" switched on */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  @media (max-width:720px){ .bottom-nav:not([hidden]){background:var(--surface)} }
+}
+@media (max-width:720px) and (prefers-reduced-transparency:reduce){
+  .bottom-nav:not([hidden]){background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+@media (prefers-reduced-motion:reduce){ .bn-lens{transition:none!important} }
 </style>
 </head>
 <body>
@@ -1319,8 +1349,19 @@ function renderBottomNav(inside){
     h("span",{class:"bn-ico",html:ICONS[k]}, (k==="carnet" && carnetCount()) ? h("span",{class:"badge"+(S.news?.carnet?" fresh":""),text:String(carnetCount())})
       : newDot(k) ? h("span",{class:"new-dot","aria-label":t("newPill")}) : null),
     h("span",{class:"bn-lbl",text:t(k==="more"?"tabMore":k==="info"?"tabInfoShort":TAB_LABELS[k])}));
-  nav.replaceChildren(...PRIMARY_TABS.map(k=>btn(k, S.tab===k, ()=>go(k))), btn("more", MORE_TABS.includes(S.tab), openMore));
+  const lens=h("span",{class:"bn-lens","aria-hidden":"true"});
+  nav.replaceChildren(lens, ...PRIMARY_TABS.map(k=>btn(k, S.tab===k, ()=>go(k))), btn("more", MORE_TABS.includes(S.tab), openMore));
+  // the glass lens starts where the previous tab was and glides to the new one
+  const idx=[...PRIMARY_TABS,"more"].indexOf(MORE_TABS.includes(S.tab)?"more":S.tab);
+  const place=(i,anim)=>{ const b=nav.querySelectorAll(".bn")[i]; if(!b) return;
+    lens.style.transition = anim ? "" : "none";
+    lens.style.width=b.offsetWidth+"px"; lens.style.transform=`translateX(${b.offsetLeft}px)`; };
+  const from = S.navIdx ?? idx;
+  requestAnimationFrame(()=>{ place(from,false); requestAnimationFrame(()=>place(idx,true)); });
+  S.navIdx=idx;
 }
+addEventListener("resize",()=>{ const nav=$("#bottom-nav"), lens=nav?.querySelector(".bn-lens"), b=nav?.querySelectorAll(".bn")[S.navIdx??0];
+  if (lens&&b){ lens.style.transition="none"; lens.style.width=b.offsetWidth+"px"; lens.style.transform=`translateX(${b.offsetLeft}px)`; } });
 function openMore(){
   const items = MORE_TABS.filter(k=>k!=="settings");
   showDlg(h("div",{class:"dlg"},
