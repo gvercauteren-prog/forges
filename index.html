@@ -842,6 +842,8 @@ header > .wrap{position:relative;z-index:1}
 .ask-msg{margin:0}
 .ask-acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:2px}
 .ask-fam{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--muted)}
+.ask-tip{margin:-2px 4px 0;font-size:var(--fs-sm);color:var(--muted)}
+.ask-tip::before{content:"🎤 "}
 </style>
 </head>
 <body>
@@ -889,7 +891,7 @@ import { getFirestore, initializeFirestore, persistentLocalCache, persistentMult
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { parseRequest } from "./assist.js?v=25682d62";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=1c5f669b";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=9b851a18";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -1134,19 +1136,25 @@ function askCard(){
 }
 function renderAsk(){
   const input=h("input",{id:"ask-text",type:"text",enterkeyhint:"send",autocomplete:"off",placeholder:t("askPh"),"aria-label":t("askPh"),value:S.ask?.text||""});
-  const mic = canDictate() ? h("button",{type:"button",class:"ask-mic","aria-label":t("askMic"),title:t("askMic"),html:ICONS.mic,onclick:e=>{
-    const btn=e.currentTarget, rec=new SpeechRec();
+  const mic = h("button",{type:"button",class:"ask-mic","aria-label":t("askMic"),title:t("askMic"),html:ICONS.mic,onclick:e=>{
+    const btn=e.currentTarget;
+    if (!canDictate()){   // e.g. iPhone home-screen app: use the keyboard's own microphone
+      input.focus(); S.askTip=true; tip.hidden=false; return;
+    }
+    const rec=new SpeechRec();
     rec.lang={fr:"fr-BE",nl:"nl-BE",en:"en-GB"}[LANG]||"fr-BE"; rec.interimResults=true; rec.maxAlternatives=1;
     btn.classList.add("on"); input.placeholder=t("askListening");
     rec.onresult=ev=>{ const res=[...ev.results].map(x=>x[0].transcript).join(" "); input.value=res; if (ev.results[ev.results.length-1].isFinal) askSubmit(res); };
     rec.onend=()=>{ btn.classList.remove("on"); input.placeholder=t("askPh"); };
-    rec.onerror=()=>{ btn.classList.remove("on"); input.placeholder=t("askPh"); };
-    try { rec.start(); } catch(_) { btn.classList.remove("on"); }
-  }}) : null;
+    rec.onerror=()=>{ btn.classList.remove("on"); input.placeholder=t("askPh"); input.focus(); tip.hidden=false; };
+    try { rec.start(); } catch(_) { btn.classList.remove("on"); input.focus(); tip.hidden=false; }
+  }});
+  const tip=h("p",{class:"ask-tip",hidden:!S.askTip,text:t("askKbMic")});
+  input.addEventListener("blur",()=>{ setTimeout(()=>{ S.askTip=false; tip.hidden=true; },200); });
   const form=h("form",{class:"ask-bar",onsubmit:e=>{ e.preventDefault(); input.blur(); askSubmit(input.value); }},
     h("span",{class:"ask-ico","aria-hidden":"true",html:ICONS.spark}), input, mic,
     h("button",{type:"submit",class:"ask-go","aria-label":t("askGo"),html:ICONS.send}));
-  return h("section",{class:"ask"}, form, askCard());
+  return h("section",{class:"ask"}, form, tip, askCard());
 }
 
 /* ---------- what's new since your last visit (remembered on this device) ---------- */
