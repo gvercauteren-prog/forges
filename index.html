@@ -1089,7 +1089,7 @@ function notifyBlock(b, kind){
 
 /* ---------- "Ask or book" box: understands typed or dictated requests (no AI, nothing leaves the app) ---------- */
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-const canDictate = () => !!SpeechRec && !(isIOS() && navigator.standalone);   // iPhone home-screen apps can't use it: the keyboard mic works there
+const canDictate = () => !!SpeechRec;   // where iOS refuses (often in home-screen apps), we fall back to the keyboard microphone
 function famWords(){
   return families().map(f=>{ const n=famName(f.id);
     const firsts=S.members.filter(m=>m.family===f.id).map(m=>(m.name||"").split(" ")[0]);
@@ -1146,7 +1146,8 @@ function renderAsk(){
     btn.classList.add("on"); input.placeholder=t("askListening");
     rec.onresult=ev=>{ const res=[...ev.results].map(x=>x[0].transcript).join(" "); input.value=res; if (ev.results[ev.results.length-1].isFinal) askSubmit(res); };
     rec.onend=()=>{ btn.classList.remove("on"); input.placeholder=t("askPh"); };
-    rec.onerror=()=>{ btn.classList.remove("on"); input.placeholder=t("askPh"); input.focus(); tip.hidden=false; };
+    rec.onerror=ev=>{ btn.classList.remove("on"); input.placeholder=t("askPh");
+      if (ev.error!=="no-speech" && ev.error!=="aborted"){ input.focus(); S.askTip=true; tip.hidden=false; } };
     try { rec.start(); } catch(_) { btn.classList.remove("on"); input.focus(); tip.hidden=false; }
   }});
   const tip=h("p",{class:"ask-tip",hidden:!S.askTip,text:t("askKbMic")});
