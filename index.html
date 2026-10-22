@@ -817,6 +817,31 @@ header > .wrap{position:relative;z-index:1}
 }
 @media (prefers-reduced-motion:reduce){ .bn-lens{transition:none!important} }
 .bottom-nav,.fab{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+
+/* ask / book box */
+.ask{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:0 0 4px;min-width:0;max-width:100%}
+.ask-bar{min-width:0}
+.ask-bar{display:flex;align-items:center;gap:4px;padding:5px 5px 5px 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:0 1px 2px rgba(20,16,12,.05)}
+.ask-bar:focus-within{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+.ask-ico{display:inline-flex;color:var(--accent);flex:none}
+.ask-ico svg{width:18px;height:18px}
+.ask-bar input{flex:1;min-width:0;border:0;background:none;padding:9px 6px;font:inherit;font-size:16px;color:var(--ink);outline:none}
+.ask-bar input::placeholder{color:var(--muted)}
+.ask-mic,.ask-go{display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:12px;background:none;color:var(--muted);cursor:pointer;flex:none}
+.ask-go{background:var(--accent);color:var(--on-accent)}
+.ask-mic svg,.ask-go svg{width:20px;height:20px}
+.ask-mic.on{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);animation:askpulse 1.2s ease-in-out infinite}
+@keyframes askpulse{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 12%,transparent)}}
+@media (prefers-reduced-motion:reduce){ .ask-mic.on{animation:none} }
+.ask-card{position:relative;display:grid;gap:8px;padding:14px 48px 14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.ask-x{position:absolute;top:6px;right:6px;color:var(--muted)}
+.ask-range{font-size:var(--fs-lg)}
+.ask-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ask-line.ok{color:color-mix(in srgb,var(--ok) 75%,var(--ink));font-weight:600}
+.ask-line.busy{color:color-mix(in srgb,var(--ember) 80%,var(--ink));font-weight:600}
+.ask-msg{margin:0}
+.ask-acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:2px}
+.ask-fam{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -863,7 +888,8 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRe
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, terminate, clearIndexedDbPersistence,
          doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=334084f5";
+import { parseRequest } from "./assist.js?v=25682d62";
+import { LANGS, LOCALES, STR, DEFAULT_CHECKLIST, DEFAULT_CONTACT } from "./i18n.js?v=1c5f669b";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhPDJbSUVDVGIumns4dzmvWJACLJaHTYo",
@@ -1059,6 +1085,70 @@ function notifyBlock(b, kind){
 }
 
 
+/* ---------- "Ask or book" box: understands typed or dictated requests (no AI, nothing leaves the app) ---------- */
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+const canDictate = () => !!SpeechRec && !(isIOS() && navigator.standalone);   // iPhone home-screen apps can't use it: the keyboard mic works there
+function famWords(){
+  return families().map(f=>{ const n=famName(f.id);
+    const firsts=S.members.filter(m=>m.family===f.id).map(m=>(m.name||"").split(" ")[0]);
+    return {id:f.id, words:[n, ...n.split(/\s*(?:&|\bet\b|\ben\b|\band\b|,)\s*/i), ...firsts]}; });
+}
+function askSubmit(text){
+  text=(text||"").trim(); if (!text) return;
+  S.ask={text, r:parseRequest(text,{today:todayStr(), families:famWords()})};
+  render();
+}
+function askCard(){
+  const A=S.ask; if (!A) return null;
+  const r=A.r, td=todayStr(), canBook=!!myFamily()||S.isMain;
+  const card=(...kids)=>h("div",{class:"ask-card",role:"status"}, ...kids,
+    h("button",{type:"button",class:"btn ghost icon-btn ask-x","aria-label":t("askClear"),text:"✕",onclick:()=>{ S.ask=null; render(); }}));
+  const famDot=id=>h("span",{class:"dot",style:`background:${famColor(id)}`});
+  if (r.intent==="next"){
+    const mine=allBookings().find(b=>isMyFamily(b)&&b.end>=td);
+    return card(h("strong",{text:t("yourNextStay")}),
+      mine ? h("div",{class:"ask-line"}, famDot(mine.family), `${fmtRange(mine)} · ${relDay(mine.start)}`) : h("div",{class:"ask-line",text:t("noStayYet")}),
+      h("div",{class:"ask-acts"}, mine ? h("button",{class:"btn",type:"button",text:t("askView"),onclick:()=>openDetail(mine)})
+        : canBook ? h("button",{class:"btn primary",type:"button",text:t("newBooking"),onclick:()=>openForm(null,td)}) : null));
+  }
+  if (!r.start) return card(h("p",{class:"ask-msg",text:r.needsMonth?t("askNeedMonth"):t("askNotUnderstood")}));
+  if (!r.end && r.intent==="book")
+    return card(h("strong",{text:t("askPickDep",{date:fmt(r.start,{weekday:"long",day:"numeric",month:"long"})})}),
+      canBook ? h("div",{class:"ask-acts"}, h("button",{class:"btn primary",type:"button",text:t("askChooseDep"),onclick:()=>openForm(null,r.start,{family:r.familyId})})) : null);
+  const s=dn(r.start), e=r.end?dn(r.end):s+1;
+  const range={start:r.start,end:r.end||ds(s+1)};
+  const clash=allBookings().filter(o=>dn(o.start)<e && Math.max(dn(o.end),dn(o.start)+1)>s);
+  const who=clash.map(o=>`${famName(o.family)} (${fmtRange(o)})`).join(", ");
+  const head=h("strong",{class:"ask-range",text:r.end?`${fmtRange(range)} · ${nightsTxt(r.nights)}`:fmt(r.start,{weekday:"long",day:"numeric",month:"long"})});
+  if (r.intent==="who") return card(head, h("div",{class:"ask-line"+(clash.length?"":" ok")}, clash.length?t("askThere",{who}):t("askNobody")));
+  // book or "is it free?"
+  let fam=r.familyId && (isAdmin()||r.familyId===myFamily()) ? r.familyId : (myFamily()||(S.isMain?families()[0].id:null));
+  const otherFam = r.familyId && !isAdmin() && r.familyId!==myFamily();
+  return card(head,
+    h("div",{class:"ask-line"+(clash.length?" busy":" ok")}, clash.length?t("askBusy",{who}):t("askFree")),
+    clash.length&&r.intent==="book" ? h("p",{class:"hint",style:"margin:0",text:t("askShare")}) : null,
+    otherFam ? h("p",{class:"hint",style:"margin:0",text:t("askOwnOnly")}) : null,
+    (canBook&&fam&&r.end) ? h("div",{class:"ask-acts"},
+      h("span",{class:"ask-fam"}, famDot(fam), t("askBookFor",{fam:famName(fam)})),
+      h("button",{class:"btn primary",type:"button",text:t("bookDates")+" →",onclick:()=>openForm(null,r.start,{end:r.end,family:fam})})) : null);
+}
+function renderAsk(){
+  const input=h("input",{id:"ask-text",type:"text",enterkeyhint:"send",autocomplete:"off",placeholder:t("askPh"),"aria-label":t("askPh"),value:S.ask?.text||""});
+  const mic = canDictate() ? h("button",{type:"button",class:"ask-mic","aria-label":t("askMic"),title:t("askMic"),html:ICONS.mic,onclick:e=>{
+    const btn=e.currentTarget, rec=new SpeechRec();
+    rec.lang={fr:"fr-BE",nl:"nl-BE",en:"en-GB"}[LANG]||"fr-BE"; rec.interimResults=true; rec.maxAlternatives=1;
+    btn.classList.add("on"); input.placeholder=t("askListening");
+    rec.onresult=ev=>{ const res=[...ev.results].map(x=>x[0].transcript).join(" "); input.value=res; if (ev.results[ev.results.length-1].isFinal) askSubmit(res); };
+    rec.onend=()=>{ btn.classList.remove("on"); input.placeholder=t("askPh"); };
+    rec.onerror=()=>{ btn.classList.remove("on"); input.placeholder=t("askPh"); };
+    try { rec.start(); } catch(_) { btn.classList.remove("on"); }
+  }}) : null;
+  const form=h("form",{class:"ask-bar",onsubmit:e=>{ e.preventDefault(); input.blur(); askSubmit(input.value); }},
+    h("span",{class:"ask-ico","aria-hidden":"true",html:ICONS.spark}), input, mic,
+    h("button",{type:"submit",class:"ask-go","aria-label":t("askGo"),html:ICONS.send}));
+  return h("section",{class:"ask"}, form, askCard());
+}
+
 /* ---------- what's new since your last visit (remembered on this device) ---------- */
 const NEWS_KEY = () => "fjp-seen:"+(S.email||"");
 function newsLoad(){ try{ return JSON.parse(store.get(NEWS_KEY())||"null"); }catch(_){ return null; } }
@@ -1222,6 +1312,9 @@ const ICONS = {
   globe: svg('<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.3 3.6 5.1 3.6 8.5s-1.2 6.2-3.6 8.5c-2.4-2.3-3.6-5.1-3.6-8.5S9.6 5.8 12 3.5z"/>'),
   contrast: svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor" stroke="none"/>'),
   logout: svg('<path d="M14 4.5h3.5a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H14"/><path d="M10 8l-4 4 4 4M6 12h9"/>'),
+  mic: svg('<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/>'),
+  send: svg('<path d="M5 12h13M13 6l6 6-6 6"/>'),
+  spark: svg('<path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>'),
   copy: svg('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/>'),
   dots: svg('<circle cx="5.5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.4" fill="currentColor" stroke="none"/>'),
   calendar: svg('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'),
@@ -1499,6 +1592,7 @@ function draw(){
   if (S.tab==="calendar"){
     const ins=renderInstall(); if (ins) main.append(ins);
     const nw=renderNews(); if (nw) main.append(nw);
+    main.append(renderAsk());
     main.append(renderToday(), h("div",{class:"cal-layout"},
       S.calView==="year" ? renderYear() : (isPhone() ? renderMonthCompact() : renderCalendar()),
       renderList()));
@@ -2571,16 +2665,16 @@ function openCancelled(b, undo){
     undo ? h("div",{class:"dlg-actions"}, h("button",{type:"button",class:"btn",text:t("undoDelete"),onclick:()=>{ if (undo()) toast(t("restored")); dlg.close(); }})) : null));
 }
 
-function openForm(b, startDefault){
+function openForm(b, startDefault, pre){
   const isNew=!b;
   if (isNew && !myFamily() && !S.isMain) return toast(t("pickFamilyFirst"));
-  const st = { start: b?b.start:startDefault, end: b?b.end:null, phase: b?"start":"end",
+  const st = { start: b?b.start:startDefault, end: b?b.end:(pre?.end||null), phase: (b||pre?.end)?"start":"end",
                month: (b?b.start:startDefault).slice(0,8)+"01", excludeId: b?.id };
   const start=h("input",{type:"date",id:"bk-start",value:st.start||""});
   const end=h("input",{type:"date",id:"bk-end",value:st.end||""});
   const guests=h("input",{type:"number",id:"bk-guests",min:"1",max:"50",value:b?.guests||"",placeholder:t("optional")});
   const note=h("textarea",{id:"bk-note",maxlength:"500",placeholder:t("notePh")}); note.value=b?.note||"";
-  const famSel=isAdmin()?h("select",{id:"bk-fam"}, families().map(f=>h("option",{value:f.id,selected:(b?b.family:(myFamily()||families()[0].id))===f.id,text:famName(f.id)}))):null;
+  const famSel=isAdmin()?h("select",{id:"bk-fam"}, families().map(f=>h("option",{value:f.id,selected:(b?b.family:(pre?.family||myFamily()||families()[0].id))===f.id,text:famName(f.id)}))):null;
   const warnBox=h("div"), err=h("div",{class:"err"});
   let share=false;
   const check=()=>{
@@ -2593,6 +2687,7 @@ function openForm(b, startDefault){
       h("label",null,h("input",{type:"checkbox",id:"bk-share",checked:share,onchange:x=>share=x.target.checked}),t("shareHouse"))));
   };
   const picker=rangePicker(st, ()=>{ start.value=st.start||""; end.value=st.end||""; check(); });
+  if (pre?.end) setTimeout(check);
   start.addEventListener("change",()=>{ if(!start.value) return; st.start=start.value; if(st.end && st.end<st.start){ st.end=null; end.value=""; } st.phase=st.end?"start":"end"; st.month=st.start.slice(0,8)+"01"; picker.redraw(); check(); });
   end.addEventListener("change",()=>{ st.end=end.value||null; st.phase="start"; picker.redraw(); check(); });
   const save=h("button",{class:"btn primary",type:"submit",text:isNew?t("bookDates"):t("saveChanges")});
